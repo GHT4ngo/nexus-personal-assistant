@@ -39,5 +39,6 @@ jobs:
           java-version: 21
           cache: gradle
       - run: npm ci
+      - run: npm run mobile:prepare
       - run: npx cap sync android
       - run: ./android/gradlew assembleDebug --no-daemon
