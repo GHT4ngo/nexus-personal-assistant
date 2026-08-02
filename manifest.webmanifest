@@ -1,0 +1,19 @@
+{
+  "name": "Nexus Personal Assistant",
+  "short_name": "Nexus",
+  "description": "A mobile-first personal command center for mail, calendar, goals, and daily focus.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#05070d",
+  "theme_color": "#05070d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/nexus-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

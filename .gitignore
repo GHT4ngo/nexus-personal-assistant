@@ -12,6 +12,9 @@ data/private/
 data/raw/
 exports/
 backups/
+takeout/
+takeout-*/
+*.mbox
 
 # Python
 __pycache__/
@@ -23,6 +26,9 @@ venv/
 node_modules/
 dist/
 build/
+mobile-www/
+.npm-cache/
+.npm-cashe/
 .next/
 .vite/
 

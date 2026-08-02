@@ -1,0 +1,28 @@
+{
+  "name": "nexus-personal-assistant",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "postal-mime": "^2.4.4"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3"
+  },
+  "scripts": {
+    "start": "node scripts/local-server.mjs 8050",
+    "mobile:prepare": "node scripts/prepare-mobile.mjs",
+    "mobile:add:android": "npm run mobile:prepare && npx cap add android",
+    "mobile:sync": "npm run mobile:prepare && npx cap sync android",
+    "mobile:open": "npm run mobile:sync && npx cap open android",
+    "mobile:build:android": "npm run mobile:sync && cd android && gradlew.bat assembleDebug --no-problems-report",
+    "check": "node --check src/app.js && node --check scripts/local-server.mjs && node --check scripts/mail-diagnostics.mjs && node --check scripts/gmail-diagnostics.mjs && node --check scripts/prepare-mobile.mjs",
+    "diagnose:mail": "node scripts/mail-diagnostics.mjs",
+    "diagnose:gmail": "node scripts/gmail-diagnostics.mjs"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "appId": "com.tango.nexus",
+  "appName": "Nexus",
+  "webDir": "mobile-www",
+  "server": {
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

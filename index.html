@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#05070d" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Nexus" />
+    <title>Nexus Personal Assistant</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="assets/nexus-icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body data-theme="matrix">
+    <canvas class="matrix-rain" id="matrix-rain" aria-hidden="true"></canvas>
+    <div class="scanlines" aria-hidden="true"></div>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Nexus://personal_os</p>
+          <h1 id="page-title">Today</h1>
+        </div>
+        <button class="icon-button" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" type="button">
+          <span aria-hidden="true">M</span>
+        </button>
+      </header>
+
+      <section class="focus-strip" aria-labelledby="focus-title">
+        <div>
+          <p class="section-kicker">Priority signal</p>
+          <h2 id="focus-title">Internship search for December</h2>
+          <p>Prepare a shortlist of data engineering internship options and send two applications this week.</p>
+        </div>
+        <button class="primary-action">Review plan</button>
+      </section>
+
+      <nav class="tabbar" aria-label="Nexus sections">
+        <button class="tab active" type="button" data-view="today">Today</button>
+        <button class="tab" type="button" data-view="calendar">Calendar</button>
+        <button class="tab" type="button" data-view="inbox">Inbox</button>
+        <button class="tab" type="button" data-view="goals">Goals</button>
+        <button class="tab" type="button" data-view="events">Events</button>
+      </nav>
+
+      <section class="view active" id="view-today" aria-label="Today overview">
+        <section class="panel integration-panel" aria-labelledby="google-title">
+          <div class="panel-header">
+            <h2 id="google-title">Google Link</h2>
+            <span class="count-label" id="google-status">Checking</span>
+          </div>
+          <div class="integration-body">
+            <p id="google-message">Nexus can connect to Google Calendar and Gmail in read-only mode.</p>
+            <label for="gmail-limit">Gmail load amount</label>
+            <select class="text-input" id="gmail-limit">
+              <option value="10">10 messages</option>
+              <option value="25" selected>25 messages</option>
+              <option value="50">50 messages</option>
+            </select>
+            <label for="gmail-window">Gmail search window</label>
+            <select class="text-input" id="gmail-window">
+              <option value="14d">Last 14 days</option>
+              <option value="30d">Last 30 days</option>
+              <option value="90d">Last 90 days</option>
+              <option value="all">All mail</option>
+            </select>
+            <label for="nexus-api-base">Nexus server URL</label>
+            <div class="server-row">
+              <input class="text-input" id="nexus-api-base" type="url" inputmode="url" placeholder="Auto, or http://YOUR_PC_IP:8050" />
+              <button class="secondary-action compact-action" id="nexus-api-save" type="button">Save</button>
+            </div>
+            <div class="button-row">
+              <button class="secondary-action" id="google-connect" type="button">Connect Google</button>
+              <button class="secondary-action" id="google-load" type="button">Load Google Data</button>
+              <button class="secondary-action" id="google-load-next" type="button">Load next batch</button>
+            </div>
+            <div class="operation-monitor idle" id="google-monitor" aria-live="polite">
+              <div class="monitor-header">
+                <span id="google-monitor-label">google.sync = idle</span>
+                <span id="google-monitor-percent">0%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" id="google-progress"></div>
+              </div>
+              <p id="google-monitor-detail">Waiting for Google connection.</p>
+            </div>
+            <div class="operation-monitor idle" id="resource-monitor" aria-live="polite">
+              <div class="monitor-header">
+                <span id="resource-monitor-label">system.health = idle</span>
+                <button class="secondary-action compact-action" id="resource-refresh" type="button">Check</button>
+              </div>
+              <p id="resource-monitor-detail">Resource monitor is ready.</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="summary-grid">
+          <article class="metric">
+            <span>Important</span>
+            <strong id="metric-important">4</strong>
+          </article>
+          <article class="metric">
+            <span>Events</span>
+            <strong id="metric-events">3</strong>
+          </article>
+          <article class="metric">
+            <span>Actions</span>
+            <strong>5</strong>
+          </article>
+        </div>
+
+        <section class="panel" aria-labelledby="next-title">
+          <div class="panel-header">
+            <h2 id="next-title">Next Up</h2>
+          </div>
+          <div class="list" id="today-list"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="attention-title">
+          <div class="panel-header">
+            <h2 id="attention-title">Attention Queue</h2>
+            <span class="count-label" id="attention-count">0 open</span>
+          </div>
+          <div class="list" id="attention-list"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="suggestions-title">
+          <div class="panel-header">
+            <h2 id="suggestions-title">Assistant Suggestions</h2>
+          </div>
+          <div class="list" id="suggestion-list"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-calendar" aria-label="Calendar">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Calendar</h2>
+            <span class="count-label" id="calendar-source">Sample data</span>
+          </div>
+          <div class="calendar-grid" id="calendar-grid"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Schedule Signals</h2>
+          </div>
+          <div class="list" id="calendar-list"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-inbox" aria-label="Important inbox">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Important Inbox</h2>
+            <span class="count-label" id="mail-source">Sample data</span>
+          </div>
+          <div class="mail-summary" id="mail-summary">
+            No automatic classification is active.
+          </div>
+          <div class="list" id="email-list"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-goals" aria-label="Goals">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Active Goals</h2>
+          </div>
+          <div class="list" id="goal-list"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-events" aria-label="Event folders">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Event Folders</h2>
+          </div>
+          <div class="list" id="event-list"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="src/app.js"></script>
+  </body>
+</html>

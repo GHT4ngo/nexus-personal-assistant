@@ -27,6 +27,9 @@ The app should work well on a Samsung phone and should grow in small, working st
    - The main experience should be useful on a Samsung phone.
    - Screens should be clear, fast, and focused.
    - The app should not feel like a desktop dashboard squeezed onto a phone.
+   - Navigation and controls should be thumb-friendly first: compact, readable, and usable on a narrow screen.
+   - Avoid desktop-looking form controls, wide button grids, hover-only interactions, and controls that spill outside cards.
+   - When a choice list gets long, prefer a mobile-friendly picker, bottom sheet, compact command menu, or clearly styled dark native control.
 
 5. One trusted daily view
    - The app should help answer: "What matters right now?"
@@ -197,28 +200,27 @@ The exact stack can evolve, but the project should prefer:
 
 ### Now
 
-- Create project guidelines.
-- Name the project Nexus.
-- Connect the local project to the GitHub repository.
-- Choose initial architecture.
-- Create first app skeleton.
-- Build a mobile-friendly Today view.
-- Add sample data for emails, calendar events, goals, and event folders.
+- Publish and verify the recovered clean `0.2.0` baseline.
+- Add continuous integration for the existing syntax checks.
+- Verify a fresh dependency install, read-only Google connection, and Android debug build.
+- Define and test stable internal records for mail, calendar events, tasks, goals, reviews,
+  approvals, and action history.
 
 ### Next
 
-- Add manual email classification.
-- Add goal tracker.
-- Add event folder page.
-- Add approval queue for suggested actions.
+- Replace hard-coded Today data with persistent tasks, goals, and live calendar data.
+- Build a synthetic/private evaluation fixture workflow before introducing classification.
+- Add a review queue that distinguishes facts, suggestions, and uncertainty.
 
 ### Later
 
-- Connect real email.
-- Connect real calendar.
-- Add AI-powered summaries and extraction.
-- Add Android packaging or native Android app.
-- Add safe automations.
+- Add an evaluated, provider-independent suggestion engine.
+- Build daily briefings and approval-based provider actions.
+- Add event folders, retention controls, data export, and recovery documentation.
+- Add other providers only after the Google workflow is dependable.
+
+The detailed sequence, exit criteria, and release gates are maintained in
+[docs/EXECUTION_PLAN.md](docs/EXECUTION_PLAN.md).
 
 ## Definition of Done
 
@@ -244,3 +246,11 @@ Use this section to record important decisions as the project grows.
 - Risky actions require user approval.
 - GitHub repository: https://github.com/GHT4ngo/nexus-personal-assistant.git
 - Codex, Claude Code, and Lovable may assist, but changes should stay small, reviewed, and aligned with these guidelines.
+
+### 2026-08-02
+
+- Recovered the existing web, Google integration, PWA, and Android code into the repository clone.
+- Removed the failed learned sender/domain sorter, its persisted labels, and automatic cleanup behavior.
+- Retained Gmail and Calendar with read-only OAuth scopes.
+- Classification must now pass a versioned evaluation workflow before affecting priorities.
+- The implementation sequence is recorded in `docs/EXECUTION_PLAN.md`.
