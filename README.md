@@ -44,3 +44,7 @@ accounts.
 OAuth tokens, cached mail, imports, Google Takeout exports, logs, local environment files,
 dependencies, and generated mobile builds are excluded from Git. See
 [PROJECT_GUIDELINES.md](PROJECT_GUIDELINES.md) for the safety and product principles.
+
+## License
+
+Nexus Personal Assistant is available under the [MIT License](LICENSE).

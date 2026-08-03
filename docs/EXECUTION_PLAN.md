@@ -71,14 +71,14 @@ Rules:
 
 Goal: establish the recovered code as a safe, reproducible repository.
 
-Status (2026-08-03): technical baseline published and CI verified. The remaining manual
-check is choosing a repository license.
+Status (2026-08-03): complete. The clean baseline is published, CI and Android are verified,
+read-only Google access is tested, and the repository is licensed under MIT.
 
 Work:
 
 - [x] Review the complete copied file set.
 - [x] Add repository CI for syntax checks and Android debug builds.
-- Add a license decision.
+- [x] Add the MIT license.
 - [x] Verify setup from a fresh install with `npm ci`.
 - [x] Verify read-only Gmail and Calendar OAuth using a local account.
 - [x] Build the Android debug package in CI.
