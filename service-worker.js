@@ -1,11 +1,12 @@
-const CACHE_NAME = "nexus-shell-v14";
+const CACHE_NAME = "nexus-shell-v15";
 const APP_SHELL = [
   "/",
   "/index.html",
   "/manifest.webmanifest",
   "/assets/nexus-icon.svg",
   "/src/styles.css",
-  "/src/app.js"
+  "/src/app.js",
+  "/src/source-health.js"
 ];
 
 self.addEventListener("install", (event) => {

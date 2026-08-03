@@ -1,3 +1,8 @@
+import {
+  formatSyncAge,
+  sourceHealthSummary
+} from "./source-health.js";
+
 const sampleData = {
   suggestions: [
     {
@@ -31,6 +36,14 @@ let nextGmailPageToken = "";
 let googleLoadInProgress = false;
 let localRecordState = "loading";
 let calendarState = "not-loaded";
+const lastGoogleSyncAt = localStorage.getItem("nexus-google-sync-at");
+const sourceHealth = {
+  server: { label: "Nexus server", status: "checking", updatedAt: null },
+  google: { label: "Google link", status: "checking", updatedAt: lastGoogleSyncAt },
+  calendar: { label: "Calendar", status: "not-loaded", updatedAt: lastGoogleSyncAt },
+  gmail: { label: "Gmail cache", status: "checking", updatedAt: null },
+  local: { label: "Tasks & goals", status: "checking", updatedAt: null }
+};
 const MAIL_RENDER_LIMIT = 60;
 
 const viewTitles = {
@@ -57,6 +70,21 @@ const renderList = (targetId, items, template) => {
   if (target) {
     target.innerHTML = items.map(template).join("");
   }
+};
+
+const renderSourceHealth = () => {
+  document.getElementById("source-health-summary").textContent = sourceHealthSummary(sourceHealth);
+  renderList("source-health-list", Object.values(sourceHealth), (source) => `
+    <div class="source-health-item">
+      <strong>${escapeHtml(source.label)}</strong>
+      <span>${escapeHtml(source.status)} · ${escapeHtml(formatSyncAge(source.updatedAt))}</span>
+    </div>
+  `);
+};
+
+const setSourceHealth = (source, status, updatedAt = sourceHealth[source]?.updatedAt || null) => {
+  sourceHealth[source] = { ...sourceHealth[source], status, updatedAt };
+  renderSourceHealth();
 };
 
 const normalizeApiBase = (value) => {
@@ -475,12 +503,14 @@ const refreshResourceStatus = async () => {
     }
     const system = data.current?.system || {};
     const nexus = data.current?.nexus || {};
+    setSourceHealth("server", "healthy", data.current?.timestamp || new Date().toISOString());
     monitor.className = "operation-monitor done";
     document.getElementById("resource-monitor-label").textContent =
       `system.health = ${system.memoryUsedPercent ?? "?"}% memory`;
     document.getElementById("resource-monitor-detail").textContent =
       `PC free ${system.memoryFreeMb ?? "?"} MB. Nexus uses ${nexus.rssMb ?? "?"} MB.`;
   } catch (error) {
+    setSourceHealth("server", "offline");
     monitor.className = "operation-monitor error";
     document.getElementById("resource-monitor-label").textContent = "system.health = unavailable";
     document.getElementById("resource-monitor-detail").textContent = error.message;
@@ -492,13 +522,17 @@ const checkGoogleStatus = async () => {
     const response = await apiFetch("/api/google/status");
     const data = await readApiJson(response);
     if (!data.configured) {
+      setSourceHealth("google", "setup-needed");
       setGooglePanel("Setup needed", "Add Google OAuth credentials to .env.");
     } else if (!data.connected) {
+      setSourceHealth("google", "disconnected");
       setGooglePanel("Ready", "Google credentials found. Connect your account.");
     } else {
+      setSourceHealth("google", "connected");
       setGooglePanel("Connected", "Google is connected in read-only mode.");
     }
   } catch {
+    setSourceHealth("google", "offline");
     setGooglePanel("Offline", "Start the Nexus server or check the saved server URL.");
   }
 };
@@ -536,8 +570,14 @@ const loadMailCache = async () => {
     }
     const data = await readApiJson(response);
     liveGoogleMail = data.items || [];
+    setSourceHealth(
+      "gmail",
+      liveGoogleMail.length ? "cached" : "empty",
+      data.updatedAt || lastGoogleSyncAt
+    );
     renderMail();
   } catch {
+    setSourceHealth("gmail", "offline");
     // A missing local server should not prevent the sample UI from loading.
   }
 };
@@ -546,6 +586,7 @@ const applyLocalRecords = (data) => {
   liveTasks = Array.isArray(data.tasks) ? data.tasks : [];
   liveGoals = Array.isArray(data.goals) ? data.goals : [];
   localRecordState = "ready";
+  setSourceHealth("local", "healthy", data.updatedAt);
   renderToday();
   renderGoals();
 };
@@ -560,6 +601,7 @@ const loadLocalRecords = async () => {
     applyLocalRecords(data);
   } catch {
     localRecordState = "offline";
+    setSourceHealth("local", "offline");
     renderToday();
     renderGoals();
   }
@@ -646,10 +688,15 @@ const loadGoogleData = async () => {
 
     liveGoogleCalendar = calendarData.items || [];
     calendarState = "ready";
+    const syncedAt = new Date().toISOString();
+    localStorage.setItem("nexus-google-sync-at", syncedAt);
+    setSourceHealth("google", "connected", syncedAt);
+    setSourceHealth("calendar", liveGoogleCalendar.length ? "synced" : "empty", syncedAt);
     const incomingMail = gmailData.items || [];
     liveGoogleMail = mergeMailItems(liveGoogleMail, incomingMail);
     nextGmailPageToken = gmailData.nextPageToken || "";
     await saveMailCache(incomingMail, gmailData.records || []);
+    setSourceHealth("gmail", incomingMail.length ? "synced" : "empty", syncedAt);
     renderCalendar();
     renderToday();
     renderMail();
@@ -662,6 +709,8 @@ const loadGoogleData = async () => {
     });
   } catch (error) {
     calendarState = "error";
+    setSourceHealth("calendar", "error");
+    setSourceHealth("gmail", "error");
     renderCalendar();
     renderToday();
     updateGoogleMonitor({
@@ -748,10 +797,12 @@ renderMail();
 renderGoals();
 renderEvents();
 renderCalendarGrid();
+renderSourceHealth();
 checkGoogleStatus();
 refreshResourceStatus();
 loadMailCache();
 loadLocalRecords();
+window.setInterval(renderSourceHealth, 60_000);
 
 document.getElementById("google-connect").addEventListener("click", connectGoogle);
 document.getElementById("google-load").addEventListener("click", loadGoogleData);

@@ -293,3 +293,34 @@ removed.
 Show synchronization age and source health in Today, then add explicit manual pin, dismiss,
 and review-later behavior. Verify the resulting layout in the Android wrapper on the Samsung
 device.
+
+## 2026-08-03 — Milestone 2 source health
+
+### Completed
+
+- Added a Today health panel for the Nexus server, Google connection, Calendar, Gmail cache,
+  and private task/goal store.
+- Added synchronization-age formatting for fresh, minute-old, hour-old, day-old, missing,
+  invalid, and future timestamps.
+- Derived source state from existing read-only status, resource, cache, and local-record
+  responses.
+- Stored only the last successful Google synchronization timestamp in browser-local storage.
+- Made disconnected, setup-required, offline, and error sources raise an Attention summary.
+- Converted the browser entry script to a module and added the health helper to the PWA
+  application shell.
+
+### Verification
+
+- `npm run check` passes.
+- `npm test` passes: 44 tests, 0 failures.
+- `npm run mobile:prepare` passes and includes the health panel, module import, and updated
+  PWA cache.
+- Live checks confirmed the page, health helper, resource timestamp, empty private store,
+  and connected Google status all load successfully.
+- Live output contained status, timestamps, and counts only.
+- Privacy scanning found no personal content, credentials, or new secrets.
+
+### Next slice
+
+Add explicit manual pin, dismiss, and review-later behavior using local auditable records,
+then verify the complete Today flow in the Android wrapper on the Samsung device.

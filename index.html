@@ -93,6 +93,14 @@
           </div>
         </section>
 
+        <section class="panel" aria-labelledby="source-health-title">
+          <div class="panel-header">
+            <h2 id="source-health-title">Source Health</h2>
+            <span class="count-label" id="source-health-summary">Checking</span>
+          </div>
+          <div class="source-health-grid" id="source-health-list" aria-live="polite"></div>
+        </section>
+
         <div class="summary-grid">
           <article class="metric">
             <span>Important</span>
@@ -209,6 +217,6 @@
       </section>
     </main>
 
-    <script src="src/app.js"></script>
+    <script type="module" src="src/app.js"></script>
   </body>
 </html>

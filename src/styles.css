@@ -379,6 +379,32 @@ strong {
   font-size: 0.76rem;
 }
 
+.source-health-grid {
+  display: grid;
+}
+
+.source-health-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 11px 14px;
+  border-top: 1px solid rgba(0, 245, 255, 0.12);
+  font-size: 0.78rem;
+}
+
+.source-health-item:first-child {
+  border-top: 0;
+}
+
+.source-health-item strong {
+  color: var(--ink);
+}
+
+.source-health-item span {
+  color: var(--muted);
+  text-align: right;
+}
+
 .empty-state {
   grid-template-columns: 1fr;
 }
