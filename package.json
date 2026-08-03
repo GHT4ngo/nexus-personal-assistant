@@ -16,12 +16,13 @@
   },
   "scripts": {
     "start": "node scripts/local-server.mjs 8050",
+    "test": "node --test",
     "mobile:prepare": "node scripts/prepare-mobile.mjs",
     "mobile:add:android": "npm run mobile:prepare && npx cap add android",
     "mobile:sync": "npm run mobile:prepare && npx cap sync android",
     "mobile:open": "npm run mobile:sync && npx cap open android",
     "mobile:build:android": "npm run mobile:sync && cd android && gradlew.bat assembleDebug --no-problems-report",
-    "check": "node --check src/app.js && node --check scripts/local-server.mjs && node --check scripts/mail-diagnostics.mjs && node --check scripts/gmail-diagnostics.mjs && node --check scripts/prepare-mobile.mjs",
+    "check": "node --check src/app.js && node --check src/domain/records.js && node --check src/domain/validation.js && node --check scripts/local-server.mjs && node --check scripts/connectors/google/normalize.js && node --check scripts/mail-diagnostics.mjs && node --check scripts/gmail-diagnostics.mjs && node --check scripts/prepare-mobile.mjs && node --check tests/domain-records.test.js",
     "diagnose:mail": "node scripts/mail-diagnostics.mjs",
     "diagnose:gmail": "node scripts/gmail-diagnostics.mjs"
   }

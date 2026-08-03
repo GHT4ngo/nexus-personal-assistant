@@ -96,18 +96,26 @@ Exit criteria:
 
 Goal: stop the UI and connectors from passing loosely structured objects directly.
 
-Status (next session): ready to start. Begin with the shared record contract, validation,
-and synthetic Gmail and Calendar fixtures. Do not connect private account data until these
-tests pass.
+Status (2026-08-03): foundation slice complete. Shared message and calendar-event records,
+explicit validation, deterministic duplicate handling, Google normalization adapters, and
+synthetic tests are in place. The next slice wires validated connector output into the
+server boundary before adding storage.
 
 First implementation slice:
 
-1. Create `src/domain/records.js` with constructors or factories for messages and calendar
+1. [x] Create `src/domain/records.js` with constructors or factories for messages and calendar
    events.
-2. Create `src/domain/validation.js` with explicit validation results and errors.
-3. Add synthetic provider fixtures under `tests/fixtures/`.
-4. Add unit tests for valid, incomplete, duplicate, and malformed records.
-5. Add Gmail and Calendar normalization adapters without changing the UI.
+2. [x] Create `src/domain/validation.js` with explicit validation results and errors.
+3. [x] Add synthetic provider fixtures under `tests/fixtures/`.
+4. [x] Add unit tests for valid, incomplete, duplicate, malformed, and all-day records.
+5. [x] Add Gmail and Calendar normalization adapters without changing the UI.
+
+Next implementation slice:
+
+1. Move Google provider request and response mapping behind connector modules.
+2. Normalize and validate records before cache storage.
+3. Return explicit per-record normalization failures without failing a complete batch.
+4. Add batch tests for mixed valid, invalid, and duplicate provider results.
 
 Create:
 

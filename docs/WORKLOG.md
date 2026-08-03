@@ -70,3 +70,32 @@ Start Milestone 1 with the stable internal record model:
 5. Normalize connector output into validated records.
 
 Do not add classification, private fixtures, or provider mutations during this slice.
+
+## 2026-08-03 — Milestone 1 foundation
+
+### Completed
+
+- Added versioned message and calendar-event record factories under `src/domain/`.
+- Added explicit validation results and structured validation errors.
+- Added processing-version, normalization-time, source, source ID, source URL, and retention
+  metadata.
+- Preserved all-day Calendar events explicitly instead of treating them as timed events.
+- Added deterministic duplicate handling that keeps the first validated record and reports
+  later duplicates.
+- Added Gmail and Google Calendar normalization adapters.
+- Added synthetic fixtures using reserved example domains and invented IDs.
+- Added seven Node unit tests covering valid Gmail, timed events, all-day events, incomplete
+  messages, malformed dates, reversed event times, and duplicates.
+- Added the unit suite to GitHub Actions.
+
+### Verification
+
+- `npm run check` passes.
+- `npm test` passes: 7 tests, 0 failures.
+- `npm run mobile:prepare` passes.
+- No UI behavior, private account data, classification, or provider permissions changed.
+
+### Next slice
+
+Wire provider requests through connector modules, validate normalized output before local
+cache storage, and test batches containing valid, invalid, and duplicate provider records.
