@@ -179,11 +179,10 @@ Exit criteria:
 
 Goal: make Nexus useful without classification.
 
-Status (2026-08-03): task/goal persistence, the first real Today view, and source-health
-presentation are complete. Today combines user-owned active tasks with loaded Google
-Calendar events and shows health and synchronization age for the server, Google link,
-Calendar, Gmail cache, and local records. Auditable manual organization controls are
-complete; physical-device verification remains.
+Status (2026-08-03): complete. Today combines user-owned active tasks with loaded Google
+Calendar events, shows source health and synchronization age, and supports auditable manual
+organization. The current CI-built APK is installed and visually verified on a Samsung
+SM-S916B.
 
 Work:
 
@@ -193,7 +192,7 @@ Work:
 - [x] Add manual pin, dismiss, and “review later” behavior.
 - [x] Keep the Inbox chronological.
 - [x] Add clear empty, loading, offline, and error states for Today and local records.
-- Test on a Samsung-sized viewport and in the Android wrapper.
+- [x] Test on a Samsung-sized viewport and in the Android wrapper.
 
 Exit criteria:
 
@@ -205,6 +204,10 @@ Exit criteria:
 ## Milestone 3 — Evaluation framework
 
 Goal: measure classification before adding it to the product.
+
+Status (2026-08-03): next. Begin with synthetic public fixtures and a labeling guide. Do
+not connect a model, use real mailbox content, or change the product UI during the first
+slice.
 
 Build:
 
@@ -352,6 +355,6 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 2 with synchronization age and source-health presentation, followed by
-manual pin, dismiss, and review-later behavior. Milestones 0 and 1 should not be repeated
-unless a regression is observed. Read [WORKLOG.md](WORKLOG.md) for completed evidence.
+Start Milestone 3 by defining the evaluation fixture format, labeling guide, scoring
+command, deliberately weak baseline, and quality gates. Milestones 0 through 2 should not
+be repeated unless a regression is observed. Read [WORKLOG.md](WORKLOG.md) for evidence.

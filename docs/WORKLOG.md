@@ -360,3 +360,80 @@ then verify the complete Today flow in the Android wrapper on the Samsung device
 Reopen a compatible ADB session, install the current Android debug build, and verify task
 creation, goal creation, pin, review-later, restore, dismiss, offline state, and Google
 read-only loading on the Samsung-sized interface.
+
+## 2026-08-03 — Milestone 2 Samsung verification
+
+### Outcome
+
+Completed Milestone 2. The current Nexus Android build is installed and running on a
+physical Samsung SM-S916B through a USB reverse bridge to the private local server.
+
+### Completed
+
+- Installed Linux ADB and verified that the Samsung is authorized over USB.
+- Made the Gradle Java 21 daemon requirement vendor-neutral.
+- Added CI artifact publication for the Android debug APK.
+- Downloaded and checksummed the exact APK produced by GitHub Actions.
+- Replaced the signature-incompatible legacy debug package with the current build.
+- Restored `adb reverse tcp:8050 tcp:8050` and launched `com.tango.nexus`.
+- Found a real-device status-bar overlap not visible in CI.
+- Traced the failed first fix to a later Matrix-theme padding override.
+- Corrected the Matrix mobile inset, rebuilt, reinstalled, and visually verified the fix.
+
+### Physical verification
+
+- Device: Samsung SM-S916B.
+- Current activity: `com.tango.nexus/com.tango.nexus.MainActivity`.
+- Matrix theme renders correctly and clears the system status bar.
+- Today heading, goal focus, navigation, and Google Link are readable at the device width.
+- Google reports connected in read-only mode through the USB bridge.
+- Task form, optional due-time control, Save Task button, empty Next Up state, and manual
+  Attention Queue render with usable touch targets.
+- Scrolling remains functional across the long Today view.
+- No synthetic tasks, goals, reviews, Gmail mutations, or Calendar mutations were created.
+
+### Verification
+
+- `npm run check` passes.
+- `npm test` passes: 50 tests, 0 failures.
+- `npm run mobile:prepare` passes.
+- GitHub Actions passes on Node 22, Node 24, and Android.
+- CI now publishes `nexus-debug-apk` for repeatable device testing.
+
+### Remaining release hardening
+
+CI debug APKs use ephemeral signing keys, so packages from separate runs cannot update one
+another in place. Configure a stable protected signing key before release distribution.
+
+### Next milestone
+
+Start Milestone 3 with a synthetic evaluation fixture format, labeling guide, repeatable
+scoring command, deliberately weak baseline, and written quality gates before adding any
+classifier to the product.
+
+## Session handoff — 2026-08-03
+
+### Stable state
+
+- Milestones 0, 1, and 2 are complete.
+- The current Android build is installed on the Samsung SM-S916B.
+- Linux ADB and OpenJDK 21 are installed for future device work.
+- CI publishes the `nexus-debug-apk` artifact.
+- Google remains read-only.
+- Real private task, goal, and review stores remain empty.
+- The temporary USB reverse bridge and local verification server are intentionally stopped
+  at session end and must be recreated for the next phone session.
+
+### Tomorrow's exact resume point
+
+Start Milestone 3 without touching private Gmail content:
+
+1. Define a versioned synthetic evaluation fixture schema.
+2. Write the labeling guide for reply, deadline, calendar candidate, urgency, topic, and
+   automated/newsletter signals.
+3. Implement a repeatable scoring command.
+4. Add a deliberately weak deterministic baseline.
+5. Write quality gates before considering any AI model or prompt.
+
+Do not add classification to Today or Inbox yet. Do not create learning rules from review
+history. Do not request additional Google permissions.
