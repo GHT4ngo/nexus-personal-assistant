@@ -82,11 +82,11 @@ button {
   width: min(100%, 540px);
   min-height: 100vh;
   margin: 0 auto;
-  padding: 18px 14px 28px;
+  padding: 48px 14px 28px;
 }
 
 .native-platform .app-shell {
-  padding-top: calc(42px + env(safe-area-inset-top, 0px));
+  padding-top: max(48px, calc(18px + env(safe-area-inset-top, 0px)));
 }
 
 .topbar {
