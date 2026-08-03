@@ -611,6 +611,17 @@ document.querySelectorAll(".tab").forEach((tab) =>
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
+    if (isNativeApp()) {
+      navigator.serviceWorker.getRegistrations()
+        .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+        .then(() => window.caches?.keys())
+        .then((keys = []) => Promise.all(keys.map((key) => window.caches.delete(key))))
+        .catch(() => {
+          // Native assets still load directly when cache cleanup is unavailable.
+        });
+      return;
+    }
+
     navigator.serviceWorker.register("/service-worker.js").catch(() => {
       // Nexus remains usable without offline installation support.
     });
