@@ -442,14 +442,14 @@ const connectGoogle = async () => {
   }
 };
 
-const saveMailCache = async (items) => {
+const saveMailCache = async (items, records = []) => {
   if (!items.length) {
     return;
   }
   await apiFetch("/api/mail/cache", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ items })
+    body: JSON.stringify({ items, records })
   });
 };
 
@@ -495,7 +495,7 @@ const loadGoogleData = async () => {
     const incomingMail = gmailData.items || [];
     liveGoogleMail = mergeMailItems(liveGoogleMail, incomingMail);
     nextGmailPageToken = gmailData.nextPageToken || "";
-    await saveMailCache(incomingMail);
+    await saveMailCache(incomingMail, gmailData.records || []);
     renderCalendar();
     renderMail();
     setGooglePanel("Loaded", `Loaded ${liveGoogleCalendar.length} events and ${liveGoogleMail.length} messages.`);
@@ -536,7 +536,7 @@ const loadNextGmailBatch = async () => {
     const incoming = data.items || [];
     liveGoogleMail = mergeMailItems(liveGoogleMail, incoming);
     nextGmailPageToken = data.nextPageToken || "";
-    await saveMailCache(incoming);
+    await saveMailCache(incoming, data.records || []);
     renderMail();
   } finally {
     googleLoadInProgress = false;

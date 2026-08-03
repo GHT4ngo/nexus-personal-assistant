@@ -99,3 +99,36 @@ Do not add classification, private fixtures, or provider mutations during this s
 
 Wire provider requests through connector modules, validate normalized output before local
 cache storage, and test batches containing valid, invalid, and duplicate provider records.
+
+## 2026-08-03 — Milestone 1 server boundary
+
+### Completed
+
+- Added safe batch normalization that keeps valid records when neighboring provider items
+  are invalid.
+- Added sanitized per-record failures containing indexes, source IDs, and validation errors
+  without message bodies or event descriptions.
+- Added explicit duplicate reports.
+- Added a normalized record store that rejects invalid records and deterministically keeps
+  the newest normalization for an existing record ID.
+- Extended Gmail and Calendar responses with `records` and normalization summaries while
+  retaining legacy `items` for the current UI.
+- Extended the private mail cache format with validated records.
+- Updated the browser cache request to send server-produced records when available.
+- Added mixed-batch, redacted-failure, storage-rejection, update-order, and isolated HTTP
+  cache-route tests.
+
+### Verification
+
+- `npm run check` passes.
+- `npm test` passes: 12 tests, 0 failures.
+- `npm run mobile:prepare` passes.
+- Isolated cache-route testing uses a temporary directory and never touches private data.
+- Read-only live smoke test: Gmail produced 10 items and 10 validated records with zero
+  failures; Calendar produced a valid empty batch.
+- No UI fields, classification behavior, OAuth scopes, or provider mutations changed.
+
+### Next slice
+
+Extract OAuth refresh, authenticated Google fetch, Gmail retrieval, and Calendar retrieval
+from `local-server.mjs` into connector modules with injected-fetch tests.

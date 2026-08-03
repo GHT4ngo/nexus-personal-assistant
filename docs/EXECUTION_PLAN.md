@@ -96,10 +96,10 @@ Exit criteria:
 
 Goal: stop the UI and connectors from passing loosely structured objects directly.
 
-Status (2026-08-03): foundation slice complete. Shared message and calendar-event records,
-explicit validation, deterministic duplicate handling, Google normalization adapters, and
-synthetic tests are in place. The next slice wires validated connector output into the
-server boundary before adding storage.
+Status (2026-08-03): record and server-boundary slices complete. Gmail and Calendar routes
+now expose validated records alongside legacy UI items, mixed batches report sanitized
+failures without discarding valid records, and the mail cache stores only validated
+normalized records.
 
 First implementation slice:
 
@@ -112,10 +112,17 @@ First implementation slice:
 
 Next implementation slice:
 
-1. Move Google provider request and response mapping behind connector modules.
-2. Normalize and validate records before cache storage.
-3. Return explicit per-record normalization failures without failing a complete batch.
-4. Add batch tests for mixed valid, invalid, and duplicate provider results.
+1. [ ] Move Google provider requests and response mapping behind connector modules.
+2. [x] Normalize and validate records before cache storage.
+3. [x] Return explicit per-record normalization failures without failing a complete batch.
+4. [x] Add batch tests for mixed valid, invalid, and duplicate provider results.
+
+Following slice:
+
+1. Extract OAuth token refresh and authenticated fetch into the Google connector boundary.
+2. Extract Gmail retrieval/parsing and Calendar retrieval from `local-server.mjs`.
+3. Keep HTTP routing responsible only for request validation and response formatting.
+4. Add connector tests using injected synthetic fetch responses.
 
 Create:
 

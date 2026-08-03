@@ -3,6 +3,16 @@ import { createServer } from "node:http";
 import { cpus, freemem, loadavg, totalmem, uptime } from "node:os";
 import { extname, join, normalize, resolve } from "node:path";
 
+import {
+  batchSummary,
+  normalizeGoogleBatch
+} from "./connectors/google/batch.js";
+import {
+  normalizeGmailMessage,
+  normalizeGoogleCalendarEvent
+} from "./connectors/google/normalize.js";
+import { mergeStoredRecords } from "./storage/record-store.js";
+
 const root = resolve(process.cwd());
 const port = Number(process.argv[2] || 8050);
 const mailFetchLimit = Number(process.env.NEXUS_MAIL_FETCH_LIMIT || 25);
@@ -75,15 +85,17 @@ const readJsonFile = (filePath, fallback) => {
 };
 
 const readMailCache = () => {
-  const cache = readJsonFile(mailCachePath, { items: [], updatedAt: null });
+  const cache = readJsonFile(mailCachePath, { items: [], records: [], updatedAt: null });
   const items = Array.isArray(cache.items) ? cache.items : [];
+  const records = Array.isArray(cache.records) ? cache.records : [];
   return {
     items,
+    records,
     updatedAt: cache.updatedAt || null
   };
 };
 
-const mergeMailCache = (incomingItems = []) => {
+const mergeMailCache = (incomingItems = [], incomingRecords = []) => {
   const cache = readMailCache();
   const byId = new Map(cache.items.map((item) => [item.id, item]));
 
@@ -100,9 +112,12 @@ const mergeMailCache = (incomingItems = []) => {
   }
 
   const items = [...byId.values()].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+  const storedRecords = mergeStoredRecords(cache.records, incomingRecords);
   const nextCache = {
     updatedAt: new Date().toISOString(),
-    items
+    items,
+    records: storedRecords.records,
+    rejectedRecords: storedRecords.rejected
   };
   writeJsonFile(mailCachePath, nextCache);
   return nextCache;
@@ -775,15 +790,27 @@ const handleApi = async (request, url, response) => {
       return true;
     }
 
+    const items = (result.data.items || []).map((item) => ({
+      id: item.id,
+      title: item.summary || "Untitled event",
+      description: item.description || "",
+      start: item.start?.dateTime || item.start?.date,
+      end: item.end?.dateTime || item.end?.date,
+      location: item.location || "",
+      htmlLink: item.htmlLink || null,
+      source: "google-calendar"
+    }));
+    const normalizedAt = new Date().toISOString();
+    const normalized = normalizeGoogleBatch(items, normalizeGoogleCalendarEvent, { normalizedAt });
+
     sendJson(response, 200, {
-      items: (result.data.items || []).map((item) => ({
-        id: item.id,
-        title: item.summary || "Untitled event",
-        start: item.start?.dateTime || item.start?.date,
-        end: item.end?.dateTime || item.end?.date,
-        location: item.location || "",
-        source: "google-calendar"
-      }))
+      items,
+      records: normalized.records,
+      normalization: {
+        ...batchSummary(normalized, items.length),
+        failures: normalized.failures,
+        duplicates: normalized.duplicates
+      }
     });
     return true;
   }
@@ -875,8 +902,17 @@ const handleApi = async (request, url, response) => {
       }
     );
 
+    const normalizedAt = new Date().toISOString();
+    const normalized = normalizeGoogleBatch(messages, normalizeGmailMessage, { normalizedAt });
+
     sendJson(response, 200, {
       items: messages,
+      records: normalized.records,
+      normalization: {
+        ...batchSummary(normalized, messages.length),
+        failures: normalized.failures,
+        duplicates: normalized.duplicates
+      },
       nextPageToken: listResult.data.nextPageToken || ""
     });
     rememberResourceEvent({
@@ -897,8 +933,23 @@ const handleApi = async (request, url, response) => {
   if (url.pathname === "/api/mail/cache" && request.method === "POST") {
     const body = JSON.parse(await readRequestBody(request) || "{}");
     const items = Array.isArray(body.items) ? body.items : [];
-    const cache = mergeMailCache(items);
-    sendJson(response, 200, { items: cache.items, updatedAt: cache.updatedAt, total: cache.items.length });
+    const suppliedRecords = Array.isArray(body.records) ? body.records : [];
+    const fallbackBatch = suppliedRecords.length
+      ? { records: suppliedRecords, failures: [], duplicates: [] }
+      : normalizeGoogleBatch(items, normalizeGmailMessage, { normalizedAt: new Date().toISOString() });
+    const cache = mergeMailCache(items, fallbackBatch.records);
+    sendJson(response, 200, {
+      items: cache.items,
+      records: cache.records,
+      updatedAt: cache.updatedAt,
+      total: cache.items.length,
+      normalization: {
+        ...batchSummary(fallbackBatch, items.length),
+        failures: fallbackBatch.failures,
+        duplicates: fallbackBatch.duplicates,
+        storageRejected: cache.rejectedRecords
+      }
+    });
     return true;
   }
 
