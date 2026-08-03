@@ -782,7 +782,7 @@ body[data-theme="matrix"] .scanlines {
 
 body[data-theme="matrix"] .app-shell {
   width: min(100%, 500px);
-  padding: 12px 10px 22px;
+  padding: 48px 10px 22px;
 }
 
 body[data-theme="matrix"] .eyebrow,
