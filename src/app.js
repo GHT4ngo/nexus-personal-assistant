@@ -99,7 +99,10 @@ const normalizeApiBase = (value) => {
   }
 };
 
-const getApiBase = () => normalizeApiBase(localStorage.getItem("nexus-api-base"));
+const isNativeApp = () => Boolean(window.Capacitor?.isNativePlatform?.());
+const getApiBase = () => normalizeApiBase(
+  localStorage.getItem("nexus-api-base") || (isNativeApp() ? "http://localhost:8050" : "")
+);
 const apiUrl = (path) => getApiBase() ? `${getApiBase()}${path}` : path;
 const apiFetch = (path, options) => fetch(apiUrl(path), options);
 
@@ -426,13 +429,17 @@ const checkGoogleStatus = async () => {
 };
 
 const connectGoogle = async () => {
-  const response = await apiFetch("/api/google/auth-url");
-  const data = await readApiJson(response);
-  if (!response.ok) {
-    setGooglePanel("Setup needed", data.message || "Google credentials are missing.");
-    return;
+  try {
+    const response = await apiFetch("/api/google/auth-url");
+    const data = await readApiJson(response);
+    if (!response.ok) {
+      setGooglePanel("Setup needed", data.message || "Google credentials are missing.");
+      return;
+    }
+    window.location.href = data.url;
+  } catch {
+    setGooglePanel("Offline", "Start the Nexus server and check the saved server URL.");
   }
-  window.location.href = data.url;
 };
 
 const saveMailCache = async (items) => {
