@@ -190,3 +190,30 @@ fixtures, then reduce the Gmail HTTP route to orchestration and response formatt
 Define and validate the remaining local record contracts: extracted signals, tasks, goals,
 review decisions, approval requests, and action history. Add synthetic persistence tests
 without introducing classification or provider mutations.
+
+## 2026-08-03 — Milestone 1 local record contracts
+
+### Completed
+
+- Added factories and explicit validation for extracted signals, tasks, goals, review
+  decisions, approval requests, and action history.
+- Required extracted signals to retain observable evidence and a source-record link.
+- Added task and goal lifecycle states, optional target timestamps, and related-record links.
+- Added review decisions without treating corrections as automatic training data.
+- Added approval state consistency checks and separate action outcomes for auditable history.
+- Added synthetic fixtures for every new record type.
+- Verified that the shared record store accepts mixed types, keeps the newest normalization,
+  and rejects invalid records without copying record text into rejection metadata.
+
+### Verification
+
+- `npm run check` passes.
+- `npm test` passes: 30 tests, 0 failures.
+- `npm run mobile:prepare` passes.
+- Fixtures contain invented local IDs and synthetic text only.
+- No classification, external action, OAuth scope, UI behavior, or provider permission changed.
+
+### Next slice
+
+Extract the Google HTTP handlers into a route module, add isolated API-contract tests, and
+leave the static server responsible for request dispatch and response formatting.
