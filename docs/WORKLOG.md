@@ -160,3 +160,33 @@ from `local-server.mjs` into connector modules with injected-fetch tests.
 
 Extract Gmail raw/full fallback and MIME parsing into a dedicated module with synthetic MIME
 fixtures, then reduce the Gmail HTTP route to orchestration and response formatting.
+
+## 2026-08-03 — Milestone 1 Gmail parser
+
+### Completed
+
+- Extracted Gmail raw-message retrieval, PostalMime parsing, full-message fallback, header
+  decoding, body selection, attachment discovery, and safe previews into a dedicated
+  connector parser.
+- Reused the parser in both the normal Gmail route and the bounded diagnostic route.
+- Preserved structured-text fallbacks and subject inference for order, booking, and
+  attachment messages.
+- Added synthetic plain-text, HTML-only, attachment, fallback, and malformed MIME coverage.
+- Sanitized parser failures so diagnostics cannot include message content.
+- Removed more than 400 lines of MIME implementation detail from the HTTP server.
+
+### Verification
+
+- `npm run check` passes.
+- `npm test` passes: 24 tests, 0 failures.
+- `npm run mobile:prepare` passes.
+- Read-only live smoke test: Google reported connected; Gmail returned a parsed bounded
+  sample; Calendar returned a valid empty result.
+- The smoke test recorded only status and counts. No provider content, identity data,
+  credentials, or tokens were printed or added to fixtures.
+
+### Next slice
+
+Define and validate the remaining local record contracts: extracted signals, tasks, goals,
+review decisions, approval requests, and action history. Add synthetic persistence tests
+without introducing classification or provider mutations.

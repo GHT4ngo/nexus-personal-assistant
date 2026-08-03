@@ -96,9 +96,10 @@ Exit criteria:
 
 Goal: stop the UI and connectors from passing loosely structured objects directly.
 
-Status (2026-08-03): record, server-boundary, and connector-transport slices complete.
-OAuth refresh, authenticated requests, Calendar retrieval, and Gmail list/pagination now
-live behind injected connector modules. Gmail MIME parsing remains the next extraction.
+Status (2026-08-03): record, server-boundary, connector-transport, and Gmail-parser slices
+complete. OAuth, provider retrieval, Gmail pagination, and MIME parsing now live behind
+injected connector modules with synthetic tests. Remaining work is to define the other
+domain records and finish reducing HTTP routing to request/response orchestration.
 
 First implementation slice:
 
@@ -123,13 +124,21 @@ Connector transport slice:
 3. [ ] Keep HTTP routing responsible only for request validation and response formatting.
 4. [x] Add connector tests using injected synthetic fetch responses.
 
+Gmail parser slice:
+
+1. [x] Extract Gmail raw/full fallback and MIME parsing into a message parser module.
+2. [x] Add synthetic raw MIME fixtures for plain text, HTML fallback, attachments, and malformed
+   content.
+3. [x] Return parser diagnostics without including message content.
+4. [x] Reduce the Gmail HTTP route to connector invocation, normalization, and response formatting.
+
 Next implementation slice:
 
-1. Extract Gmail raw/full fallback and MIME parsing into a message parser module.
-2. Add synthetic raw MIME fixtures for plain text, HTML fallback, attachments, and malformed
-   content.
-3. Return parser diagnostics without including message content.
-4. Reduce the Gmail HTTP route to connector invocation, normalization, and response formatting.
+1. Define records and validation for extracted signals, tasks, goals, review decisions,
+   approval requests, and action history.
+2. Add synthetic fixtures for every record type.
+3. Add deterministic persistence tests for user-owned records.
+4. Keep all new records local and classification-free.
 
 Create:
 
