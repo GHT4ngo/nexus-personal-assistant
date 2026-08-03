@@ -357,6 +357,43 @@ strong {
   padding: 14px;
 }
 
+.record-form {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.record-form label {
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.record-form .secondary-action {
+  width: 100%;
+}
+
+.form-message {
+  min-height: 1.2em;
+  margin-bottom: 0;
+  font-size: 0.76rem;
+}
+
+.empty-state {
+  grid-template-columns: 1fr;
+}
+
+.item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.item-actions .secondary-action {
+  min-height: 36px;
+}
+
 .integration-body p {
   margin-bottom: 0;
 }

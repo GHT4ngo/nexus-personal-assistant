@@ -1,27 +1,4 @@
 const sampleData = {
-  today: [
-    {
-      time: "09:30",
-      title: "Check internship leads",
-      detail: "Review companies that accept data engineering interns from December.",
-      tag: "Study"
-    },
-    {
-      time: "13:00",
-      title: "Family errand",
-      detail: "Confirm pickup time and add it to the calendar.",
-      tag: "Family"
-    }
-  ],
-  calendar: [
-    {
-      date: "Today",
-      time: "18:00",
-      title: "Review Google sync",
-      detail: "Connect Calendar and Gmail from the Google Link panel.",
-      tag: "Nexus"
-    }
-  ],
   suggestions: [
     {
       title: "Build a trustworthy review queue",
@@ -37,13 +14,6 @@ const sampleData = {
       detail: "Sample message shown until Gmail is connected."
     }
   ],
-  goals: [
-    {
-      title: "Create a dependable daily briefing",
-      detail: "Connect sources first, then add measured and explainable classification.",
-      progress: "Foundation"
-    }
-  ],
   events: [
     {
       title: "Nexus rebuild",
@@ -55,8 +25,12 @@ const sampleData = {
 
 let liveGoogleCalendar = [];
 let liveGoogleMail = [];
+let liveTasks = [];
+let liveGoals = [];
 let nextGmailPageToken = "";
 let googleLoadInProgress = false;
+let localRecordState = "loading";
+let calendarState = "not-loaded";
 const MAIL_RENDER_LIMIT = 60;
 
 const viewTitles = {
@@ -220,7 +194,52 @@ const detectCalendarCandidate = (message) => {
 };
 
 const renderToday = () => {
-  renderList("today-list", sampleData.today, (item) => `
+  const tasks = liveTasks
+    .filter((item) => ["todo", "doing"].includes(item.status))
+    .map((item) => ({
+      sortAt: item.dueAt || item.createdAt,
+      time: item.dueAt ? formatDate(item.dueAt) : "Open",
+      title: item.title,
+      detail: item.dueAt
+        ? `Due ${formatMailDate(item.dueAt)}`
+        : item.text || "No due date set.",
+      tag: item.status,
+      recordType: "task",
+      sourceId: item.sourceId
+    }));
+  const events = liveGoogleCalendar.map((item) => ({
+    sortAt: item.start,
+    time: formatTime(item.start) || formatDate(item.start),
+    title: item.title,
+    detail: item.location || "Google Calendar event",
+    tag: "calendar",
+    recordType: "calendar-event"
+  }));
+  const items = [...tasks, ...events]
+    .sort((left, right) => new Date(left.sortAt || 0) - new Date(right.sortAt || 0))
+    .slice(0, 12);
+
+  document.getElementById("metric-actions").textContent = String(tasks.length);
+  document.getElementById("local-status").textContent = {
+    loading: "Loading",
+    ready: "Local",
+    offline: "Offline",
+    error: "Error"
+  }[localRecordState] || "Local";
+
+  if (!items.length) {
+    const message = localRecordState === "loading"
+      ? "Loading private tasks and goals."
+      : localRecordState === "offline"
+        ? "The Nexus server is offline. Local tasks and goals are unavailable."
+        : calendarState === "not-loaded"
+          ? "No active tasks. Load Google data to include upcoming Calendar events."
+          : "No active tasks or upcoming Calendar events.";
+    document.getElementById("today-list").innerHTML = `
+      <article class="list-item empty-state"><div><h3>Nothing queued</h3><p>${escapeHtml(message)}</p></div></article>
+    `;
+  } else {
+    renderList("today-list", items, (item) => `
     <article class="list-item">
       <div class="time-chip">${escapeHtml(item.time)}</div>
       <div>
@@ -229,9 +248,16 @@ const renderToday = () => {
           ${badge(item.tag)}
         </div>
         <p>${escapeHtml(item.detail)}</p>
+        ${item.recordType === "task" ? `
+          <div class="item-actions">
+            <button class="secondary-action local-status-action" type="button"
+              data-collection="tasks" data-source-id="${escapeHtml(item.sourceId)}" data-status="done">Complete</button>
+          </div>
+        ` : ""}
       </div>
     </article>
-  `);
+    `);
+  }
 
   document.getElementById("attention-count").textContent = "Not active";
   document.getElementById("attention-list").innerHTML = `
@@ -257,20 +283,27 @@ const renderSuggestions = () => {
 };
 
 const renderCalendar = () => {
-  const items = liveGoogleCalendar.length
-    ? liveGoogleCalendar.map((item) => ({
+  const items = liveGoogleCalendar.map((item) => ({
         date: formatDate(item.start),
         time: formatTime(item.start),
         title: item.title,
         detail: item.location ? `Location: ${item.location}` : "Google Calendar event",
         tag: "Google"
-      }))
-    : sampleData.calendar;
+      }));
 
   document.getElementById("calendar-source").textContent =
-    liveGoogleCalendar.length ? "Google" : "Sample data";
+    calendarState === "ready" ? "Google" : calendarState === "error" ? "Unavailable" : "Not loaded";
   document.getElementById("metric-events").textContent = String(items.length);
 
+  if (!items.length) {
+    document.getElementById("calendar-list").innerHTML = `
+      <article class="list-item empty-state"><div><h3>No calendar events loaded</h3>
+      <p>${calendarState === "error"
+        ? "Calendar could not be loaded."
+        : "Connect Google and load data to show upcoming events."}</p></div></article>
+    `;
+    return;
+  }
   renderList("calendar-list", items, (item) => `
     <article class="list-item">
       <div class="time-chip">${escapeHtml(item.date)}</div>
@@ -334,17 +367,59 @@ const renderMail = () => {
 };
 
 const renderGoals = () => {
-  renderList("goal-list", sampleData.goals, (item) => `
+  const activeGoals = liveGoals.filter((item) => item.status !== "dismissed");
+  document.getElementById("goal-count").textContent =
+    `${liveGoals.filter((item) => item.status === "active").length} active`;
+  if (!activeGoals.length) {
+    document.getElementById("goal-list").innerHTML = `
+      <article class="list-item empty-state"><div><h3>No goals saved</h3>
+      <p>${localRecordState === "offline"
+        ? "Start the Nexus server to access private local goals."
+        : "Add a goal above. Goals remain private on the Nexus server."}</p></div></article>
+    `;
+    renderFocus();
+    return;
+  }
+  renderList("goal-list", activeGoals, (item) => `
     <article class="list-item">
       <div>
         <div class="item-title-row">
           <h3>${escapeHtml(item.title)}</h3>
-          ${badge(item.progress)}
+          ${badge(item.status)}
         </div>
-        <p>${escapeHtml(item.detail)}</p>
+        <p>${escapeHtml(item.targetAt
+          ? `Target ${formatMailDate(item.targetAt)}`
+          : item.text || "No target date set.")}</p>
+        <div class="item-actions">
+          ${item.status === "active" ? `
+            <button class="secondary-action local-status-action" type="button"
+              data-collection="goals" data-source-id="${escapeHtml(item.sourceId)}" data-status="paused">Pause</button>
+          ` : ""}
+          ${item.status === "paused" ? `
+            <button class="secondary-action local-status-action" type="button"
+              data-collection="goals" data-source-id="${escapeHtml(item.sourceId)}" data-status="active">Resume</button>
+          ` : ""}
+          ${item.status !== "completed" ? `
+            <button class="secondary-action local-status-action" type="button"
+              data-collection="goals" data-source-id="${escapeHtml(item.sourceId)}" data-status="completed">Complete</button>
+          ` : ""}
+        </div>
       </div>
     </article>
   `);
+  renderFocus();
+};
+
+const renderFocus = () => {
+  const goal = liveGoals.find((item) => item.status === "active");
+  document.getElementById("focus-title").textContent = goal?.title || "No active goal";
+  document.getElementById("focus-detail").textContent = goal
+    ? goal.targetAt
+      ? `Target ${formatMailDate(goal.targetAt)}.`
+      : goal.text || "This goal has no target date."
+    : localRecordState === "offline"
+      ? "Start the Nexus server to load private goals."
+      : "Add a goal to choose the direction for your daily plan.";
 };
 
 const renderEvents = () => {
@@ -467,6 +542,84 @@ const loadMailCache = async () => {
   }
 };
 
+const applyLocalRecords = (data) => {
+  liveTasks = Array.isArray(data.tasks) ? data.tasks : [];
+  liveGoals = Array.isArray(data.goals) ? data.goals : [];
+  localRecordState = "ready";
+  renderToday();
+  renderGoals();
+};
+
+const loadLocalRecords = async () => {
+  try {
+    const response = await apiFetch("/api/local/records");
+    const data = await readApiJson(response);
+    if (!response.ok) {
+      throw new Error(data.message || "Could not load local records.");
+    }
+    applyLocalRecords(data);
+  } catch {
+    localRecordState = "offline";
+    renderToday();
+    renderGoals();
+  }
+};
+
+const inputTimestamp = (value) => {
+  if (!value) {
+    return null;
+  }
+  const timestamp = new Date(value);
+  if (Number.isNaN(timestamp.getTime())) {
+    throw new TypeError("Enter a valid date and time.");
+  }
+  return timestamp.toISOString();
+};
+
+const submitLocalRecord = async (collection, form, messageElement) => {
+  const formData = new FormData(form);
+  messageElement.textContent = "Saving locally…";
+  try {
+    const body = {
+      title: String(formData.get("title") || "").trim()
+    };
+    const dateField = collection === "tasks" ? "dueAt" : "targetAt";
+    body[dateField] = inputTimestamp(formData.get(dateField));
+    const response = await apiFetch(`/api/local/${collection}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    const data = await readApiJson(response);
+    if (!response.ok) {
+      throw new Error(data.errors?.[0]?.message || data.message || "Could not save local record.");
+    }
+    applyLocalRecords(data);
+    form.reset();
+    messageElement.textContent = collection === "tasks" ? "Task saved locally." : "Goal saved locally.";
+  } catch (error) {
+    localRecordState = "error";
+    messageElement.textContent = error.message;
+    renderToday();
+  }
+};
+
+const updateLocalRecordStatus = async (collection, sourceId, status) => {
+  const response = await apiFetch(
+    `/api/local/${collection}/${encodeURIComponent(sourceId)}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status })
+    }
+  );
+  const data = await readApiJson(response);
+  if (!response.ok) {
+    throw new Error(data.errors?.[0]?.message || data.message || "Could not update local record.");
+  }
+  applyLocalRecords(data);
+};
+
 const loadGoogleData = async () => {
   if (googleLoadInProgress) {
     return;
@@ -492,11 +645,13 @@ const loadGoogleData = async () => {
     }
 
     liveGoogleCalendar = calendarData.items || [];
+    calendarState = "ready";
     const incomingMail = gmailData.items || [];
     liveGoogleMail = mergeMailItems(liveGoogleMail, incomingMail);
     nextGmailPageToken = gmailData.nextPageToken || "";
     await saveMailCache(incomingMail, gmailData.records || []);
     renderCalendar();
+    renderToday();
     renderMail();
     setGooglePanel("Loaded", `Loaded ${liveGoogleCalendar.length} events and ${liveGoogleMail.length} messages.`);
     updateGoogleMonitor({
@@ -506,6 +661,9 @@ const loadGoogleData = async () => {
       percent: 100
     });
   } catch (error) {
+    calendarState = "error";
+    renderCalendar();
+    renderToday();
     updateGoogleMonitor({
       state: "error",
       label: "google.sync = failed",
@@ -593,13 +751,44 @@ renderCalendarGrid();
 checkGoogleStatus();
 refreshResourceStatus();
 loadMailCache();
+loadLocalRecords();
 
 document.getElementById("google-connect").addEventListener("click", connectGoogle);
 document.getElementById("google-load").addEventListener("click", loadGoogleData);
 document.getElementById("google-load-next").addEventListener("click", loadNextGmailBatch);
 document.getElementById("resource-refresh").addEventListener("click", refreshResourceStatus);
+document.getElementById("task-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  submitLocalRecord("tasks", event.currentTarget, document.getElementById("task-message"));
+});
+document.getElementById("goal-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  submitLocalRecord("goals", event.currentTarget, document.getElementById("goal-message"));
+});
+document.getElementById("focus-action").addEventListener("click", () => activateView("goals"));
 document.getElementById("theme-toggle").addEventListener("click", () =>
   applyTheme(document.body.dataset.theme === "matrix" ? "neon" : "matrix"));
+document.querySelector(".app-shell").addEventListener("click", async (event) => {
+  const button = event.target.closest(".local-status-action");
+  if (!button) {
+    return;
+  }
+  button.disabled = true;
+  try {
+    await updateLocalRecordStatus(
+      button.dataset.collection,
+      button.dataset.sourceId,
+      button.dataset.status
+    );
+  } catch (error) {
+    localRecordState = "error";
+    document.getElementById("task-message").textContent = error.message;
+    renderToday();
+    renderGoals();
+  } finally {
+    button.disabled = false;
+  }
+});
 document.getElementById("email-list").addEventListener("click", (event) => {
   const button = event.target.closest(".queue-calendar");
   if (button) {

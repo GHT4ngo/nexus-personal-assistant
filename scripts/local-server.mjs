@@ -2,12 +2,14 @@ import { appendFileSync, createReadStream, existsSync, mkdirSync, readFileSync, 
 import { createServer } from "node:http";
 import { cpus, freemem, loadavg, totalmem, uptime } from "node:os";
 import { extname, join, normalize, resolve } from "node:path";
+import { randomUUID } from "node:crypto";
 
 import { createGoogleClient } from "./connectors/google/client.js";
 import { createGmailMessageParser } from "./connectors/google/gmail-parser.js";
 import { normalizeGoogleBatch, batchSummary } from "./connectors/google/batch.js";
 import { normalizeGmailMessage } from "./connectors/google/normalize.js";
 import { createGoogleRouteHandler } from "./routes/google.js";
+import { createLocalRecordRouteHandler } from "./routes/local-records.js";
 import { mergeStoredRecords } from "./storage/record-store.js";
 
 const root = resolve(process.cwd());
@@ -16,6 +18,7 @@ const mailFetchLimit = Number(process.env.NEXUS_MAIL_FETCH_LIMIT || 25);
 const mailParseConcurrency = Number(process.env.NEXUS_MAIL_PARSE_CONCURRENCY || 2);
 const tokenPath = join(root, "data", "private", "google-token.json");
 const mailCachePath = join(root, "data", "private", "mail-cache.json");
+const localRecordsPath = join(root, "data", "private", "local-records.json");
 const resourceLogPath = join(root, "logs", "resource-metrics.jsonl");
 const googleScopes = [
   "https://www.googleapis.com/auth/calendar.readonly",
@@ -98,6 +101,22 @@ const readMailCache = () => {
     updatedAt: cache.updatedAt || null
   };
 };
+
+const readLocalRecords = () => {
+  const store = readJsonFile(localRecordsPath, {
+    schemaVersion: 1,
+    updatedAt: null,
+    records: []
+  });
+  const merged = mergeStoredRecords([], Array.isArray(store.records) ? store.records : []);
+  return {
+    schemaVersion: 1,
+    updatedAt: store.updatedAt || null,
+    records: merged.records
+  };
+};
+
+const writeLocalRecords = (store) => writeJsonFile(localRecordsPath, store);
 
 const mergeMailCache = (incomingItems = [], incomingRecords = []) => {
   const cache = readMailCache();
@@ -211,7 +230,6 @@ const handleGoogleRoute = createGoogleRouteHandler({
   mailFetchLimit,
   mailParseConcurrency
 });
-
 const rememberApiRequest = (request, url) => {
   recentApiRequests.unshift({
     timestamp: new Date().toISOString(),
@@ -237,6 +255,14 @@ const readRequestBody = (request) =>
     request.on("end", () => resolve(body));
     request.on("error", reject);
   });
+
+const handleLocalRecordRoute = createLocalRecordRouteHandler({
+  readStore: readLocalRecords,
+  writeStore: writeLocalRecords,
+  readRequestBody,
+  sendJson,
+  idGenerator: randomUUID
+});
 
 const parseIcsDate = (value) => {
   if (!value) {
@@ -296,6 +322,9 @@ const parseIcs = (content) => {
 
 const handleApi = async (request, url, response) => {
   if (await handleGoogleRoute(request, url, response)) {
+    return true;
+  }
+  if (await handleLocalRecordRoute(request, url, response)) {
     return true;
   }
 

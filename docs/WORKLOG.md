@@ -253,3 +253,43 @@ HTTP routing.
 Start Milestone 2 with local task and goal persistence, then replace the hard-coded Today
 content with normalized calendar events and user-owned tasks and goals. Preserve explicit
 loading, disconnected, empty, and error states before adding any classifier.
+
+## 2026-08-03 — Milestone 2 persistent Today foundation
+
+### Outcome
+
+Nexus now has a classification-free Today view backed by private local tasks and goals plus
+read-only Google Calendar events. Hard-coded Today, Calendar, and goal sample records were
+removed.
+
+### Completed
+
+- Added a private `data/private/local-records.json` store, covered by the existing Git ignore
+  rule.
+- Added local APIs to list records, create tasks and goals, and update their lifecycle status.
+- Validated every write through the Milestone 1 task and goal record contracts.
+- Added local task completion and goal pause, resume, and completion controls.
+- Added task and goal forms to the Matrix interface.
+- Rebuilt Today from active local tasks and loaded Google Calendar events.
+- Made the focus strip reflect the first active goal instead of hard-coded personal content.
+- Added explicit loading, local, offline, error, empty, and Calendar-not-loaded states.
+- Added isolated route tests and a temporary-directory HTTP persistence test.
+
+### Verification
+
+- `npm run check` passes.
+- `npm test` passes: 42 tests, 0 failures.
+- `npm run mobile:prepare` passes and the generated Android web assets contain the new forms
+  and local record actions.
+- Live read-only checks: the updated page served with the task form; the real private store
+  reported zero tasks and zero goals; Google remained connected; Calendar returned a valid
+  empty batch.
+- No synthetic records were written to the real private store.
+- Privacy scanning found no personal content, credentials, or new secrets.
+- Gmail and Calendar scopes remain read-only; no provider mutation was added.
+
+### Next slice
+
+Show synchronization age and source health in Today, then add explicit manual pin, dismiss,
+and review-later behavior. Verify the resulting layout in the Android wrapper on the Samsung
+device.

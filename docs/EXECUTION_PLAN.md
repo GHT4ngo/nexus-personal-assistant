@@ -179,14 +179,19 @@ Exit criteria:
 
 Goal: make Nexus useful without classification.
 
+Status (2026-08-03): task/goal persistence and the first real Today view are complete.
+Today now combines user-owned active tasks with loaded Google Calendar events and shows
+explicit local storage and Calendar states. Synchronization age, manual organization
+controls, and physical-device verification remain.
+
 Work:
 
-- Replace hard-coded Today data with normalized calendar events, tasks, and goals.
-- Add local task and goal persistence.
+- [x] Replace hard-coded Today data with normalized calendar events, tasks, and goals.
+- [x] Add local task and goal persistence.
 - Show synchronization age and source health.
 - Add manual pin, dismiss, and “review later” behavior.
-- Keep the Inbox chronological.
-- Add clear empty, loading, offline, and error states.
+- [x] Keep the Inbox chronological.
+- [x] Add clear empty, loading, offline, and error states for Today and local records.
 - Test on a Samsung-sized viewport and in the Android wrapper.
 
 Exit criteria:
@@ -346,6 +351,6 @@ For every milestone:
 
 ## Resume point
 
-The next working session starts at Milestone 1, item 1. Milestone 0 should not be repeated
-unless a regression is observed. Read [WORKLOG.md](WORKLOG.md) for the completed recovery
-and verification evidence.
+Continue Milestone 2 with synchronization age and source-health presentation, followed by
+manual pin, dismiss, and review-later behavior. Milestones 0 and 1 should not be repeated
+unless a regression is observed. Read [WORKLOG.md](WORKLOG.md) for completed evidence.

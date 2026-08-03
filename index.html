@@ -28,10 +28,10 @@
       <section class="focus-strip" aria-labelledby="focus-title">
         <div>
           <p class="section-kicker">Priority signal</p>
-          <h2 id="focus-title">Internship search for December</h2>
-          <p>Prepare a shortlist of data engineering internship options and send two applications this week.</p>
+          <h2 id="focus-title">Loading local goals</h2>
+          <p id="focus-detail">Checking the private Nexus record store.</p>
         </div>
-        <button class="primary-action">Review plan</button>
+        <button class="primary-action" id="focus-action" type="button">Open goals</button>
       </section>
 
       <nav class="tabbar" aria-label="Nexus sections">
@@ -104,9 +104,24 @@
           </article>
           <article class="metric">
             <span>Actions</span>
-            <strong>5</strong>
+            <strong id="metric-actions">—</strong>
           </article>
         </div>
+
+        <section class="panel" aria-labelledby="task-add-title">
+          <div class="panel-header">
+            <h2 id="task-add-title">Add Task</h2>
+            <span class="count-label" id="local-status">Loading</span>
+          </div>
+          <form class="record-form" id="task-form">
+            <label for="task-title">Task</label>
+            <input class="text-input" id="task-title" name="title" maxlength="160" required />
+            <label for="task-due">Due (optional)</label>
+            <input class="text-input" id="task-due" name="dueAt" type="datetime-local" />
+            <button class="secondary-action" type="submit">Save task</button>
+            <p class="form-message" id="task-message" aria-live="polite"></p>
+          </form>
+        </section>
 
         <section class="panel" aria-labelledby="next-title">
           <div class="panel-header">
@@ -162,6 +177,20 @@
       </section>
 
       <section class="view" id="view-goals" aria-label="Goals">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Add Goal</h2>
+            <span class="count-label" id="goal-count">0 active</span>
+          </div>
+          <form class="record-form" id="goal-form">
+            <label for="goal-title">Goal</label>
+            <input class="text-input" id="goal-title" name="title" maxlength="160" required />
+            <label for="goal-target">Target (optional)</label>
+            <input class="text-input" id="goal-target" name="targetAt" type="datetime-local" />
+            <button class="secondary-action" type="submit">Save goal</button>
+            <p class="form-message" id="goal-message" aria-live="polite"></p>
+          </form>
+        </section>
         <section class="panel">
           <div class="panel-header">
             <h2>Active Goals</h2>
