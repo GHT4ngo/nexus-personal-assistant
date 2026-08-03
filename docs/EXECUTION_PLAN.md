@@ -31,7 +31,7 @@ The clean `0.2.0` codebase already provides:
 | Mail classification | Old system removed | Intentionally absent |
 | Persistent tasks and goals | Sample data only | Not implemented |
 | Approval queue and action log | Presentation placeholder only | Not implemented |
-| Automated tests and CI | Syntax check only | Not implemented |
+| Automated tests and CI | Node 22/24 checks and Android debug build | Working baseline |
 
 See [CLEAN_BASELINE.md](CLEAN_BASELINE.md) for the removed behavior.
 
@@ -95,6 +95,19 @@ Exit criteria:
 ## Milestone 1 — Stable internal data model
 
 Goal: stop the UI and connectors from passing loosely structured objects directly.
+
+Status (next session): ready to start. Begin with the shared record contract, validation,
+and synthetic Gmail and Calendar fixtures. Do not connect private account data until these
+tests pass.
+
+First implementation slice:
+
+1. Create `src/domain/records.js` with constructors or factories for messages and calendar
+   events.
+2. Create `src/domain/validation.js` with explicit validation results and errors.
+3. Add synthetic provider fixtures under `tests/fixtures/`.
+4. Add unit tests for valid, incomplete, duplicate, and malformed records.
+5. Add Gmail and Calendar normalization adapters without changing the UI.
 
 Create:
 
@@ -292,3 +305,9 @@ For every milestone:
 5. Review privacy and permissions.
 6. Update this plan with evidence and remaining risks.
 7. Commit a small, coherent change.
+
+## Resume point
+
+The next working session starts at Milestone 1, item 1. Milestone 0 should not be repeated
+unless a regression is observed. Read [WORKLOG.md](WORKLOG.md) for the completed recovery
+and verification evidence.
