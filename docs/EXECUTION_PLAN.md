@@ -72,8 +72,8 @@ Rules:
 Goal: establish the recovered code as a safe, reproducible repository.
 
 Status (2026-08-03): technical baseline published and CI verified. The remaining manual
-checks are connecting a local Google test account, opening the generated debug app on an
-Android device, and choosing a repository license.
+checks are opening the generated debug app on an Android device and choosing a repository
+license.
 
 Work:
 
@@ -81,7 +81,7 @@ Work:
 - [x] Add repository CI for syntax checks and Android debug builds.
 - Add a license decision.
 - [x] Verify setup from a fresh install with `npm ci`.
-- Verify Google OAuth using a local test account.
+- [x] Verify read-only Gmail and Calendar OAuth using a local account.
 - [x] Build the Android debug package in CI.
 - Open the Android debug package on a physical device or emulator.
 - [x] Commit and push the clean `0.2.0` baseline.
