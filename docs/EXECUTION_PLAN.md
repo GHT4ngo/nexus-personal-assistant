@@ -96,10 +96,10 @@ Exit criteria:
 
 Goal: stop the UI and connectors from passing loosely structured objects directly.
 
-Status (2026-08-03): all record contracts, server-boundary, connector-transport, and
-Gmail-parser slices are complete. OAuth, provider retrieval, Gmail pagination, and MIME
-parsing live behind injected connector modules with synthetic tests. Remaining work is to
-finish reducing HTTP routing to request/response orchestration.
+Status (2026-08-03): complete. All record contracts, server-boundary,
+connector-transport, Gmail-parser, and Google-route slices are implemented. OAuth,
+provider retrieval, Gmail pagination, MIME parsing, normalization, and HTTP routing live
+behind injected modules with synthetic tests.
 
 First implementation slice:
 
@@ -121,7 +121,7 @@ Connector transport slice:
 
 1. [x] Extract OAuth token refresh and authenticated fetch into the Google connector boundary.
 2. [x] Extract Gmail list/pagination and Calendar retrieval from `local-server.mjs`.
-3. [ ] Keep HTTP routing responsible only for request validation and response formatting.
+3. [x] Keep HTTP routing responsible only for request validation and response formatting.
 4. [x] Add connector tests using injected synthetic fetch responses.
 
 Gmail parser slice:
@@ -142,10 +142,10 @@ Next implementation slice:
 
 Final implementation slice:
 
-1. Extract Google HTTP handlers from the static server into a route module.
-2. Keep request parsing and response formatting at the route boundary.
-3. Add isolated route tests for connected, disconnected, and provider-error responses.
-4. Confirm the browser and Android clients retain the existing API contract.
+1. [x] Extract Google HTTP handlers from the static server into a route module.
+2. [x] Keep request parsing and response formatting at the route boundary.
+3. [x] Add isolated route tests for connected, disconnected, and provider-error responses.
+4. [x] Confirm the browser and Android clients retain the existing API contract.
 
 Create:
 

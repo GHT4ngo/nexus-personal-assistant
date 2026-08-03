@@ -217,3 +217,39 @@ without introducing classification or provider mutations.
 
 Extract the Google HTTP handlers into a route module, add isolated API-contract tests, and
 leave the static server responsible for request dispatch and response formatting.
+
+## 2026-08-03 — Milestone 1 Google route boundary
+
+### Outcome
+
+Completed Milestone 1. Nexus now has validated internal records and separated boundaries
+for Google transport, provider retrieval, Gmail parsing, normalization, persistence, and
+HTTP routing.
+
+### Completed
+
+- Extracted Google status, authorization, callback, Calendar, Gmail, and bounded diagnostic
+  handlers into an injected route module.
+- Reduced the main local server by more than 200 additional lines.
+- Preserved the existing JSON and HTML response contracts used by the browser and Android
+  clients.
+- Added isolated route tests for non-Google dispatch, disconnected status, Calendar success,
+  Gmail success and pagination, Calendar provider errors, and Gmail provider errors.
+- Kept resource failure metadata free of provider error text.
+
+### Verification
+
+- `npm run check` passes.
+- `npm test` passes: 36 tests, 0 failures.
+- `npm run mobile:prepare` passes.
+- Read-only live smoke test: Google reported connected; Calendar returned a valid empty
+  normalized batch; Gmail returned 10 items and 10 validated records.
+- The live check recorded status and counts only.
+- No private data, credentials, OAuth scopes, provider permissions, classification, or
+  external mutations changed.
+
+### Next milestone
+
+Start Milestone 2 with local task and goal persistence, then replace the hard-coded Today
+content with normalized calendar events and user-owned tasks and goals. Preserve explicit
+loading, disconnected, empty, and error states before adding any classifier.
