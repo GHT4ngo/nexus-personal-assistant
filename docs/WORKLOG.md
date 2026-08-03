@@ -132,3 +132,31 @@ cache storage, and test batches containing valid, invalid, and duplicate provide
 
 Extract OAuth refresh, authenticated Google fetch, Gmail retrieval, and Calendar retrieval
 from `local-server.mjs` into connector modules with injected-fetch tests.
+
+## 2026-08-03 — Milestone 1 connector transport
+
+### Completed
+
+- Extracted Google authorization URL creation, authorization-code exchange, token refresh,
+  and authenticated JSON requests into an injected client module.
+- Extracted Calendar query construction and provider-response mapping.
+- Extracted Gmail search-window queries, limits, pagination, ordered concurrent mapping,
+  and provider-error passthrough.
+- Kept token persistence private and injected from the server.
+- Preserved the existing HTTP response contract and read-only scopes.
+- Added seven connector tests with synthetic tokens, URLs, provider responses, and injected
+  fetch functions.
+
+### Verification
+
+- `npm run check` passes.
+- `npm test` passes: 19 tests, 0 failures.
+- `npm run mobile:prepare` passes.
+- Read-only live smoke test: Gmail produced 10 validated records with zero failures;
+  Calendar produced a valid empty batch.
+- No real tokens, provider content, or credentials appear in fixtures or test output.
+
+### Next slice
+
+Extract Gmail raw/full fallback and MIME parsing into a dedicated module with synthetic MIME
+fixtures, then reduce the Gmail HTTP route to orchestration and response formatting.

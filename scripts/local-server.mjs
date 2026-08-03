@@ -7,10 +7,15 @@ import {
   batchSummary,
   normalizeGoogleBatch
 } from "./connectors/google/batch.js";
+import { createGoogleClient } from "./connectors/google/client.js";
 import {
   normalizeGmailMessage,
   normalizeGoogleCalendarEvent
 } from "./connectors/google/normalize.js";
+import {
+  fetchGmailMessages,
+  fetchGoogleCalendarEvents
+} from "./connectors/google/providers.js";
 import { mergeStoredRecords } from "./storage/record-store.js";
 
 const root = resolve(process.cwd());
@@ -75,6 +80,13 @@ const writeToken = (token) => {
   mkdirSync(join(root, "data", "private"), { recursive: true });
   writeFileSync(tokenPath, JSON.stringify(token, null, 2));
 };
+
+const googleClient = createGoogleClient({
+  config,
+  scopes: googleScopes,
+  readToken,
+  writeToken
+});
 
 const readJsonFile = (filePath, fallback) => {
   if (!existsSync(filePath)) {
@@ -221,62 +233,7 @@ const readRequestBody = (request) =>
     request.on("error", reject);
   });
 
-const googleConfigured = () => Boolean(config.clientId && config.clientSecret);
-
-const refreshAccessToken = async (token) => {
-  if (!token?.refresh_token) {
-    return token;
-  }
-
-  const expiresSoon = token.expires_at && Date.now() < token.expires_at - 60_000;
-  if (expiresSoon) {
-    return token;
-  }
-
-  const body = new URLSearchParams({
-    client_id: config.clientId,
-    client_secret: config.clientSecret,
-    refresh_token: token.refresh_token,
-    grant_type: "refresh_token"
-  });
-
-  const response = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body
-  });
-
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error_description || data.error || "Google token refresh failed");
-  }
-
-  const nextToken = {
-    ...token,
-    ...data,
-    expires_at: Date.now() + data.expires_in * 1000
-  };
-  writeToken(nextToken);
-  return nextToken;
-};
-
-const getAccessToken = async () => {
-  const token = await refreshAccessToken(readToken());
-  return token?.access_token;
-};
-
-const googleFetch = async (url) => {
-  const accessToken = await getAccessToken();
-  if (!accessToken) {
-    return { status: 401, data: { connected: false, message: "Google is not connected yet." } };
-  }
-
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${accessToken}` }
-  });
-  const data = await response.json();
-  return { status: response.status, data };
-};
+const googleFetch = googleClient.fetchJson;
 
 const mapWithConcurrency = async (items, limit, task) => {
   const results = new Array(items.length);
@@ -705,7 +662,7 @@ const handleApi = async (request, url, response) => {
 
   if (url.pathname === "/api/google/status") {
     sendJson(response, 200, {
-      configured: googleConfigured(),
+      configured: googleClient.isConfigured(),
       connected: Boolean(readToken()?.refresh_token),
       redirectUri: config.redirectUri,
       scopes: googleScopes
@@ -723,83 +680,42 @@ const handleApi = async (request, url, response) => {
   }
 
   if (url.pathname === "/api/google/auth-url") {
-    if (!googleConfigured()) {
+    if (!googleClient.isConfigured()) {
       sendJson(response, 400, {
         message: "Google credentials are missing. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to .env."
       });
       return true;
     }
 
-    const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    authUrl.searchParams.set("client_id", config.clientId);
-    authUrl.searchParams.set("redirect_uri", config.redirectUri);
-    authUrl.searchParams.set("response_type", "code");
-    authUrl.searchParams.set("access_type", "offline");
-    authUrl.searchParams.set("prompt", "consent");
-    authUrl.searchParams.set("scope", googleScopes.join(" "));
-    sendJson(response, 200, { url: authUrl.toString() });
+    sendJson(response, 200, { url: googleClient.createAuthUrl() });
     return true;
   }
 
   if (url.pathname === "/api/google/callback") {
     const code = url.searchParams.get("code");
-    if (!code || !googleConfigured()) {
+    if (!code || !googleClient.isConfigured()) {
       sendText(response, 400, "<h1>Nexus Google connection failed</h1><p>Missing authorization code or credentials.</p>");
       return true;
     }
 
-    const body = new URLSearchParams({
-      code,
-      client_id: config.clientId,
-      client_secret: config.clientSecret,
-      redirect_uri: config.redirectUri,
-      grant_type: "authorization_code"
-    });
-
-    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body
-    });
-    const token = await tokenResponse.json();
-
-    if (!tokenResponse.ok) {
-      sendText(response, 400, `<h1>Nexus Google connection failed</h1><pre>${escapeHtml(JSON.stringify(token, null, 2))}</pre>`);
+    const result = await googleClient.exchangeAuthorizationCode(code);
+    if (!result.ok) {
+      sendText(response, 400, `<h1>Nexus Google connection failed</h1><pre>${escapeHtml(JSON.stringify(result.data, null, 2))}</pre>`);
       return true;
     }
 
-    writeToken({
-      ...token,
-      expires_at: Date.now() + token.expires_in * 1000
-    });
     sendText(response, 200, "<h1>Google connected to Nexus</h1><p>You can close this tab and return to Nexus.</p>");
     return true;
   }
 
   if (url.pathname === "/api/google/calendar") {
-    const now = new Date();
-    const apiUrl = new URL("https://www.googleapis.com/calendar/v3/calendars/primary/events");
-    apiUrl.searchParams.set("singleEvents", "true");
-    apiUrl.searchParams.set("orderBy", "startTime");
-    apiUrl.searchParams.set("maxResults", "10");
-    apiUrl.searchParams.set("timeMin", now.toISOString());
-
-    const result = await googleFetch(apiUrl);
+    const result = await fetchGoogleCalendarEvents({ googleFetch });
     if (result.status >= 400) {
       sendJson(response, result.status, result.data);
       return true;
     }
 
-    const items = (result.data.items || []).map((item) => ({
-      id: item.id,
-      title: item.summary || "Untitled event",
-      description: item.description || "",
-      start: item.start?.dateTime || item.start?.date,
-      end: item.end?.dateTime || item.end?.date,
-      location: item.location || "",
-      htmlLink: item.htmlLink || null,
-      source: "google-calendar"
-    }));
+    const items = result.items;
     const normalizedAt = new Date().toISOString();
     const normalized = normalizeGoogleBatch(items, normalizeGoogleCalendarEvent, { normalizedAt });
 
@@ -818,39 +734,16 @@ const handleApi = async (request, url, response) => {
   if (url.pathname === "/api/google/gmail") {
     const startedAt = Date.now();
     const requestedLimit = Number(url.searchParams.get("limit") || 10);
-    const maxResults = Math.min(Math.max(requestedLimit, 10), mailFetchLimit);
     const pageToken = url.searchParams.get("pageToken");
     const window = url.searchParams.get("window") || "14d";
-    const windowQuery = {
-      "14d": "newer_than:14d",
-      "30d": "newer_than:30d",
-      "90d": "newer_than:90d",
-      all: ""
-    }[window] || "newer_than:14d";
-    const listUrl = new URL("https://gmail.googleapis.com/gmail/v1/users/me/messages");
-    listUrl.searchParams.set("maxResults", String(maxResults));
-    listUrl.searchParams.set("q", `${windowQuery} -category:promotions -in:chats`.trim());
-    if (pageToken) {
-      listUrl.searchParams.set("pageToken", pageToken);
-    }
-
-    const listResult = await googleFetch(listUrl);
-    if (listResult.status >= 400) {
-      rememberResourceEvent({
-        type: "gmail.list.failed",
-        requestedLimit,
-        maxResults,
-        status: listResult.status,
-        durationMs: Date.now() - startedAt
-      });
-      sendJson(response, listResult.status, listResult.data);
-      return true;
-    }
-
-    const messages = await mapWithConcurrency(
-      (listResult.data.messages || []).slice(0, maxResults),
-      Math.max(1, mailParseConcurrency),
-      async (message) => {
+    const gmailResult = await fetchGmailMessages({
+      googleFetch,
+      requestedLimit,
+      fetchLimit: mailFetchLimit,
+      pageToken,
+      window,
+      concurrency: mailParseConcurrency,
+      mapMessage: async (message) => {
         const rawDetail = await googleFetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${message.id}?format=raw`);
         const rawBuffer = rawDetail.status < 400 ? decodeBase64UrlBuffer(rawDetail.data.raw || "") : Buffer.from("");
         const parsedMail = rawBuffer.length ? await parseWithPostalMime(rawBuffer) : null;
@@ -900,8 +793,21 @@ const handleApi = async (request, url, response) => {
           source: "gmail"
         };
       }
-    );
+    });
 
+    if (gmailResult.status >= 400) {
+      rememberResourceEvent({
+        type: "gmail.list.failed",
+        requestedLimit,
+        maxResults: gmailResult.maxResults,
+        status: gmailResult.status,
+        durationMs: Date.now() - startedAt
+      });
+      sendJson(response, gmailResult.status, gmailResult.data);
+      return true;
+    }
+
+    const messages = gmailResult.messages;
     const normalizedAt = new Date().toISOString();
     const normalized = normalizeGoogleBatch(messages, normalizeGmailMessage, { normalizedAt });
 
@@ -913,12 +819,12 @@ const handleApi = async (request, url, response) => {
         failures: normalized.failures,
         duplicates: normalized.duplicates
       },
-      nextPageToken: listResult.data.nextPageToken || ""
+      nextPageToken: gmailResult.nextPageToken
     });
     rememberResourceEvent({
       type: "gmail.batch.complete",
       requestedLimit,
-      maxResults,
+      maxResults: gmailResult.maxResults,
       returned: messages.length,
       durationMs: Date.now() - startedAt
     });
