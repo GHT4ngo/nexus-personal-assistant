@@ -85,6 +85,10 @@ button {
   padding: 18px 14px 28px;
 }
 
+.native-platform .app-shell {
+  padding-top: calc(42px + env(safe-area-inset-top, 0px));
+}
+
 .topbar {
   display: flex;
   align-items: center;

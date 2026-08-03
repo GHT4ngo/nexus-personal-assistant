@@ -104,6 +104,9 @@ const normalizeApiBase = (value) => {
 };
 
 const isNativeApp = () => Boolean(window.Capacitor?.isNativePlatform?.());
+if (isNativeApp()) {
+  document.body.classList.add("native-platform");
+}
 const getApiBase = () => normalizeApiBase(
   localStorage.getItem("nexus-api-base") || (isNativeApp() ? "http://localhost:8050" : "")
 );
