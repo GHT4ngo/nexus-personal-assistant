@@ -1,4 +1,4 @@
-const CACHE_NAME = "nexus-shell-v15";
+const CACHE_NAME = "nexus-shell-v16";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -6,6 +6,7 @@ const APP_SHELL = [
   "/assets/nexus-icon.svg",
   "/src/styles.css",
   "/src/app.js",
+  "/src/organization.js",
   "/src/source-health.js"
 ];
 

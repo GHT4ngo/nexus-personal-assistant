@@ -73,6 +73,18 @@ test("requires resolution metadata when an approval leaves pending", () => {
   );
 });
 
+test("accepts explicit manual organization decisions as review history", () => {
+  for (const decision of ["pin", "unpin", "dismiss", "review-later"]) {
+    const record = createReviewDecisionRecord({
+      ...reviewDecisionFixture,
+      sourceId: `review-${decision}`,
+      decision
+    });
+    assert.equal(record.decision, decision);
+    assert.deepEqual(validateRecord(record), { valid: true, errors: [] });
+  }
+});
+
 test("persists mixed local record types and keeps the newest version", () => {
   const records = factories.map(([, factory, fixture]) => factory(fixture));
   const updatedTask = createTaskRecord({

@@ -74,6 +74,42 @@ test("creates a goal and updates its lifecycle status", async () => {
   assert.equal(updated.store.records[0].processing.normalizedAt, timestamps[1]);
 });
 
+test("appends manual organization as auditable review decisions", async () => {
+  const { invoke } = createHarness();
+  const subjectRecordId = "local:task-synthetic";
+  const pinned = await invoke("POST", "/api/local/reviews", {
+    subjectRecordId,
+    decision: "pin"
+  });
+  const deferred = await invoke("POST", "/api/local/reviews", {
+    subjectRecordId,
+    decision: "review-later"
+  });
+
+  assert.equal(pinned.reply.status, 201);
+  assert.equal(deferred.reply.status, 201);
+  assert.equal(deferred.reply.data.reviews.length, 2);
+  assert.deepEqual(
+    deferred.reply.data.reviews.map((record) => record.decision),
+    ["pin", "review-later"]
+  );
+  assert.ok(deferred.reply.data.reviews.every((record) =>
+    record.subjectRecordId === subjectRecordId));
+});
+
+test("rejects unsupported manual organization decisions", async () => {
+  const { invoke } = createHarness();
+  const result = await invoke("POST", "/api/local/reviews", {
+    subjectRecordId: "local:task-synthetic",
+    decision: "auto-prioritize"
+  });
+
+  assert.equal(result.reply.status, 400);
+  assert.ok(result.reply.data.errors.some((item) =>
+    item.path === "decision" && item.code === "field.enum"));
+  assert.equal(result.store.records.length, 0);
+});
+
 test("rejects invalid local records with field errors and no submitted text", async () => {
   const { invoke } = createHarness();
   const privateLikeText = "Synthetic text excluded from errors.";

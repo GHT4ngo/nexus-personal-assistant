@@ -2,6 +2,7 @@ import {
   formatSyncAge,
   sourceHealthSummary
 } from "./source-health.js";
+import { organizeTodayItems } from "./organization.js";
 
 const sampleData = {
   suggestions: [
@@ -32,6 +33,7 @@ let liveGoogleCalendar = [];
 let liveGoogleMail = [];
 let liveTasks = [];
 let liveGoals = [];
+let liveReviews = [];
 let nextGmailPageToken = "";
 let googleLoadInProgress = false;
 let localRecordState = "loading";
@@ -208,6 +210,20 @@ const formatMailDate = (value) => {
       });
 };
 
+const organizationActions = (item) => `
+  <div class="item-actions">
+    <button class="secondary-action local-organization-action" type="button"
+      data-record-id="${escapeHtml(item.recordId)}"
+      data-decision="${item.organization === "pin" ? "unpin" : "pin"}">
+      ${item.organization === "pin" ? "Unpin" : "Pin"}
+    </button>
+    <button class="secondary-action local-organization-action" type="button"
+      data-record-id="${escapeHtml(item.recordId)}" data-decision="review-later">Review later</button>
+    <button class="secondary-action local-organization-action" type="button"
+      data-record-id="${escapeHtml(item.recordId)}" data-decision="dismiss">Dismiss</button>
+  </div>
+`;
+
 const detectCalendarCandidate = (message) => {
   const text = `${message.subject || ""}. ${message.snippet || ""} ${message.bodyPreview || ""}`;
   const patterns = [
@@ -233,7 +249,8 @@ const renderToday = () => {
         : item.text || "No due date set.",
       tag: item.status,
       recordType: "task",
-      sourceId: item.sourceId
+      sourceId: item.sourceId,
+      recordId: item.recordId
     }));
   const events = liveGoogleCalendar.map((item) => ({
     sortAt: item.start,
@@ -241,11 +258,11 @@ const renderToday = () => {
     title: item.title,
     detail: item.location || "Google Calendar event",
     tag: "calendar",
-    recordType: "calendar-event"
+    recordType: "calendar-event",
+    recordId: `google-calendar:${item.id}`
   }));
-  const items = [...tasks, ...events]
-    .sort((left, right) => new Date(left.sortAt || 0) - new Date(right.sortAt || 0))
-    .slice(0, 12);
+  const organized = organizeTodayItems([...tasks, ...events], liveReviews);
+  const items = organized.visible.slice(0, 12);
 
   document.getElementById("metric-actions").textContent = String(tasks.length);
   document.getElementById("local-status").textContent = {
@@ -273,29 +290,43 @@ const renderToday = () => {
       <div>
         <div class="item-title-row">
           <h3>${escapeHtml(item.title)}</h3>
-          ${badge(item.tag)}
+          ${badge(item.organization === "pin" ? `pinned · ${item.tag}` : item.tag)}
         </div>
         <p>${escapeHtml(item.detail)}</p>
-        ${item.recordType === "task" ? `
-          <div class="item-actions">
+        <div class="item-actions">
+          ${item.recordType === "task" ? `
             <button class="secondary-action local-status-action" type="button"
               data-collection="tasks" data-source-id="${escapeHtml(item.sourceId)}" data-status="done">Complete</button>
-          </div>
-        ` : ""}
+          ` : ""}
+        </div>
+        ${organizationActions(item)}
       </div>
     </article>
     `);
   }
 
-  document.getElementById("attention-count").textContent = "Not active";
-  document.getElementById("attention-list").innerHTML = `
-    <article class="list-item mail-item">
-      <div>
-        <h3>Classification intentionally disabled</h3>
-        <p>The failed learning sorter was removed. Messages remain available in Inbox while a tested replacement is built.</p>
-      </div>
-    </article>
-  `;
+  const reviewLater = organized.reviewLater;
+  document.getElementById("attention-count").textContent = `${reviewLater.length} manual`;
+  document.getElementById("attention-list").innerHTML = reviewLater.length
+    ? reviewLater.map((item) => `
+      <article class="list-item">
+        <div class="time-chip">${escapeHtml(item.time)}</div>
+        <div>
+          <div class="item-title-row">
+            <h3>${escapeHtml(item.title)}</h3>
+            ${badge("review later")}
+          </div>
+          <p>${escapeHtml(item.detail)}</p>
+          ${organizationActions(item)}
+        </div>
+      </article>
+    `).join("")
+    : `
+      <article class="list-item empty-state"><div>
+        <h3>No manually deferred items</h3>
+        <p>Classification remains disabled. Only items you explicitly mark “Review later” appear here.</p>
+      </div></article>
+    `;
 };
 
 const renderSuggestions = () => {
@@ -585,6 +616,7 @@ const loadMailCache = async () => {
 const applyLocalRecords = (data) => {
   liveTasks = Array.isArray(data.tasks) ? data.tasks : [];
   liveGoals = Array.isArray(data.goals) ? data.goals : [];
+  liveReviews = Array.isArray(data.reviews) ? data.reviews : [];
   localRecordState = "ready";
   setSourceHealth("local", "healthy", data.updatedAt);
   renderToday();
@@ -658,6 +690,19 @@ const updateLocalRecordStatus = async (collection, sourceId, status) => {
   const data = await readApiJson(response);
   if (!response.ok) {
     throw new Error(data.errors?.[0]?.message || data.message || "Could not update local record.");
+  }
+  applyLocalRecords(data);
+};
+
+const organizeLocalRecord = async (subjectRecordId, decision) => {
+  const response = await apiFetch("/api/local/reviews", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ subjectRecordId, decision })
+  });
+  const data = await readApiJson(response);
+  if (!response.ok) {
+    throw new Error(data.errors?.[0]?.message || data.message || "Could not save review decision.");
   }
   applyLocalRecords(data);
 };
@@ -820,6 +865,21 @@ document.getElementById("focus-action").addEventListener("click", () => activate
 document.getElementById("theme-toggle").addEventListener("click", () =>
   applyTheme(document.body.dataset.theme === "matrix" ? "neon" : "matrix"));
 document.querySelector(".app-shell").addEventListener("click", async (event) => {
+  const organizationButton = event.target.closest(".local-organization-action");
+  if (organizationButton) {
+    organizationButton.disabled = true;
+    try {
+      await organizeLocalRecord(
+        organizationButton.dataset.recordId,
+        organizationButton.dataset.decision
+      );
+    } catch (error) {
+      document.getElementById("task-message").textContent = error.message;
+    } finally {
+      organizationButton.disabled = false;
+    }
+    return;
+  }
   const button = event.target.closest(".local-status-action");
   if (!button) {
     return;

@@ -1,5 +1,6 @@
 import {
   createGoalRecord,
+  createReviewDecisionRecord,
   createTaskRecord
 } from "../../src/domain/records.js";
 import { mergeStoredRecords } from "../storage/record-store.js";
@@ -17,6 +18,7 @@ const responseData = (store) => ({
   records: store.records,
   tasks: store.records.filter((record) => record.recordType === "task"),
   goals: store.records.filter((record) => record.recordType === "goal"),
+  reviews: store.records.filter((record) => record.recordType === "review-decision"),
   updatedAt: store.updatedAt
 });
 
@@ -50,6 +52,33 @@ export const createLocalRecordRouteHandler = ({
   return async (request, url, response) => {
     if (url.pathname === "/api/local/records" && request.method === "GET") {
       sendJson(response, 200, responseData(readStore()));
+      return true;
+    }
+
+    if (url.pathname === "/api/local/reviews") {
+      if (request.method !== "POST") {
+        sendJson(response, 405, { message: "Method not allowed." });
+        return true;
+      }
+      try {
+        const body = await readBody(request);
+        const timestamp = now().toISOString();
+        const record = createReviewDecisionRecord({
+          sourceId: `review-${idGenerator()}`,
+          title: `Manual ${body.decision || "review"} decision`,
+          subjectRecordId: body.subjectRecordId,
+          decision: body.decision,
+          decidedAt: timestamp,
+          normalizedAt: timestamp
+        });
+        const result = persist(readStore().records, record, timestamp);
+        sendJson(response, 201, { record, ...responseData(result.store) });
+      } catch (error) {
+        sendJson(response, 400, {
+          message: "Local review request is invalid.",
+          errors: safeErrors(error)
+        });
+      }
       return true;
     }
 

@@ -165,7 +165,16 @@ export const validateRecord = (record) => {
     if (!isNonEmptyString(record.subjectRecordId)) {
       errors.push(error("subjectRecordId", "field.required", "Review subjectRecordId is required."));
     }
-    if (!isOneOf(record.decision, ["accept", "correct", "dismiss", "defer", "not-enough-information"])) {
+    if (!isOneOf(record.decision, [
+      "accept",
+      "correct",
+      "dismiss",
+      "defer",
+      "not-enough-information",
+      "pin",
+      "unpin",
+      "review-later"
+    ])) {
       errors.push(error("decision", "field.enum", "Review decision is invalid."));
     }
     if (!isIsoDate(record.decidedAt)) {

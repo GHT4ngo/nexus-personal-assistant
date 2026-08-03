@@ -182,15 +182,15 @@ Goal: make Nexus useful without classification.
 Status (2026-08-03): task/goal persistence, the first real Today view, and source-health
 presentation are complete. Today combines user-owned active tasks with loaded Google
 Calendar events and shows health and synchronization age for the server, Google link,
-Calendar, Gmail cache, and local records. Manual organization controls and physical-device
-verification remain.
+Calendar, Gmail cache, and local records. Auditable manual organization controls are
+complete; physical-device verification remains.
 
 Work:
 
 - [x] Replace hard-coded Today data with normalized calendar events, tasks, and goals.
 - [x] Add local task and goal persistence.
 - [x] Show synchronization age and source health.
-- Add manual pin, dismiss, and “review later” behavior.
+- [x] Add manual pin, dismiss, and “review later” behavior.
 - [x] Keep the Inbox chronological.
 - [x] Add clear empty, loading, offline, and error states for Today and local records.
 - Test on a Samsung-sized viewport and in the Android wrapper.

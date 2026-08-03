@@ -324,3 +324,39 @@ device.
 
 Add explicit manual pin, dismiss, and review-later behavior using local auditable records,
 then verify the complete Today flow in the Android wrapper on the Samsung device.
+
+## 2026-08-03 — Milestone 2 manual organization
+
+### Completed
+
+- Extended review-decision validation with explicit pin, unpin, dismiss, and review-later
+  choices.
+- Added an append-only local review API; organization decisions do not modify their task or
+  Calendar source records.
+- Added Pin, Unpin, Review later, and Dismiss controls to Today items.
+- Made pinned items sort first.
+- Moved manually deferred items into the Attention Queue.
+- Allowed a later Pin decision to restore an item from Review later.
+- Kept dismissed items out of Today while retaining their source and decision history.
+- Added pure organization logic so “latest decision wins” behavior is deterministic and
+  independently tested.
+- Updated the PWA application shell for the new organization module.
+
+### Verification
+
+- `npm run check` passes.
+- `npm test` passes: 50 tests, 0 failures.
+- `npm run mobile:prepare` passes.
+- Live checks confirmed the organization module, empty real review/task/goal store, and
+  connected Google status load successfully.
+- No synthetic decisions were written to the real private store.
+- Privacy scanning found no personal content, credentials, or new secrets.
+- The available Android bridge is a Windows `adb.exe`, which this Linux execution
+  environment cannot run. Physical Samsung verification remains pending; Android CI still
+  validates the build.
+
+### Next slice
+
+Reopen a compatible ADB session, install the current Android debug build, and verify task
+creation, goal creation, pin, review-later, restore, dismiss, offline state, and Google
+read-only loading on the Samsung-sized interface.
