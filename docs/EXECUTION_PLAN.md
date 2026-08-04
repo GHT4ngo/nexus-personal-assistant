@@ -401,10 +401,10 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by connecting the completed desktop handoff to a minimal in-memory
-browser bootstrap client under test. The renderer, issuance, redemption, and complete
-review lifecycle are implemented but remain unmounted. Next, read and immediately remove
-the inert handoff element, redeem the code, retain the token in JavaScript memory only,
-and expose no review UI yet. Do not change server binding, mobile static assets, Android,
-classifier execution, Gmail, provider actions, or learning. Read
+Continue Milestone 4 with one synthetic end-to-end desktop composition test using the real
+renderer, browser client, bootstrap route, guarded view, and command route together. Each
+unit is implemented but remains unmounted. Prove that the client can initialize, read the
+privacy-safe queue, submit one explicit decision, clear its private session, and then lose
+access—without exposing the token. Do not change server binding, static/mobile assets,
+Android, classifier execution, Gmail, provider actions, UI, or learning. Read
 [WORKLOG.md](WORKLOG.md) for evidence.

@@ -1249,3 +1249,33 @@ code into an in-memory HTML response. The review token never enters the renderer
 Build a minimal tested desktop browser bootstrap client that reads and immediately removes
 the inert handoff element, redeems once, and retains the review token in memory only. Keep
 it unmounted and do not add review UI yet.
+
+## 2026-08-04 — Milestone 4 in-memory desktop bootstrap client
+
+### Outcome
+
+Added an unmounted browser-compatible client that consumes the dynamic handoff, redeems it,
+and keeps the review token only inside a private request closure.
+
+### Behavior and verification
+
+- The handoff text is copied, cleared, and removed from the document before redemption.
+- Exact payload fields, fixed relative bootstrap path, code strength, and expiry are
+  validated before any request.
+- Initialization returns only ready/rejected status and never returns the token.
+- The private session can authorize only the review GET and command POST endpoints.
+- All authorized calls force no-store, same-origin credentials, and no-referrer behavior.
+- Invalid, expired, replayed, malformed-response, and network-failure paths remain
+  sanitized and cannot retry the consumed handoff.
+- `clear()` destroys the session's request capability.
+- Six focused client tests pass.
+- Full regression and syntax checks pass: 191 tests, 0 failures.
+- The client is outside `src/` and remains absent from the running application and Android
+  bundle. Server binding, static/mobile assets, Gmail, classifier execution, actions,
+  learning, and UI remain unchanged.
+
+### Next slice
+
+Add one synthetic end-to-end desktop composition test using the real renderer, client,
+bootstrap route, guarded review view, and explicit command route. Keep every component
+unmounted and verify clearing the client destroys access.

@@ -262,6 +262,21 @@ the handoff element immediately after reading it and redeem the code once.
 This renderer remains unmounted. Static desktop files, copied mobile assets, and the
 Android native bridge remain unchanged.
 
+`createClassifierReviewBootstrapClient(...)` is the matching unmounted browser boundary.
+It reads the exact inert element, copies its text, clears and removes the element before
+any network call, then validates the exact payload fields, fixed relative path, minimum
+code strength, and future expiry. Invalid or expired handoffs cause no request.
+
+Successful redemption must return the exact ready response and a strong token. The token
+is retained only in a private closure: it is not returned by initialization and is not an
+object property. The closure can authorize only GET review-view requests and POST review
+commands, always forcing no-store, same-origin credentials, no-referrer, and the private
+token header. `clear()` destroys this capability. Failed initialization cannot retry the
+removed handoff, and errors return content-free stable codes.
+
+The client lives outside `src/`, is not imported by the application, and is not copied
+into the current Android bundle.
+
 The loopback server integration now composes this lifecycle. Its public integration surface
 contains `handleRequest` and frozen `trustedBootstrap.issue(origin)`/`clear()` functions;
 it no longer exposes the review token directly. Bootstrap redemption is routed before the
