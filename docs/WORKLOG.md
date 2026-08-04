@@ -958,3 +958,45 @@ into minimal pending, abstained, and resolved queues. It has no HTTP route or UI
 Add an explicit review-command service that resolves opaque review keys privately and
 appends validated accept, correct, dismiss, or not-enough-information decisions. Reject
 unknown/stale keys and keep routes, UI, actions, and learning out of scope.
+
+## 2026-08-04 — Milestone 4 explicit review commands
+
+### Outcome
+
+Added a command service that privately resolves an opaque review key and appends one
+validated classifier review decision. It remains disconnected from HTTP routes and UI.
+
+### Command boundary
+
+- Commands require an opaque review key, expected projected status, UUID command ID, and
+  one supported classifier decision.
+- Correct requires a boolean or string corrected value.
+- Other decisions reject corrected values.
+- Unknown opaque keys are rejected.
+- The expected status is compared with the latest private projection; changed state is
+  rejected as stale.
+- Exact UUID command retries are idempotent and do not append duplicate history.
+- UUID reuse for different command content is rejected as a conflict.
+- Success and failure responses expose status, stable code, and idempotency only.
+- Read/write exception messages and private stored values are never returned.
+- Accepted commands append only `review-decision` records with
+  `reviewKind: classifier-suggestion`.
+- No task, event, approval, action, classifier-rule, or training record is created.
+
+### Verification
+
+- Focused command and review-view suites pass: 16 tests, 0 failures.
+- Full regression passes: 141 tests, 0 failures.
+- All four supported decisions persist with the correct correction boundary.
+- Idempotent retry, command conflict, unknown key, invalid input, stale status, and
+  sanitized store failures are covered.
+- Stored history remains append-only.
+- Routes, Gmail, classifier execution, provider actions, learning, and UI remain
+  unchanged.
+
+### Next slice
+
+Add synthetic-only HTTP handlers for reading the review view and submitting review
+commands through injected services. Require safe methods, JSON content type, bounded
+bodies, and sanitized responses; do not connect a real private path, Gmail, classifier
+execution, actions, or UI.

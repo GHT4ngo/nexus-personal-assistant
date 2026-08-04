@@ -128,3 +128,25 @@ returned while suggestions for one subject can still be grouped.
 
 Store failures return empty queues plus a stable `store.*` or `store.failed` code. The
 service does not classify, write, import routes, or perform actions.
+
+## Explicit review commands
+
+`createClassifierReviewCommandService({ store })` is the only boundary that turns a
+review-view choice into a stored classifier review. Each command requires:
+
+- the opaque review key;
+- the projected status the user saw;
+- a caller-generated UUID command ID;
+- accept, correct, dismiss, or not-enough-information;
+- a corrected value only for correct.
+
+The service resolves the opaque key inside private storage and compares the expected status
+with the latest projection before writing. Unknown keys and changed statuses are rejected.
+The UUID makes an exact retry idempotent; reusing it for a different decision is rejected
+as a conflict.
+
+Successful commands append one validated `review-decision`. Responses contain only
+accepted/rejected/failed status, a stable code, and an idempotent flag. They contain no
+suggestion, decision record, provider ID, corrected value, or exception message. The
+service does not create tasks, calendar events, approvals, actions, classifier rules, or
+training data, and it has no HTTP or UI integration.

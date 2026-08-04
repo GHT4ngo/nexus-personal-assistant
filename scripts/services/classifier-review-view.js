@@ -8,6 +8,12 @@ const opaqueKey = (kind, value) => createHash("sha256")
   .update(`nexus-classifier-review-view/1:${kind}:${value}`)
   .digest("hex");
 
+export const classifierReviewKeyFor = (recordId) =>
+  opaqueKey("suggestion", recordId);
+
+export const classifierSubjectKeyFor = (recordId) =>
+  opaqueKey("subject", recordId);
+
 const emptyQueues = () => ({
   pending: [],
   abstained: [],
@@ -20,8 +26,8 @@ const failureCode = (error) =>
     : "store.failed";
 
 const toViewItem = ({ suggestion, status, effectiveValue }) => ({
-  reviewKey: opaqueKey("suggestion", suggestion.recordId),
-  subjectKey: opaqueKey("subject", suggestion.subjectRecordId),
+  reviewKey: classifierReviewKeyFor(suggestion.recordId),
+  subjectKey: classifierSubjectKeyFor(suggestion.subjectRecordId),
   suggestionType: suggestion.suggestionType,
   suggestedValue: suggestion.suggestedValue,
   extractedValue: suggestion.extractedValue,

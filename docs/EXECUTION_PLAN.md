@@ -269,8 +269,9 @@ now preserves immutable/idempotent suggestions and append-only review history wi
 restrictive writes. A default-off service can now persist enabled batch output while
 returning sanitized aggregate results. A read-only service now projects private storage
 into minimal pending, abstained, and resolved review queues with opaque keys. Product
-integration remains blocked until explicit review-write resolution and HTTP/UI behavior
-are implemented and tested.
+integration remains blocked until HTTP/UI behavior is implemented and tested. The
+explicit review-command boundary now resolves opaque keys, rejects stale state, and
+appends idempotent validated decisions.
 
 Interface:
 
@@ -294,6 +295,7 @@ Work:
 - [x] Add private, atomic suggestion/review persistence with no route integration.
 - [x] Add default-off persistence orchestration with aggregate diagnostics only.
 - [x] Add a privacy-safe read-only review view over private projection state.
+- [x] Add explicit, stale-safe, idempotent review commands behind opaque keys.
 - Never infer future messages solely from a sender or domain.
 - [~] Display suggestions separately from user decisions. The record and projection
   boundaries are complete; UI rendering remains.
@@ -389,7 +391,7 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 with an explicit review-command service that resolves an opaque review
-key against private suggestions and appends one validated classifier review decision.
-Reject unknown/stale keys, sanitize all failures, and keep HTTP routes, UI, provider
-actions, and automatic learning out of scope. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 with synthetic-only HTTP route handlers for the review view and review
+commands, using injected services and no default private path. Add method/content-type/body
+limits and sanitized response contracts. Do not wire classifier execution, real Gmail,
+provider actions, or UI yet. Read [WORKLOG.md](WORKLOG.md) for evidence.

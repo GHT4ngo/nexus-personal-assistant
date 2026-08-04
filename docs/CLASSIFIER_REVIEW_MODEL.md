@@ -78,3 +78,8 @@ The read-only review-view service applies the latest-decision projection and map
 to a smaller view model. Opaque review keys support later explicit review targeting, while
 opaque subject keys allow grouping labels for one message. Raw identifiers, evidence
 excerpts, provenance, model versions, and content hashes stay inside private storage.
+
+The review-command service resolves one opaque key privately and appends one validated
+human decision. It uses the status shown in the read view as an optimistic concurrency
+check, so a decision based on stale state is rejected. A UUID command ID makes network
+retries idempotent without deleting or replacing review history.
