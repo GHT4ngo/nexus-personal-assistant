@@ -25,6 +25,8 @@ export const createClassifierReviewComposition = ({
   commandToken,
   readRequestBody,
   sendJson,
+  applyCors,
+  sendEmpty,
   now = () => new Date()
 } = {}) => {
   if (enabled !== true) {
@@ -40,7 +42,10 @@ export const createClassifierReviewComposition = ({
       "Enabled classifier reviews require an explicit absolute privateFilePath."
     );
   }
-  if (typeof readRequestBody !== "function" || typeof sendJson !== "function") {
+  if (typeof readRequestBody !== "function"
+    || typeof sendJson !== "function"
+    || typeof applyCors !== "function"
+    || typeof sendEmpty !== "function") {
     throw new TypeError("Enabled classifier reviews require HTTP adapters.");
   }
 
@@ -60,7 +65,9 @@ export const createClassifierReviewComposition = ({
     handler: routeHandler,
     allowedOrigins,
     commandToken,
-    sendJson
+    sendJson,
+    applyCors,
+    sendEmpty
   });
 
   return {

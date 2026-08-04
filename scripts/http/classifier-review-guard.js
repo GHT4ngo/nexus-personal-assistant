@@ -54,9 +54,14 @@ export const createClassifierReviewRequestGuard = ({
   handler,
   allowedOrigins,
   commandToken,
-  sendJson
+  sendJson,
+  applyCors,
+  sendEmpty
 } = {}) => {
-  if (typeof handler !== "function" || typeof sendJson !== "function") {
+  if (typeof handler !== "function"
+    || typeof sendJson !== "function"
+    || typeof applyCors !== "function"
+    || typeof sendEmpty !== "function") {
     throw new TypeError("Classifier review guard requires HTTP adapters.");
   }
   if (!Array.isArray(allowedOrigins) || allowedOrigins.length === 0) {
@@ -83,6 +88,27 @@ export const createClassifierReviewRequestGuard = ({
     const requestOrigin = normalizeOrigin(header(request, "origin"));
     if (!requestOrigin || !originSet.has(requestOrigin)) {
       deny(sendJson, response, "request.origin.denied");
+      return true;
+    }
+    applyCors(response, requestOrigin);
+
+    if (request.method === "OPTIONS") {
+      const requestedMethod = header(request, "access-control-request-method");
+      const requestedHeaders = header(request, "access-control-request-headers")
+        .toLowerCase()
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean);
+      const methodAllowed = url.pathname === "/api/classifier/reviews"
+        ? requestedMethod === "GET"
+        : requestedMethod === "POST";
+      const headersAllowed = requestedHeaders.every((name) =>
+        ["content-type", TOKEN_HEADER].includes(name));
+      if (!methodAllowed || !headersAllowed || !requestedHeaders.includes(TOKEN_HEADER)) {
+        deny(sendJson, response, "request.preflight.denied");
+        return true;
+      }
+      sendEmpty(response, 204);
       return true;
     }
 

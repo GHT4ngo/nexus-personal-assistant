@@ -114,8 +114,14 @@ export const createClassifierReviewRouteHandler = ({
     let parsed;
     try {
       parsed = await readCommand(request, readRequestBody);
-    } catch {
-      reply(sendJson, response, 400, "request.body.unreadable");
+    } catch (error) {
+      const tooLarge = error?.code === "request.body-too-large";
+      reply(
+        sendJson,
+        response,
+        tooLarge ? 413 : 400,
+        tooLarge ? "request.body-too-large" : "request.body.unreadable"
+      );
       return true;
     }
     if (!parsed.valid) {

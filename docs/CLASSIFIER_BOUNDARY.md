@@ -203,5 +203,31 @@ receive the same response. Denials occur before the route handler, body reader, 
 store is reached and return only `request.origin.denied` or `request.token.denied`.
 
 There are no default allowed origins or token. Unrelated paths pass through without this
-guard. Cross-origin preflight and runtime token provisioning must be designed before the
-composition can be mounted.
+guard. Cross-origin preflight is defined below; trusted runtime token delivery remains a
+prerequisite before the composition can be mounted.
+
+## Server integration contract
+
+`createClassifierReviewServerIntegration(...)` remains unmounted but defines the only safe
+server configuration path:
+
+- `NEXUS_CLASSIFIER_REVIEWS` must equal the exact string `1`;
+- enabled integration accepts only `127.0.0.1` or `::1` server binding;
+- private path and comma-separated allowed origins remain explicit;
+- an injected token is used when configured, otherwise 32 random bytes produce an
+  in-memory base64url token;
+- the token and origins are returned in a frozen `clientAccess` object for trusted runtime
+  bootstrap only and are never logged or persisted by the integration.
+
+The request guard now handles origin-approved `OPTIONS` preflight. It permits only the
+endpoint's GET or POST method and only Content-Type plus X-Nexus-Review-Token headers.
+Actual and preflight responses receive exact-origin CORS, `Vary: Origin`, and
+`Cache-Control: no-store`.
+
+`createBoundedRequestBodyReader()` counts bytes per incoming chunk before buffering. The
+route's 4 KiB command limit cannot exceed the reader's server-wide maximum. Oversized and
+stream-error responses are sanitized.
+
+The current `local-server.mjs` binds `0.0.0.0`, so it cannot mount this integration without
+first changing to loopback. Runtime bootstrap must deliberately deliver `clientAccess` to
+the trusted browser/WebView without logging or embedding it in public build assets.

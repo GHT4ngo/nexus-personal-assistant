@@ -276,6 +276,8 @@ bounded view/command contracts but remain unmounted from the product server. A f
 composition factory creates the store and handlers only with literal enablement and an
 absolute private path. Enabled composition now requires exact allowed origins and a
 constant-time checked review-session token before any read or command reaches storage.
+An unmounted server-integration factory now adds exact flag parsing, loopback-only binding,
+origin-approved preflight, bounded streaming bodies, and runtime-only token generation.
 
 Interface:
 
@@ -303,6 +305,7 @@ Work:
 - [x] Add unmounted strict HTTP handlers using injected review services.
 - [x] Add fail-closed review composition with no default private path.
 - [x] Guard all review reads/commands with explicit origins and a strong session token.
+- [x] Define loopback-only server integration and runtime access provisioning.
 - Never infer future messages solely from a sender or domain.
 - [~] Display suggestions separately from user decisions. The record and projection
   boundaries are complete; UI rendering remains.
@@ -398,8 +401,8 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by defining safe local-server integration for the guarded composition:
-bounded streaming-body enforcement, explicit feature-flag parsing, ignored private path,
-runtime token provisioning, and Android/browser origin behavior including preflight.
-Document and test the integration factory before mounting it. Keep classifier execution,
-Gmail, provider actions, and UI out of scope. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 by designing a trusted runtime bootstrap that can deliver the
+in-memory review token to the desktop page and Android WebView without logging it or
+placing it in static assets. Test token lifecycle and reload behavior before changing the
+server bind or mounting routes. Keep classifier execution, Gmail, provider actions, and UI
+out of scope. Read [WORKLOG.md](WORKLOG.md) for evidence.

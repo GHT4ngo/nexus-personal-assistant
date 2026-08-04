@@ -35,7 +35,9 @@ const suggestion = () => createClassifierSuggestionRecord({
 
 const httpAdapters = (replies) => ({
   readRequestBody: async (request) => request.body || "",
-  sendJson: (_response, status, data) => replies.push({ status, data })
+  sendJson: (_response, status, data) => replies.push({ status, data }),
+  applyCors: () => {},
+  sendEmpty: () => {}
 });
 
 const invoke = async (composition, replies, {
@@ -215,6 +217,8 @@ test("denied commands do not read bodies or write private storage", async (t) =>
       return JSON.stringify({});
     },
     sendJson: (_response, status, data) => replies.push({ status, data }),
+    applyCors: () => {},
+    sendEmpty: () => {},
     now: () => new Date(NOW)
   });
 

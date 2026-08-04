@@ -19,13 +19,21 @@ const createHarness = () => {
     },
     allowedOrigins: [ORIGIN, "http://localhost"],
     commandToken: TOKEN,
-    sendJson: (_response, status, data) => replies.push({ status, data })
+    sendJson: (_response, status, data) => replies.push({ status, data }),
+    applyCors: (_response, origin) => {
+      calls.corsOrigin = origin;
+    },
+    sendEmpty: (_response, status) => {
+      calls.emptyStatus = status;
+    }
   });
   const invoke = async ({
     method = "GET",
     path = "/api/classifier/reviews",
     origin,
-    token
+    token,
+    requestedMethod,
+    requestedHeaders
   } = {}) => {
     replies.length = 0;
     const headers = {};
@@ -34,6 +42,12 @@ const createHarness = () => {
     }
     if (token !== undefined) {
       headers[CLASSIFIER_REVIEW_TOKEN_HEADER] = token;
+    }
+    if (requestedMethod) {
+      headers["access-control-request-method"] = requestedMethod;
+    }
+    if (requestedHeaders) {
+      headers["access-control-request-headers"] = requestedHeaders;
     }
     const handled = await guard(
       { method, headers },
@@ -48,11 +62,15 @@ const createHarness = () => {
 test("requires HTTP adapters, unique valid origins, and a strong token", () => {
   const handler = async () => true;
   const sendJson = () => {};
+  const applyCors = () => {};
+  const sendEmpty = () => {};
   assert.throws(() => createClassifierReviewRequestGuard(), /HTTP adapters/);
   assert.throws(
     () => createClassifierReviewRequestGuard({
       handler,
       sendJson,
+      applyCors,
+      sendEmpty,
       commandToken: TOKEN
     }),
     /allowed origins/
@@ -67,6 +85,8 @@ test("requires HTTP adapters, unique valid origins, and a strong token", () => {
       () => createClassifierReviewRequestGuard({
         handler,
         sendJson,
+        applyCors,
+        sendEmpty,
         allowedOrigins,
         commandToken: TOKEN
       }),
@@ -77,11 +97,37 @@ test("requires HTTP adapters, unique valid origins, and a strong token", () => {
     () => createClassifierReviewRequestGuard({
       handler,
       sendJson,
+      applyCors,
+      sendEmpty,
       allowedOrigins: [ORIGIN],
       commandToken: "too-short"
     }),
     /at least 32 bytes/
   );
+});
+
+test("allows only origin-approved preflight for the expected method and headers", async () => {
+  const harness = createHarness();
+
+  const allowed = await harness.invoke({
+    method: "OPTIONS",
+    path: "/api/classifier/reviews/commands",
+    origin: ORIGIN,
+    requestedMethod: "POST",
+    requestedHeaders: "content-type, x-nexus-review-token"
+  });
+  const denied = await harness.invoke({
+    method: "OPTIONS",
+    path: "/api/classifier/reviews/commands",
+    origin: ORIGIN,
+    requestedMethod: "DELETE",
+    requestedHeaders: "x-nexus-review-token"
+  });
+
+  assert.equal(allowed.reply, undefined);
+  assert.equal(harness.calls.emptyStatus, 204);
+  assert.equal(denied.reply.data.code, "request.preflight.denied");
+  assert.equal(harness.calls.handler, 0);
 });
 
 test("allows exact configured browser and Android WebView origins", async () => {

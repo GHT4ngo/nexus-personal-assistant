@@ -97,3 +97,8 @@ Enabled composition also requires an explicit origin allowlist and strong review
 token. Both reads and writes require the token because the future server binds beyond
 loopback; Origin alone is an anti-CSRF signal and can be forged by non-browser clients.
 Denied requests reach neither storage nor the request-body reader.
+
+The planned server integration is stricter: review enablement requires loopback binding,
+exact string flag parsing, and runtime-only access material. Cross-origin WebView requests
+use an origin-approved preflight; command bodies are bounded during streaming rather than
+after full buffering.

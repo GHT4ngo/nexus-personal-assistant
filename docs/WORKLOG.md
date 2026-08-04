@@ -1124,3 +1124,47 @@ clients can forge Origin.
 Define and test a server-integration factory covering bounded streaming bodies, exact
 feature-flag parsing, ignored private path, runtime token provisioning, and browser/Android
 origin and preflight behavior. Do not mount it in `local-server.mjs` yet.
+
+## 2026-08-04 — Milestone 4 safe server-integration contract
+
+### Outcome
+
+Added an unmounted server-integration factory, CORS-aware preflight handling, and bounded
+streaming request reader.
+
+### Integration boundary
+
+- Only exact environment value `NEXUS_CLASSIFIER_REVIEWS=1` enables integration.
+- Disabled integration provisions no path, origins, token, store, or services.
+- Enabled integration refuses server hosts other than `127.0.0.1` and `::1`.
+- The private path and allowed origins remain explicit configuration.
+- A configured strong token is preserved in memory; otherwise 32 random bytes generate a
+  base64url runtime token.
+- Runtime token and origins are exposed only through a frozen trusted-bootstrap object.
+- No token is written, logged, or embedded in a static asset.
+- Origin-approved OPTIONS supports only the endpoint method and required headers.
+- CORS responses use the exact origin, Vary Origin, and no-store caching.
+- The streaming body reader counts UTF-8 bytes before buffering and caps caller limits at
+  its configured server maximum.
+- Oversized bodies and stream failures return sanitized stable codes.
+
+The running server still binds `0.0.0.0`, so the loopback requirement intentionally
+prevents mounting this integration today.
+
+### Verification
+
+- Focused body-reader, guard, composition, route, and server-integration suites pass:
+  33 tests, 0 failures.
+- Full regression passes: 174 tests, 0 failures.
+- Exact flag rejection, loopback enforcement, configured/generated token behavior,
+  frozen runtime access, preflight allow/deny, multi-chunk UTF-8 limits, and stream failure
+  sanitization are covered.
+- The handler surface does not serialize the configured token.
+- `local-server.mjs`, Gmail, classifier execution, provider actions, learning, and UI
+  remain unchanged.
+
+### Next slice
+
+Design and test trusted runtime token bootstrap and lifecycle for desktop reloads and the
+Android WebView. Do not change server binding or mount review routes until token delivery
+is safe and non-static.
