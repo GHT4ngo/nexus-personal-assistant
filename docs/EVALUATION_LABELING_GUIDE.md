@@ -41,6 +41,9 @@ Use `true` only when delayed attention could cause meaningful near-term harm or 
 trusted human explicitly communicates a genuine immediate need. Marketing urgency,
 countdowns, capitalization, and the word “urgent” alone are insufficient.
 
+A classifier predicting `true` must return evidence for both the near-term harm and the
+immediacy. Harm without reliable timing should abstain.
+
 ### `topic`
 
 Choose one broad topic only when the message provides enough evidence:

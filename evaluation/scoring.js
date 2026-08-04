@@ -110,7 +110,7 @@ export const evaluateClassifier = (dataset, classifier) => {
   );
   const missingEvidence = [];
   dataset.items.forEach((item, index) => {
-    for (const label of ["needsReply", "hasDeadline"]) {
+    for (const label of BINARY_LABELS) {
       if (predictions[index].labels[label] === true
         && !predictions[index].evidence?.[label]?.length) {
         missingEvidence.push({ id: item.id, label });
@@ -138,7 +138,7 @@ export const evaluateClassifier = (dataset, classifier) => {
       missedUrgentIds,
       evidence: {
         requiredPositivePredictions: dataset.items.reduce((count, _item, index) =>
-          count + ["needsReply", "hasDeadline"].filter((label) =>
+          count + BINARY_LABELS.filter((label) =>
             predictions[index].labels[label] === true).length, 0),
         missing: missingEvidence
       },

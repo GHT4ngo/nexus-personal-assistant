@@ -629,3 +629,38 @@ altering fixture labels or adding sender-history rules.
 Define conservative urgency evidence using genuine near-term harm plus immediacy. The word
 “urgent,” countdowns, sales, and list-mail marketing must never be sufficient by
 themselves.
+
+## 2026-08-04 — Milestone 4 conservative urgency
+
+### Outcome
+
+Added deterministic urgency suggestions using separate evidence for concrete near-term
+harm and immediacy. Core classifier v3 now passes every binary quality gate on the locked
+v2 dataset; topic remains unimplemented and keeps the overall release gate closed.
+
+### Safety boundary
+
+- Positive urgency requires both a concrete harm cue and an immediacy cue.
+- The word “urgent,” capitalization, countdowns, and time pressure alone are insufficient.
+- Promotional/list-mail framing forces a non-urgent result even when it uses emergency
+  vocabulary.
+- Concrete harm without reliable timing abstains rather than guessing.
+- Positive urgency reports the evidence sentence or sentences supporting both conditions.
+- The evaluator now requires evidence for every positive binary suggestion.
+
+### Results
+
+- Urgent true positives: `3`; false positives: `0`; false negatives: `0`.
+- Urgent precision/recall: `1.0`; abstention rate on locked scorable fixtures: `0`.
+- Reply, deadline, calendar-candidate, automated, and urgent all pass their v2 thresholds.
+- Topic coverage remains `0`, so no classifier is approved for UI integration.
+- `npm test` passes: 80 tests, 0 failures.
+- Core-v3 report SHA-256:
+  `f712539434f381ee62e0d840dd10c047ed7c61597d0f545c6de6d7fcc8636a31`.
+- Weak and date report hashes changed intentionally because their evaluation reports now
+  count evidence across every positive binary label; predictions did not change.
+
+### Next slice
+
+Add conservative broad-topic suggestions using current-message content only. Ambiguous
+content and overlapping topics must abstain; sender and domain history remain prohibited.

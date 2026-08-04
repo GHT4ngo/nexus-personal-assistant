@@ -256,8 +256,9 @@ deadlines, calendar candidates, direct reply requests, and automated/list-mail s
 from synthetic text. It requires evidence and abstains on unsupported or ambiguous input.
 The v2 evaluation set contains 28 invented messages, including adversarial near misses and
 explicit abstention limits. Classifier v2 independently extracts meetings and deadlines
-from one message and recognizes explicit generated-message evidence. It is not connected
-to Gmail classification or the product UI.
+from one message and recognizes explicit generated-message evidence. Core v3 adds
+two-part urgency evidence while rejecting promotional pressure. It is not connected to
+Gmail classification or the product UI.
 
 Interface:
 
@@ -371,7 +372,7 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by defining conservative urgency evidence rules against the locked v2
-cases. Marketing language and the word “urgent” alone must remain insufficient. Keep
-results out of the product UI and private Gmail pipeline. Read [WORKLOG.md](WORKLOG.md) for
-evidence.
+Continue Milestone 4 by defining broad topic rules based only on the current message
+content. Ambiguous content must abstain, and sender/domain history must remain excluded.
+Keep results out of the product UI and private Gmail pipeline. Read
+[WORKLOG.md](WORKLOG.md) for evidence.

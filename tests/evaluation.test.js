@@ -65,7 +65,7 @@ test("produces a deterministic weak-baseline evaluation report", async () => {
   assert.ok(first.metrics.falseUrgentIds.includes("marketing-urgent-word"));
 });
 
-test("requires evidence for positive reply and deadline predictions", async () => {
+test("requires evidence for every positive binary suggestion", async () => {
   const dataset = await readJson("../evaluation/fixtures/v1/messages.json");
   const report = evaluateClassifier(dataset, (message) => {
     const prediction = classifyWithWeakBaseline(message);
@@ -100,7 +100,7 @@ test("measures the deterministic date extractor without guessing other labels", 
   assert.deepEqual(report.metrics.evidence.missing, []);
 });
 
-test("measures the deterministic core while urgency and topic still abstain", async () => {
+test("measures the deterministic core while topic still abstains", async () => {
   const dataset = await readJson("../evaluation/fixtures/v1/messages.json");
   const gates = await readJson("../evaluation/quality-gates.json");
   const report = evaluateClassifier(dataset, classifyWithDeterministicCore);
@@ -110,24 +110,24 @@ test("measures the deterministic core while urgency and topic still abstain", as
     "needsReply",
     "hasDeadline",
     "calendarCandidate",
+    "urgent",
     "automated"
   ]) {
     assert.equal(report.metrics.binary[label].precision, 1);
     assert.equal(report.metrics.binary[label].recall, 1);
   }
-  assert.equal(report.metrics.binary.urgent.abstentionRate, 1);
   assert.equal(report.metrics.topic.coverage, 0);
   assert.equal(assessment.passed, false);
   assert.deepEqual(report.metrics.evidence.missing, []);
 });
 
-test("fixes the structural v2 failures while unimplemented labels keep gates closed", async () => {
+test("passes binary v2 gates while unimplemented topic keeps release closed", async () => {
   const dataset = await loadEvaluationDataset(projectRoot, "v2");
   const gates = await readJson("../evaluation/quality-gates.json");
   const report = evaluateClassifier(dataset, classifyWithDeterministicCore);
   const assessment = assessQualityGates(report, gates);
 
-  assert.equal(report.classifierVersion, "nexus-deterministic-core/2");
+  assert.equal(report.classifierVersion, "nexus-deterministic-core/3");
   assert.equal(report.metrics.binary.calendarCandidate.recall, 1);
   assert.equal(report.metrics.binary.automated.recall, 1);
   assert.equal(report.metrics.binary.needsReply.abstentionRate, 0.037);
@@ -136,6 +136,9 @@ test("fixes the structural v2 failures while unimplemented labels keep gates clo
   assert.ok(assessment.results.some((result) =>
     result.gate === "automated.recall" && result.passed));
   assert.ok(assessment.results.some((result) =>
-    result.gate === "urgent.abstentionRate" && !result.passed));
+    result.gate === "urgent.abstentionRate" && result.passed));
+  assert.deepEqual(report.metrics.falseUrgentIds, []);
+  assert.deepEqual(report.metrics.missedUrgentIds, []);
+  assert.deepEqual(report.metrics.evidence.missing, []);
   assert.equal(assessment.passed, false);
 });
