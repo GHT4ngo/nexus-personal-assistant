@@ -3,9 +3,10 @@ import {
 } from "../domain/records.js";
 import { CLASSIFIER_LABELS } from "./adapter.js";
 
-const sourceIdFor = (modelVersion, contentHash, label) => {
+const sourceIdFor = (modelVersion, contentHash, label, subjectRecordId) => {
   const version = modelVersion.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "");
-  return `${version}-${contentHash}-${label}`;
+  const subject = subjectRecordId.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "");
+  return `${version}-${contentHash}-${subject}-${label}`;
 };
 
 export const createClassifierSuggestionRecords = ({
@@ -24,7 +25,12 @@ export const createClassifierSuggestionRecords = ({
   return CLASSIFIER_LABELS.map((label) => {
     const abstained = classification.abstained.includes(label);
     return createClassifierSuggestionRecord({
-      sourceId: sourceIdFor(classification.modelVersion, contentHash, label),
+      sourceId: sourceIdFor(
+        classification.modelVersion,
+        contentHash,
+        label,
+        subjectRecordId
+      ),
       title: `Classifier suggestion: ${label}`,
       subjectRecordId,
       suggestionType: label,

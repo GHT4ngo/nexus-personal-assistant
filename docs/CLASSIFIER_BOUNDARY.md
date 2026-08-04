@@ -58,3 +58,18 @@ A provider receives the minimum input and must return:
 
 The returned `modelVersion` must exactly match the adapter version. A mismatch fails and is
 not cached.
+
+## Batch pipeline
+
+`createClassificationPipeline()` also defaults to a disabled adapter. It:
+
+- accepts normalized records and classifies valid message records only;
+- skips invalid and non-message records;
+- isolates one classifier failure without failing the remaining batch;
+- returns suggestion records in memory;
+- does not mutate input records;
+- does not import storage, routes, UI, or provider-action code.
+
+Diagnostics contain only a record ID and stable code (`record.not-message`,
+`record.invalid`, or `classifier.failed`). Provider errors and message content are not
+returned.

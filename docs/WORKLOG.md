@@ -810,3 +810,39 @@ classifier review history.
 
 Create a default-off batch classification pipeline over normalized records. It may return
 suggestion records in memory but must not write routes, provider actions, or UI state.
+
+## 2026-08-04 — Milestone 4 default-off batch pipeline
+
+### Outcome
+
+Added a pure batch orchestrator over normalized records. It returns classifier suggestion
+records in memory and remains disconnected from storage, routes, provider actions, and UI.
+
+### Behavior
+
+- The pipeline defaults to the disabled classifier adapter.
+- Disabled processing invokes no classifier and returns no suggestions.
+- Only valid normalized message records are classified.
+- Calendar and other record types are skipped.
+- Invalid records are skipped before classification.
+- One classifier failure does not fail the remaining batch.
+- Diagnostics include only record ID and a stable code, never provider errors or message
+  content.
+- Inputs remain unchanged.
+- Identical message content shares a content hash but produces distinct suggestion IDs for
+  distinct subject records.
+- Output contains no task, calendar-event, approval-request, or action-history records.
+
+### Verification
+
+- `npm run check` passes.
+- `npm test` passes: 110 tests, 0 failures.
+- Enabled two-message processing returns 12 distinct in-memory suggestion records.
+- Default-off processing returns zero suggestions.
+- Core evaluation remains byte-identical and all v2 gates pass.
+
+### Next slice
+
+Add a private local suggestion/review store boundary under the ignored data directory.
+Keep reviews append-only, suggestions idempotent, classifier default-off, and routes/UI out
+of scope.

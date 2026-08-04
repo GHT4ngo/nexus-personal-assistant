@@ -263,8 +263,9 @@ Core v4 adds current-content-only topic scoring and passes every locked v2 quali
 The internal adapter, cache/versioning, minimum-input filter, and default-off switch are
 implemented and tested. Classifier suggestions and human reviews now have separate,
 validated record types, and a pure latest-decision projection produces pending, abstained,
-and resolved queues. Product integration remains blocked until the default-off batch
-pipeline and UI behavior are implemented and tested.
+and resolved queues. A default-off batch pipeline now converts valid normalized messages
+to in-memory suggestion records with sanitized diagnostics. Product integration remains
+blocked until private persistence and UI behavior are implemented and tested.
 
 Interface:
 
@@ -380,6 +381,6 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by building a default-off batch pipeline that accepts normalized
-records and returns suggestion records without writing routes, provider actions, or UI
-state. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 by adding a private local suggestion/review store boundary with no
+routes, using the existing ignored data area and append-only review history. The classifier
+must remain default-off. Read [WORKLOG.md](WORKLOG.md) for evidence.
