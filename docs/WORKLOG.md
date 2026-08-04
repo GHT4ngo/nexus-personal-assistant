@@ -846,3 +846,39 @@ records in memory and remains disconnected from storage, routes, provider action
 Add a private local suggestion/review store boundary under the ignored data directory.
 Keep reviews append-only, suggestions idempotent, classifier default-off, and routes/UI out
 of scope.
+
+## 2026-08-04 — Milestone 4 private classifier store
+
+### Outcome
+
+Added an explicit-path file store for classifier suggestions and human classifier reviews.
+It remains disconnected from the batch pipeline, server, routes, Gmail, and UI.
+
+### Storage behavior
+
+- Missing storage reads as an empty versioned store.
+- Suggestions are immutable by record ID: exact retries are idempotent and conflicting
+  content is rejected without replacing the original.
+- Classifier reviews are append-only; earlier decisions remain available for audit and
+  latest-decision projection.
+- Manual-organization reviews and action-bearing record types are rejected.
+- Writes use a unique sibling temporary file followed by atomic rename.
+- The private directory is `0700` and the file is `0600`.
+- Malformed JSON or invalid stored records fail closed and are not overwritten.
+- Rejection diagnostics contain identifiers and stable codes, not record content.
+- No default filesystem location is embedded; callers must supply an explicit private
+  path.
+
+### Verification
+
+- Focused classifier-store tests pass: 7 tests, 0 failures.
+- Full regression passes: 117 tests, 0 failures.
+- `npm run check` passes.
+- Tests use generated synthetic records and isolated temporary directories only.
+- Gmail routes, provider actions, automatic classification, and UI remain unchanged.
+
+### Next slice
+
+Add an opt-in service orchestration boundary between the default-off batch pipeline and
+the explicit private store. Keep routes/UI out of scope, write nothing while disabled, and
+return sanitized counts/codes only.

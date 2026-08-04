@@ -73,3 +73,23 @@ not cached.
 Diagnostics contain only a record ID and stable code (`record.not-message`,
 `record.invalid`, or `classifier.failed`). Provider errors and message content are not
 returned.
+
+## Private persistence boundary
+
+`createClassifierStore({ filePath })` requires an explicit path. It has no default path and
+is not imported by the batch pipeline, server, routes, or UI. A caller may choose the
+Git-ignored `data/private/` area when product integration is explicitly added later.
+
+The store:
+
+- accepts validated classifier suggestions and classifier review decisions only;
+- treats an identical record ID and value as an idempotent retry;
+- rejects a reused record ID with different content instead of overwriting history;
+- appends review decisions and never replaces an earlier decision;
+- writes through a unique sibling temporary file and atomic rename;
+- applies `0700` to its directory and `0600` to its file;
+- fails closed when existing JSON or stored records are invalid.
+
+Rejected-record diagnostics contain collection, array index, record ID, and stable code
+only. They do not contain titles, message bodies, evidence, corrected values, or parser
+errors. The store is process-local and does not claim concurrent-writer locking.

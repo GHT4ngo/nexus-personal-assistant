@@ -57,3 +57,14 @@ training examples and do not become sender/domain rules.
 
 Manual organization reviews and reviews targeting absent suggestions are ignored. The
 projection does not mutate inputs or create records/actions.
+
+## Persistence
+
+The optional classifier store preserves suggestions and reviews in separate arrays.
+Suggestion IDs are immutable: exact retries are idempotent and conflicting reuse is
+rejected. Every new classifier review is appended, so the projection can select the latest
+decision without deleting the audit trail.
+
+The store accepts neither manual-organization reviews nor task, calendar, approval, or
+action-history records. It requires an explicit private file path, performs atomic
+restrictive writes, and is not connected to routes or automatic classification.

@@ -264,8 +264,10 @@ The internal adapter, cache/versioning, minimum-input filter, and default-off sw
 implemented and tested. Classifier suggestions and human reviews now have separate,
 validated record types, and a pure latest-decision projection produces pending, abstained,
 and resolved queues. A default-off batch pipeline now converts valid normalized messages
-to in-memory suggestion records with sanitized diagnostics. Product integration remains
-blocked until private persistence and UI behavior are implemented and tested.
+to in-memory suggestion records with sanitized diagnostics. An explicit-path private store
+now preserves immutable/idempotent suggestions and append-only review history with atomic
+restrictive writes. Product integration remains blocked until opt-in orchestration and UI
+behavior are implemented and tested.
 
 Interface:
 
@@ -286,6 +288,7 @@ Work:
 - [x] Put any classifier provider behind one internal adapter.
 - [x] Send the minimum necessary content.
 - [x] Cache results by content hash and classifier version.
+- [x] Add private, atomic suggestion/review persistence with no route integration.
 - Never infer future messages solely from a sender or domain.
 - [~] Display suggestions separately from user decisions. The record and projection
   boundaries are complete; UI rendering remains.
@@ -381,6 +384,7 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by adding a private local suggestion/review store boundary with no
-routes, using the existing ignored data area and append-only review history. The classifier
-must remain default-off. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 with a service-level orchestration boundary that can pass enabled
+batch output to the explicit private store. It must remain opt-in and disconnected from
+routes/UI, never persist when disabled, and expose only sanitized result counts and codes.
+Read [WORKLOG.md](WORKLOG.md) for evidence.
