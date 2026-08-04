@@ -277,6 +277,14 @@ removed handoff, and errors return content-free stable codes.
 The client lives outside `src/`, is not imported by the application, and is not copied
 into the current Android bundle.
 
+The complete desktop path is covered by one synthetic test using the real renderer,
+client, redemption route, origin/token guard, review view, command service, and private
+store. It reads one pending suggestion, accepts it explicitly, observes one resolved item
+and one append-only review, clears the session, and confirms further access is unavailable.
+The test transport supplies the approved `Origin` header. Actual browser behavior for
+same-origin GET requests must be verified before mounting because browsers do not attach
+`Origin` uniformly to every same-origin request.
+
 The loopback server integration now composes this lifecycle. Its public integration surface
 contains `handleRequest` and frozen `trustedBootstrap.issue(origin)`/`clear()` functions;
 it no longer exposes the review token directly. Bootstrap redemption is routed before the

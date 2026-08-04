@@ -1279,3 +1279,31 @@ and keeps the review token only inside a private request closure.
 Add one synthetic end-to-end desktop composition test using the real renderer, client,
 bootstrap route, guarded review view, and explicit command route. Keep every component
 unmounted and verify clearing the client destroys access.
+
+## 2026-08-04 — Milestone 4 complete synthetic desktop flow
+
+### Outcome
+
+Proved the complete unmounted desktop review lifecycle using the real production
+boundaries and one synthetic private suggestion.
+
+### Behavior and verification
+
+- The real renderer issues and embeds one ephemeral code without the token.
+- The real browser client removes the handoff and redeems through the composed route.
+- The guarded view returns one privacy-safe pending suggestion.
+- One explicit accept command creates exactly one append-only review.
+- A second guarded view reports zero pending and one resolved suggestion.
+- Clearing the client destroys subsequent review-request capability.
+- The integration object and rendered HTML do not expose the synthetic token.
+- Full regression and syntax checks pass: 192 tests, 0 failures.
+- The test transport explicitly supplies the approved browser origin. Same-origin browser
+  GET behavior remains a required live-contract check before mounting.
+- Running server binding, static/mobile assets, Android, Gmail, classifier execution,
+  provider actions, learning, and UI remain unchanged.
+
+### Next slice
+
+Audit and test the real HTTP/browser origin contract, especially same-origin GET requests.
+Choose a safe server-derived same-origin fallback or an explicit cross-origin layout while
+preserving the token requirement. Do not mount the integration yet.

@@ -401,10 +401,11 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 with one synthetic end-to-end desktop composition test using the real
-renderer, browser client, bootstrap route, guarded view, and command route together. Each
-unit is implemented but remains unmounted. Prove that the client can initialize, read the
-privacy-safe queue, submit one explicit decision, clear its private session, and then lose
-access—without exposing the token. Do not change server binding, static/mobile assets,
-Android, classifier execution, Gmail, provider actions, UI, or learning. Read
-[WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 with a pre-mount HTTP/browser contract audit. The full synthetic
+desktop lifecycle is green, but its transport explicitly supplies `Origin`; verify how the
+chosen desktop origin and actual browser fetch behavior interact with the origin/token
+guard, especially same-origin GET requests. Define and test a safe server-derived
+same-origin fallback or explicit cross-origin layout before mounting anything. Preserve
+the strong token requirement and deny untrusted cross-origin traffic. Do not change the
+running server binding, static/mobile assets, Android, classifier execution, Gmail,
+provider actions, UI, or learning. Read [WORKLOG.md](WORKLOG.md) for evidence.

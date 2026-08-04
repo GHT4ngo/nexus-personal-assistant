@@ -109,4 +109,6 @@ for that origin. On desktop, an unmounted dynamic renderer can place only this c
 expiry, and fixed redemption path in an inert JSON element in a no-store response. The
 browser client removes that element before redemption and retains the redeemed token only
 inside a private request closure. The closure is limited to review reads and commands and
-can be explicitly cleared. Static/mobile assets never contain either value.
+can be explicitly cleared. A full synthetic desktop flow proves pending → accepted →
+resolved without exposing the token through the client surface. Static/mobile assets never
+contain either value.
