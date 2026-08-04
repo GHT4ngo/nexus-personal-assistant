@@ -271,7 +271,8 @@ returning sanitized aggregate results. A read-only service now projects private 
 into minimal pending, abstained, and resolved review queues with opaque keys. Product
 integration remains blocked until HTTP/UI behavior is implemented and tested. The
 explicit review-command boundary now resolves opaque keys, rejects stale state, and
-appends idempotent validated decisions.
+appends idempotent validated decisions. Synthetic-only HTTP handlers now define strict,
+bounded view/command contracts but remain unmounted from the product server.
 
 Interface:
 
@@ -296,6 +297,7 @@ Work:
 - [x] Add default-off persistence orchestration with aggregate diagnostics only.
 - [x] Add a privacy-safe read-only review view over private projection state.
 - [x] Add explicit, stale-safe, idempotent review commands behind opaque keys.
+- [x] Add unmounted strict HTTP handlers using injected review services.
 - Never infer future messages solely from a sender or domain.
 - [~] Display suggestions separately from user decisions. The record and projection
   boundaries are complete; UI rendering remains.
@@ -391,7 +393,8 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 with synthetic-only HTTP route handlers for the review view and review
-commands, using injected services and no default private path. Add method/content-type/body
-limits and sanitized response contracts. Do not wire classifier execution, real Gmail,
-provider actions, or UI yet. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 by adding an explicit server composition factory that wires the
+classifier store, review view, review commands, and HTTP handler only when given a private
+path and an enabled review feature flag. Keep classification execution off and do not mount
+the composition in `local-server.mjs` or the UI yet. Read [WORKLOG.md](WORKLOG.md) for
+evidence.

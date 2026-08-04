@@ -1000,3 +1000,44 @@ Add synthetic-only HTTP handlers for reading the review view and submitting revi
 commands through injected services. Require safe methods, JSON content type, bounded
 bodies, and sanitized responses; do not connect a real private path, Gmail, classifier
 execution, actions, or UI.
+
+## 2026-08-04 — Milestone 4 isolated review HTTP handlers
+
+### Outcome
+
+Added dependency-injected HTTP handlers for the privacy-safe review view and explicit
+review commands. They are not imported or mounted by the running local server.
+
+### HTTP boundary
+
+- `GET /api/classifier/reviews` reads the sanitized view and rejects other methods.
+- `POST /api/classifier/reviews/commands` submits one command and rejects other methods.
+- Command requests require `application/json`, optionally with UTF-8 charset.
+- Only reviewKey, expectedStatus, commandId, decision, and correctedValue are allowed.
+- The injected reader receives a 4 KiB maximum and the handler independently checks actual
+  UTF-8 byte length.
+- Query strings are rejected on both paths.
+- Malformed JSON, arrays/scalars, unknown fields, oversized bodies, and reader failures
+  produce stable codes without echoing input.
+- Accepted, idempotent, unknown, stale/conflicting, invalid, and storage-failure service
+  results map to stable HTTP statuses.
+- Unrelated paths remain outside the handler.
+- No default store, filesystem path, classifier, Gmail connector, or provider action is
+  created.
+
+### Verification
+
+- Focused route tests pass: 8 tests, 0 failures.
+- Full regression passes: 149 tests, 0 failures.
+- GET method isolation and storage-unavailable mapping are covered.
+- POST content type, exact fields, 4 KiB reader contract, actual byte limit, and status
+  mapping are covered.
+- Synthetic private-like query, body, and exception content is absent from responses.
+- `local-server.mjs`, Gmail, classifier execution, provider actions, learning, and UI
+  remain unchanged.
+
+### Next slice
+
+Add a composition factory that creates the classifier store, review services, and route
+handler only when supplied both an explicit private path and enabled review feature flag.
+Keep it unmounted from `local-server.mjs`; do not enable classifier execution or UI.

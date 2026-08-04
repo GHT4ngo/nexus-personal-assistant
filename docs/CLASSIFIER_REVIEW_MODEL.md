@@ -83,3 +83,7 @@ The review-command service resolves one opaque key privately and appends one val
 human decision. It uses the status shown in the read view as an optimistic concurrency
 check, so a decision based on stale state is rejected. A UUID command ID makes network
 retries idempotent without deleting or replacing review history.
+
+Isolated HTTP handlers preserve these service contracts without returning private storage
+records. They are dependency-injected and currently unmounted, so adding the handler alone
+does not expose a private store or enable classification.

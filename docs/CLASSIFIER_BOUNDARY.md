@@ -150,3 +150,20 @@ accepted/rejected/failed status, a stable code, and an idempotent flag. They con
 suggestion, decision record, provider ID, corrected value, or exception message. The
 service does not create tasks, calendar events, approvals, actions, classifier rules, or
 training data, and it has no HTTP or UI integration.
+
+## Isolated HTTP handlers
+
+`createClassifierReviewRouteHandler(...)` defines two unmounted endpoints through injected
+view, command, body-reader, and JSON-response adapters:
+
+- `GET /api/classifier/reviews` returns the privacy-safe review view;
+- `POST /api/classifier/reviews/commands` submits one explicit review command.
+
+The view path rejects other methods. The command path requires `application/json`, allows
+only the five command fields, passes a 4 KiB limit to the request reader, verifies the
+actual UTF-8 byte length, and rejects query parameters. Malformed, non-object, unknown-field,
+oversized, and unreadable bodies receive stable codes without echoed input.
+
+Service results map to stable HTTP statuses: created, idempotent success, invalid, unknown,
+stale/conflict, or unavailable. The handler has no default services or filesystem path and
+is not imported by `local-server.mjs`; therefore these paths are not live in the product.
