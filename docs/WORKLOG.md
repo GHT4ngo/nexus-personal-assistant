@@ -1193,3 +1193,31 @@ mounted in the running server or mobile application.
 
 Compose trusted issuance and redemption into the unmounted loopback integration and test a
 full bootstrap → review view → review command flow. Do not mount the server or UI.
+
+## 2026-08-04 — Milestone 4 composed bootstrap integration
+
+### Outcome
+
+Composed trusted bootstrap issuance and HTTP redemption into the unmounted loopback review
+integration. Removed the direct token-bearing client-access surface.
+
+### Behavior and verification
+
+- Enabled integration exposes only request handling plus frozen trusted issue/clear calls.
+- Trusted issuance remains outside HTTP.
+- Bootstrap redemption is evaluated before token-guarded review routes.
+- The raw review token is not a property of the integration object.
+- Focused bootstrap, guard, and server integration suites pass: 18 tests, 0 failures.
+- Full regression passes: 180 tests, 0 failures.
+- A synthetic end-to-end test issues and redeems one code, reads one pending suggestion,
+  accepts it, reads one resolved item, and confirms one append-only stored review.
+- Loopback, exact feature flag, origin, token, CORS, body bounds, and privacy boundaries
+  remain intact.
+- `local-server.mjs`, desktop/static/mobile assets, classifier execution, Gmail, actions,
+  learning, and UI remain unchanged.
+
+### Next slice
+
+Design a dynamic desktop handoff that gives a one-time bootstrap code to the served page
+without placing it in a URL, log, or static asset. Keep Android native handoff separate and
+do not mount review routes yet.

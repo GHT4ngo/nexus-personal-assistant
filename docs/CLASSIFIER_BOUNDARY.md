@@ -249,3 +249,8 @@ the review token with no-store CORS. The client must keep it in JavaScript memor
 localStorage, sessionStorage, URLs, static assets, or logs.
 
 Desktop HTML injection and the Android native bridge remain unimplemented.
+
+The loopback server integration now composes this lifecycle. Its public integration surface
+contains `handleRequest` and frozen `trustedBootstrap.issue(origin)`/`clear()` functions;
+it no longer exposes the review token directly. Bootstrap redemption is routed before the
+token-guarded view and command handlers. Trusted issuance remains outside HTTP.

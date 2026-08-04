@@ -4,6 +4,12 @@ import {
   createClassifierReviewComposition
 } from "./classifier-reviews.js";
 import {
+  createClassifierReviewBootstrapRouteHandler
+} from "../routes/classifier-review-bootstrap.js";
+import {
+  createClassifierReviewBootstrapService
+} from "../services/classifier-review-bootstrap.js";
+import {
   createBoundedRequestBodyReader
 } from "../http/bounded-body-reader.js";
 
@@ -39,6 +45,9 @@ export const createClassifierReviewServerIntegration = ({
   applyCors = defaultApplyCors,
   sendEmpty = defaultSendEmpty,
   generateToken = () => randomBytes(32).toString("base64url"),
+  generateBootstrapCode,
+  bootstrapTtlMs,
+  bootstrapNow,
   now
 } = {}) => {
   const enabled = environment.NEXUS_CLASSIFIER_REVIEWS === "1";
@@ -47,7 +56,7 @@ export const createClassifierReviewServerIntegration = ({
     return {
       enabled: false,
       handleRequest: disabled.handleRequest,
-      clientAccess: null
+      trustedBootstrap: null
     };
   }
   if (!loopbackHosts.has(serverHost)) {
@@ -70,13 +79,31 @@ export const createClassifierReviewServerIntegration = ({
     sendEmpty,
     now
   });
+  const bootstrapService = createClassifierReviewBootstrapService({
+    token: commandToken,
+    allowedOrigins,
+    ttlMs: bootstrapTtlMs,
+    now: bootstrapNow,
+    generateCode: generateBootstrapCode
+  });
+  const bootstrapHandler = createClassifierReviewBootstrapRouteHandler({
+    service: bootstrapService,
+    allowedOrigins,
+    readRequestBody,
+    sendJson,
+    applyCors,
+    sendEmpty
+  });
+  const handleRequest = async (request, url, response) =>
+    await bootstrapHandler(request, url, response)
+      || composition.handleRequest(request, url, response);
 
   return {
     enabled: true,
-    handleRequest: composition.handleRequest,
-    clientAccess: Object.freeze({
-      token: commandToken,
-      allowedOrigins: Object.freeze([...allowedOrigins])
+    handleRequest,
+    trustedBootstrap: Object.freeze({
+      issue: (origin) => bootstrapService.issue(origin),
+      clear: () => bootstrapService.clear()
     })
   };
 };

@@ -405,5 +405,6 @@ Continue Milestone 4 by designing a trusted runtime bootstrap that can deliver t
 in-memory review token to the desktop page and Android WebView without logging it or
 placing it in static assets. The one-time lifecycle is complete; next compose issuance and
 redemption into the unmounted loopback integration and test bootstrap → view → command.
-Keep classifier execution, Gmail, provider actions, and UI out of scope. Read
-[WORKLOG.md](WORKLOG.md) for evidence.
+That composition is now complete. Next design the desktop dynamic handoff without mounting
+routes or changing mobile static assets. Keep classifier execution, Gmail, provider
+actions, and UI out of scope. Read [WORKLOG.md](WORKLOG.md) for evidence.
