@@ -1041,3 +1041,42 @@ review commands. They are not imported or mounted by the running local server.
 Add a composition factory that creates the classifier store, review services, and route
 handler only when supplied both an explicit private path and enabled review feature flag.
 Keep it unmounted from `local-server.mjs`; do not enable classifier execution or UI.
+
+## 2026-08-04 — Milestone 4 fail-closed review composition
+
+### Outcome
+
+Added a composition factory for the private classifier store, read view, review commands,
+and isolated HTTP handler. It remains unmounted from the running server.
+
+### Composition boundary
+
+- Composition defaults disabled.
+- Only literal boolean true enables it; truthy strings and numbers remain disabled.
+- Disabled composition requires no path or HTTP adapters.
+- Disabled composition declines every request and creates no private file.
+- Enabled composition requires an explicit absolute private file path.
+- Enabled composition requires injected request-body and JSON-response adapters.
+- No default path or environment-variable parsing exists.
+- The returned object exposes only enabled state and the request handler.
+- The classifier pipeline is neither imported nor enabled.
+- Corrupt private storage returns a sanitized unavailable response without its path or
+  content.
+
+### Verification
+
+- Focused composition tests pass: 7 tests, 0 failures.
+- Full regression passes: 156 tests, 0 failures.
+- Disabled/no-path, non-boolean flag, no-file creation, relative-path rejection, and
+  missing-adapter cases are covered.
+- Enabled synthetic view-command-view integration moves one suggestion from pending to
+  accepted and appends one review.
+- Corrupt synthetic storage exposes neither the private path nor malformed content.
+- `local-server.mjs`, Gmail, classifier execution, provider actions, learning, and UI
+  remain unchanged.
+
+### Next slice
+
+Add an injected request-origin and command-token guard suitable for localhost and Android
+WebView requests. Verify denied requests never read or write private storage before any
+review route is mounted in the running server.

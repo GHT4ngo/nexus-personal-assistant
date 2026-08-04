@@ -167,3 +167,20 @@ oversized, and unreadable bodies receive stable codes without echoed input.
 Service results map to stable HTTP statuses: created, idempotent success, invalid, unknown,
 stale/conflict, or unavailable. The handler has no default services or filesystem path and
 is not imported by `local-server.mjs`; therefore these paths are not live in the product.
+
+## Fail-closed composition
+
+`createClassifierReviewComposition(...)` assembles the store, read view, command service,
+and HTTP handler only when `enabled === true`. Other values—including the string
+`"true"`—return a disabled handler that declines every request and creates no file.
+
+Enabled composition requires:
+
+- an explicit absolute `privateFilePath`;
+- an injected bounded request-body reader;
+- an injected JSON response writer.
+
+There is no default path or environment-variable parsing. The returned surface contains
+only `enabled` and `handleRequest`; it does not expose the private store or services.
+Composition does not import or enable the classifier pipeline. It remains unmounted from
+`local-server.mjs`.

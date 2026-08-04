@@ -272,7 +272,9 @@ into minimal pending, abstained, and resolved review queues with opaque keys. Pr
 integration remains blocked until HTTP/UI behavior is implemented and tested. The
 explicit review-command boundary now resolves opaque keys, rejects stale state, and
 appends idempotent validated decisions. Synthetic-only HTTP handlers now define strict,
-bounded view/command contracts but remain unmounted from the product server.
+bounded view/command contracts but remain unmounted from the product server. A fail-closed
+composition factory creates the store and handlers only with literal enablement and an
+absolute private path.
 
 Interface:
 
@@ -298,6 +300,7 @@ Work:
 - [x] Add a privacy-safe read-only review view over private projection state.
 - [x] Add explicit, stale-safe, idempotent review commands behind opaque keys.
 - [x] Add unmounted strict HTTP handlers using injected review services.
+- [x] Add fail-closed review composition with no default private path.
 - Never infer future messages solely from a sender or domain.
 - [~] Display suggestions separately from user decisions. The record and projection
   boundaries are complete; UI rendering remains.
@@ -393,8 +396,7 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by adding an explicit server composition factory that wires the
-classifier store, review view, review commands, and HTTP handler only when given a private
-path and an enabled review feature flag. Keep classification execution off and do not mount
-the composition in `local-server.mjs` or the UI yet. Read [WORKLOG.md](WORKLOG.md) for
-evidence.
+Continue Milestone 4 with a request-origin and command-token guard suitable for the local
+server and Android WebView boundary. Apply it through injected HTTP composition tests before
+mounting any review route. Keep classifier execution, Gmail, provider actions, and UI out
+of scope. Read [WORKLOG.md](WORKLOG.md) for evidence.

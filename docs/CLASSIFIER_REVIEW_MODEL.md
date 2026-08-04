@@ -87,3 +87,8 @@ retries idempotent without deleting or replacing review history.
 Isolated HTTP handlers preserve these service contracts without returning private storage
 records. They are dependency-injected and currently unmounted, so adding the handler alone
 does not expose a private store or enable classification.
+
+The composition factory fails closed unless passed literal boolean true and an absolute
+private path. Disabled composition constructs no storage or review service. Enabled
+composition still performs review reads and explicit human commands only; it does not run
+classification.
