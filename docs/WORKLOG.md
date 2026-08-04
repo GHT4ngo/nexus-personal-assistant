@@ -1168,3 +1168,28 @@ prevents mounting this integration today.
 Design and test trusted runtime token bootstrap and lifecycle for desktop reloads and the
 Android WebView. Do not change server binding or mount review routes until token delivery
 is safe and non-static.
+
+## 2026-08-04 — Milestone 4 ephemeral runtime bootstrap
+
+### Outcome
+
+Added a one-time origin-bound bootstrap service and isolated redemption handler. Neither is
+mounted in the running server or mobile application.
+
+### Lifecycle and verification
+
+- Trusted renderer/native code issues a code for one allowed origin.
+- Codes default to 60 seconds, store only a SHA-256 hash, and redeem once.
+- New issuance replaces the prior outstanding code for that origin.
+- Replay, expiry, wrong code/origin, and clear/restart fail uniformly.
+- Redemption accepts one field in at most 256 bytes with origin-approved preflight.
+- Codes and tokens are absent from URLs, static assets, browser storage, files, and logs.
+- Focused bootstrap tests pass: 5 tests, 0 failures.
+- Full regression passes: 179 tests, 0 failures.
+- `local-server.mjs`, static/mobile assets, Gmail, classifier execution, actions, learning,
+  and UI remain unchanged.
+
+### Next slice
+
+Compose trusted issuance and redemption into the unmounted loopback integration and test a
+full bootstrap → review view → review command flow. Do not mount the server or UI.

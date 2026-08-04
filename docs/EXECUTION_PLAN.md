@@ -403,6 +403,7 @@ For every milestone:
 
 Continue Milestone 4 by designing a trusted runtime bootstrap that can deliver the
 in-memory review token to the desktop page and Android WebView without logging it or
-placing it in static assets. Test token lifecycle and reload behavior before changing the
-server bind or mounting routes. Keep classifier execution, Gmail, provider actions, and UI
-out of scope. Read [WORKLOG.md](WORKLOG.md) for evidence.
+placing it in static assets. The one-time lifecycle is complete; next compose issuance and
+redemption into the unmounted loopback integration and test bootstrap → view → command.
+Keep classifier execution, Gmail, provider actions, and UI out of scope. Read
+[WORKLOG.md](WORKLOG.md) for evidence.

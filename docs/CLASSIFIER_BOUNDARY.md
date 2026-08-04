@@ -231,3 +231,21 @@ stream-error responses are sanitized.
 The current `local-server.mjs` binds `0.0.0.0`, so it cannot mount this integration without
 first changing to loopback. Runtime bootstrap must deliberately deliver `clientAccess` to
 the trusted browser/WebView without logging or embedding it in public build assets.
+
+## Ephemeral runtime bootstrap
+
+`createClassifierReviewBootstrapService(...)` separates trusted issuance from browser
+redemption. The desktop renderer or Android native bridge calls `issue(origin)`, receiving
+a random one-time code with a 60-second default lifetime. Only its SHA-256 hash and expiry
+remain in memory. Issuing again for the same origin invalidates the prior code, and
+redemption succeeds once for that origin. Restart or `clear()` invalidates all codes.
+
+Wrong-origin, wrong-code, expired, replayed, and cleared attempts all return
+`bootstrap.denied`. The service logs and persists neither codes nor tokens.
+
+The unmounted `POST /api/classifier/reviews/bootstrap` handler accepts one origin-approved,
+bounded JSON code and supports Content-Type-only preflight. A successful redemption returns
+the review token with no-store CORS. The client must keep it in JavaScript memory only—not
+localStorage, sessionStorage, URLs, static assets, or logs.
+
+Desktop HTML injection and the Android native bridge remain unimplemented.

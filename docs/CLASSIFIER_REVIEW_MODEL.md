@@ -102,3 +102,7 @@ The planned server integration is stricter: review enablement requires loopback 
 exact string flag parsing, and runtime-only access material. Cross-origin WebView requests
 use an origin-approved preflight; command bodies are bounded during streaming rather than
 after full buffering.
+
+Runtime access uses a short-lived one-time bootstrap code rather than embedding the review
+token in static assets. A reload gets a new code and invalidates the prior unredeemed code
+for that origin. The redeemed token remains in memory only.
