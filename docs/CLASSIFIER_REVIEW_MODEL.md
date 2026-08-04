@@ -92,3 +92,8 @@ The composition factory fails closed unless passed literal boolean true and an a
 private path. Disabled composition constructs no storage or review service. Enabled
 composition still performs review reads and explicit human commands only; it does not run
 classification.
+
+Enabled composition also requires an explicit origin allowlist and strong review-session
+token. Both reads and writes require the token because the future server binds beyond
+loopback; Origin alone is an anti-CSRF signal and can be forged by non-browser clients.
+Denied requests reach neither storage nor the request-body reader.

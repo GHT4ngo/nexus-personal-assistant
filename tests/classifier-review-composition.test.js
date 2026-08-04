@@ -15,6 +15,8 @@ import {
 } from "../scripts/storage/classifier-store.js";
 
 const NOW = "2026-08-04T12:00:00.000Z";
+const ORIGIN = "http://localhost:8050";
+const TOKEN = "synthetic-review-command-token-32-bytes";
 
 const suggestion = () => createClassifierSuggestionRecord({
   sourceId: "synthetic-composition-suggestion",
@@ -40,14 +42,20 @@ const invoke = async (composition, replies, {
   method = "GET",
   path = "/api/classifier/reviews",
   body = "",
-  contentType
+  contentType,
+  origin = ORIGIN,
+  token = TOKEN
 } = {}) => {
   replies.length = 0;
   const handled = await composition.handleRequest(
     {
       method,
       body,
-      headers: contentType ? { "content-type": contentType } : {}
+      headers: {
+        ...(contentType ? { "content-type": contentType } : {}),
+        ...(origin ? { origin } : {}),
+        ...(token ? { "x-nexus-review-token": token } : {})
+      }
     },
     new URL(path, "http://localhost:8050"),
     {}
@@ -108,7 +116,9 @@ test("enabled composition requires an absolute private path and HTTP adapters", 
   assert.throws(
     () => createClassifierReviewComposition({
       enabled: true,
-      privateFilePath: "/tmp/synthetic-classifier.json"
+      privateFilePath: "/tmp/synthetic-classifier.json",
+      allowedOrigins: [ORIGIN],
+      commandToken: TOKEN
     }),
     /HTTP adapters/
   );
@@ -121,6 +131,8 @@ test("enabled composition serves an empty privacy-safe view", async (t) => {
   const composition = createClassifierReviewComposition({
     enabled: true,
     privateFilePath: join(directory, "private", "classifier.json"),
+    allowedOrigins: [ORIGIN],
+    commandToken: TOKEN,
     ...httpAdapters(replies),
     now: () => new Date(NOW)
   });
@@ -151,6 +163,8 @@ test("composes a complete synthetic view-command-view flow", async (t) => {
   const composition = createClassifierReviewComposition({
     enabled: true,
     privateFilePath,
+    allowedOrigins: [ORIGIN],
+    commandToken: TOKEN,
     ...httpAdapters(replies),
     now: () => new Date(NOW)
   });
@@ -161,6 +175,7 @@ test("composes a complete synthetic view-command-view flow", async (t) => {
     method: "POST",
     path: "/api/classifier/reviews/commands",
     contentType: "application/json",
+    token: TOKEN,
     body: JSON.stringify({
       reviewKey: pending.reviewKey,
       expectedStatus: pending.status,
@@ -179,6 +194,58 @@ test("composes a complete synthetic view-command-view flow", async (t) => {
   assert.equal(stored.reviews.length, 1);
 });
 
+test("denied commands do not read bodies or write private storage", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "nexus-denied-composition-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const privateFilePath = join(directory, "private", "classifier.json");
+  const seedStore = createClassifierStore({
+    filePath: privateFilePath,
+    now: () => new Date(NOW)
+  });
+  await seedStore.appendSuggestions([suggestion()]);
+  let bodyReads = 0;
+  const replies = [];
+  const composition = createClassifierReviewComposition({
+    enabled: true,
+    privateFilePath,
+    allowedOrigins: [ORIGIN],
+    commandToken: TOKEN,
+    readRequestBody: async () => {
+      bodyReads += 1;
+      return JSON.stringify({});
+    },
+    sendJson: (_response, status, data) => replies.push({ status, data }),
+    now: () => new Date(NOW)
+  });
+
+  const wrongOrigin = await invoke(composition, replies, {
+    method: "POST",
+    path: "/api/classifier/reviews/commands",
+    contentType: "application/json",
+    origin: "https://private.example.test",
+    token: TOKEN
+  });
+  const wrongToken = await invoke(composition, replies, {
+    method: "POST",
+    path: "/api/classifier/reviews/commands",
+    contentType: "application/json",
+    token: "wrong-private-token-that-is-long-enough"
+  });
+
+  assert.equal(wrongOrigin.reply.data.code, "request.origin.denied");
+  assert.equal(wrongToken.reply.data.code, "request.token.denied");
+  assert.equal(bodyReads, 0);
+  assert.equal((await seedStore.read()).reviews.length, 0);
+  assert.equal(
+    JSON.stringify([wrongOrigin, wrongToken]).includes("private.example"),
+    false
+  );
+  assert.equal(
+    JSON.stringify([wrongOrigin, wrongToken]).includes("wrong-private-token"),
+    false
+  );
+});
+
 test("enabled corrupted storage fails safely without exposing path or content", async (t) => {
   const directory = await mkdtemp(join(tmpdir(), "nexus-corrupt-composition-"));
   t.after(() => rm(directory, { recursive: true, force: true }));
@@ -189,6 +256,8 @@ test("enabled corrupted storage fails safely without exposing path or content", 
   const composition = createClassifierReviewComposition({
     enabled: true,
     privateFilePath,
+    allowedOrigins: [ORIGIN],
+    commandToken: TOKEN,
     ...httpAdapters(replies)
   });
 

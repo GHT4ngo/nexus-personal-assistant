@@ -1080,3 +1080,47 @@ and isolated HTTP handler. It remains unmounted from the running server.
 Add an injected request-origin and command-token guard suitable for localhost and Android
 WebView requests. Verify denied requests never read or write private storage before any
 review route is mounted in the running server.
+
+## 2026-08-04 — Milestone 4 guarded review access
+
+### Outcome
+
+Added an origin and review-session-token guard around enabled review composition. The
+composition remains unmounted from the running server.
+
+### Security boundary
+
+- Every review view read and command requires an exact explicitly allowed origin.
+- Every review view read and command also requires `X-Nexus-Review-Token`.
+- The token must be at least 32 UTF-8 bytes.
+- Origin entries must be unique URL origins without credentials, path, query, or fragment.
+- Missing, `null`, malformed, and unlisted origins are denied.
+- Missing and wrong tokens produce the same denial code.
+- Candidate and expected tokens are SHA-256 digested and compared in constant time.
+- Denials happen before route handling, body reading, private-store reading, or writing.
+- Responses do not echo origins, tokens, paths, or underlying details.
+- Unrelated routes pass through unchanged.
+- No origin or token defaults are embedded.
+
+Origin is retained as an anti-CSRF/WebView boundary, not authentication. The token is also
+required for reads because the current local server binds to `0.0.0.0` and non-browser
+clients can forge Origin.
+
+### Verification
+
+- Focused guard and composition suites pass: 14 tests, 0 failures.
+- Full regression passes: 163 tests, 0 failures.
+- Exact desktop localhost and Android WebView-style origins are covered through explicit
+  test allowlists.
+- Invalid allowlists, duplicate normalized origins, and short tokens fail construction.
+- Missing/wrong origin and token requests never invoke the wrapped handler.
+- Composition-level denials perform zero body reads and append zero review records.
+- Private-like origin/token values are absent from responses.
+- `local-server.mjs`, Gmail, classifier execution, provider actions, learning, and UI
+  remain unchanged.
+
+### Next slice
+
+Define and test a server-integration factory covering bounded streaming bodies, exact
+feature-flag parsing, ignored private path, runtime token provisioning, and browser/Android
+origin and preflight behavior. Do not mount it in `local-server.mjs` yet.

@@ -1,6 +1,9 @@
 import { isAbsolute } from "node:path";
 
 import {
+  createClassifierReviewRequestGuard
+} from "../http/classifier-review-guard.js";
+import {
   createClassifierReviewRouteHandler
 } from "../routes/classifier-reviews.js";
 import {
@@ -18,6 +21,8 @@ const disabledHandler = async () => false;
 export const createClassifierReviewComposition = ({
   enabled = false,
   privateFilePath,
+  allowedOrigins,
+  commandToken,
   readRequestBody,
   sendJson,
   now = () => new Date()
@@ -45,10 +50,16 @@ export const createClassifierReviewComposition = ({
   });
   const viewService = createClassifierReviewViewService({ store });
   const commandService = createClassifierReviewCommandService({ store, now });
-  const handleRequest = createClassifierReviewRouteHandler({
+  const routeHandler = createClassifierReviewRouteHandler({
     viewService,
     commandService,
     readRequestBody,
+    sendJson
+  });
+  const handleRequest = createClassifierReviewRequestGuard({
+    handler: routeHandler,
+    allowedOrigins,
+    commandToken,
     sendJson
   });
 

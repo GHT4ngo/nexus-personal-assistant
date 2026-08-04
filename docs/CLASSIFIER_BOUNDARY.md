@@ -184,3 +184,24 @@ There is no default path or environment-variable parsing. The returned surface c
 only `enabled` and `handleRequest`; it does not expose the private store or services.
 Composition does not import or enable the classifier pipeline. It remains unmounted from
 `local-server.mjs`.
+
+## Request guard
+
+Enabled composition wraps the review handler in
+`createClassifierReviewRequestGuard(...)`. The guard requires:
+
+- an exact origin from an explicit, unique allowlist;
+- a review session token of at least 32 UTF-8 bytes on every review read and command.
+
+Origins are normalized and must contain only scheme, host, and optional port. Missing,
+opaque (`null`), malformed, path-bearing, duplicated, and unlisted origins are rejected.
+This is the browser/WebView cross-origin boundary; it is not treated as authentication.
+
+The token travels in `X-Nexus-Review-Token`. Both candidate and expected tokens are
+SHA-256 digested and compared with a constant-time primitive. Missing and incorrect tokens
+receive the same response. Denials occur before the route handler, body reader, or private
+store is reached and return only `request.origin.denied` or `request.token.denied`.
+
+There are no default allowed origins or token. Unrelated paths pass through without this
+guard. Cross-origin preflight and runtime token provisioning must be designed before the
+composition can be mounted.

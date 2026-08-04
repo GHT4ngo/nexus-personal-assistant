@@ -274,7 +274,8 @@ explicit review-command boundary now resolves opaque keys, rejects stale state, 
 appends idempotent validated decisions. Synthetic-only HTTP handlers now define strict,
 bounded view/command contracts but remain unmounted from the product server. A fail-closed
 composition factory creates the store and handlers only with literal enablement and an
-absolute private path.
+absolute private path. Enabled composition now requires exact allowed origins and a
+constant-time checked review-session token before any read or command reaches storage.
 
 Interface:
 
@@ -301,6 +302,7 @@ Work:
 - [x] Add explicit, stale-safe, idempotent review commands behind opaque keys.
 - [x] Add unmounted strict HTTP handlers using injected review services.
 - [x] Add fail-closed review composition with no default private path.
+- [x] Guard all review reads/commands with explicit origins and a strong session token.
 - Never infer future messages solely from a sender or domain.
 - [~] Display suggestions separately from user decisions. The record and projection
   boundaries are complete; UI rendering remains.
@@ -396,7 +398,8 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 with a request-origin and command-token guard suitable for the local
-server and Android WebView boundary. Apply it through injected HTTP composition tests before
-mounting any review route. Keep classifier execution, Gmail, provider actions, and UI out
-of scope. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 by defining safe local-server integration for the guarded composition:
+bounded streaming-body enforcement, explicit feature-flag parsing, ignored private path,
+runtime token provisioning, and Android/browser origin behavior including preflight.
+Document and test the integration factory before mounting it. Keep classifier execution,
+Gmail, provider actions, and UI out of scope. Read [WORKLOG.md](WORKLOG.md) for evidence.
