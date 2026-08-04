@@ -704,3 +704,37 @@ and explicit review-history separation before any UI connection.
 
 Build the internal classifier adapter, deterministic content hash/cache key, and off switch
 with synthetic tests only. Do not connect the adapter to Gmail routes or UI rendering yet.
+
+## 2026-08-04 — Milestone 4 classifier adapter boundary
+
+### Outcome
+
+Created the production deterministic-core composition and one internal classifier adapter.
+The adapter remains disconnected from Gmail routes and UI rendering and defaults to off.
+
+### Safety properties
+
+- Disabled adapters do not invoke providers, hash content, or touch cache entries.
+- Only title, text, sender, received time, and list-header presence cross the boundary.
+- Record IDs, source URLs, attachments, processing metadata, and raw header values are
+  excluded.
+- Cache keys combine classifier version with SHA-256 of canonical minimum input.
+- The default cache is memory-only and has no disk writer.
+- Results are defensively copied before storage and return.
+- Classifier version mismatches fail without populating the cache.
+- Turning the adapter off bypasses existing cache entries; re-enabling may safely reuse the
+  same versioned entry.
+
+### Verification
+
+- `npm run check` passes.
+- `npm test` passes: 91 tests, 0 failures.
+- The core-v4 evaluation report remains byte-identical after moving composition into
+  production source.
+- Classifier routes, Gmail processing, and Nexus UI imports remain unchanged.
+
+### Next slice
+
+Define classifier suggestions as records distinct from human review decisions. Add
+synthetic persistence tests for accept, correct, dismiss, and
+not-enough-information—without provider actions or UI integration.

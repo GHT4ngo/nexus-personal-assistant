@@ -260,8 +260,9 @@ from one message and recognizes explicit generated-message evidence. Core v3 add
 two-part urgency evidence while rejecting promotional pressure. It is not connected to
 Gmail classification or the product UI.
 Core v4 adds current-content-only topic scoring and passes every locked v2 quality gate.
-Product integration remains blocked until adapter, cache/versioning, off-switch, and
-review-history boundaries are implemented and tested.
+The internal adapter, cache/versioning, minimum-input filter, and default-off switch are
+implemented and tested. Product integration remains blocked until suggestion/review
+separation is implemented and tested.
 
 Interface:
 
@@ -279,9 +280,9 @@ Work:
 
 - [x] Start with deterministic fact extraction for dates, direct questions, sender type, and
   list-mail headers.
-- Put any AI provider behind one internal adapter.
-- Send the minimum necessary content.
-- Cache results by content hash and classifier version.
+- [x] Put any classifier provider behind one internal adapter.
+- [x] Send the minimum necessary content.
+- [x] Cache results by content hash and classifier version.
 - Never infer future messages solely from a sender or domain.
 - Display suggestions separately from user decisions.
 - Add accept, correct, dismiss, and “not enough information” review actions.
@@ -375,6 +376,6 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by adding one internal classifier adapter with a content-hash and
-classifier-version cache plus a tested off switch. Do not connect it to Gmail routes or the
-product UI yet. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 by defining persisted suggestion records separately from review
+decisions, including accept, correct, dismiss, and not-enough-information actions. Keep
+provider actions and UI rendering out of scope. Read [WORKLOG.md](WORKLOG.md) for evidence.
