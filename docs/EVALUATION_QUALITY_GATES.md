@@ -20,6 +20,12 @@ Additional gates:
 - zero positive reply/deadline predictions without evidence;
 - topic coverage of at least 0.70;
 - topic accuracy of at least 0.80 on non-abstained predictions.
+- abstention rate at most 0.15 for reply, deadline, and automated labels;
+- abstention rate at most 0.20 for calendar-candidate and urgency labels.
+
+Abstention limits prevent a classifier from obtaining high precision by declining every
+difficult example. Expected `null` labels are excluded because the labeling guide itself
+declares those examples unscorable.
 
 ## Safety gates outside the score
 

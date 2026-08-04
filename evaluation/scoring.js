@@ -164,6 +164,15 @@ export const assessQualityGates = (report, gates) => {
       });
     }
   }
+  for (const [label, maximum] of Object.entries(gates.maximumAbstentionRate || {})) {
+    const actual = report.metrics.binary[label].abstentionRate;
+    results.push({
+      gate: `${label}.abstentionRate`,
+      expected: `<= ${maximum}`,
+      actual,
+      passed: actual !== null && actual <= maximum
+    });
+  }
   results.push({
     gate: "urgent.falsePositives",
     expected: `<= ${gates.maximumFalseUrgent}`,

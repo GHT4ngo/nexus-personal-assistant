@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 1,
+  "datasetId": "nexus-public-synthetic-v2",
+  "description": "Invented adversarial and ambiguous additions to v1. No real people, accounts, or organizations.",
+  "baseVersion": "v1",
+  "items": [
+    {
+      "id": "indirect-faq-question",
+      "message": {
+        "from": "Example Person <person@example.test>",
+        "subject": "Synthetic FAQ excerpt",
+        "text": "The invented FAQ asks: what happens next? This is reference material, not a request.",
+        "receivedAt": "2026-08-04T11:00:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": "other",
+        "automated": false
+      }
+    },
+    {
+      "id": "role-address-ambiguous",
+      "message": {
+        "from": "Shared Billing <billing@example.test>",
+        "subject": "Hello from a shared address",
+        "text": "A person wrote this invented note from a shared mailbox. There is not enough evidence to tell whether delivery was automated.",
+        "receivedAt": "2026-08-04T11:05:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": null,
+        "automated": null
+      }
+    },
+    {
+      "id": "publication-date-not-deadline",
+      "message": {
+        "from": "Example Journal <no-reply@example.test>",
+        "subject": "Synthetic publication schedule",
+        "text": "The invented issue will be published on 2026-08-20. No action is requested.",
+        "receivedAt": "2026-08-04T11:10:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": "other",
+        "automated": true
+      }
+    },
+    {
+      "id": "incomplete-weekday-plan",
+      "message": {
+        "from": "Example Friend <friend@example.test>",
+        "subject": "Maybe Friday",
+        "text": "Perhaps we can meet Friday, but the time is not decided.",
+        "receivedAt": "2026-08-04T11:15:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": null,
+        "hasDeadline": null,
+        "calendarCandidate": null,
+        "urgent": false,
+        "topic": "personal",
+        "automated": false
+      }
+    },
+    {
+      "id": "impossible-calendar-date",
+      "message": {
+        "from": "Example Person <person@example.test>",
+        "subject": "Uncertain invented appointment",
+        "text": "The appointment may be on 2026-02-31 at 10:00.",
+        "receivedAt": "2026-08-04T11:20:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": null,
+        "calendarCandidate": null,
+        "urgent": false,
+        "topic": "health",
+        "automated": false
+      }
+    },
+    {
+      "id": "explicit-no-reply-question",
+      "message": {
+        "from": "Example Service <service@example.test>",
+        "subject": "Synthetic reference check",
+        "text": "Is this your invented booking reference? No reply is needed.",
+        "receivedAt": "2026-08-04T11:25:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": "travel",
+        "automated": null
+      }
+    },
+    {
+      "id": "direct-request-without-question",
+      "message": {
+        "from": "Example Colleague <colleague@example.test>",
+        "subject": "Confirm the invented draft",
+        "text": "Please confirm that you received the synthetic draft.",
+        "receivedAt": "2026-08-04T11:30:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": true,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": "work",
+        "automated": false
+      }
+    },
+    {
+      "id": "separate-meeting-and-deadline",
+      "message": {
+        "from": "Example Manager <manager@example.test>",
+        "subject": "Review and notes",
+        "text": "Attend the invented review on 2026-08-08 at 09:00. Send the notes by 2026-08-09 at 17:00.",
+        "receivedAt": "2026-08-04T11:35:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": true,
+        "calendarCandidate": true,
+        "urgent": false,
+        "topic": "work",
+        "automated": false
+      }
+    },
+    {
+      "id": "generic-automated-receipt",
+      "message": {
+        "from": "Example Service <service@example.test>",
+        "subject": "Your synthetic receipt",
+        "text": "This automatically generated receipt confirms the invented purchase. Do not reply.",
+        "receivedAt": "2026-08-04T11:40:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": "finance",
+        "automated": true
+      }
+    },
+    {
+      "id": "human-invoice-review",
+      "message": {
+        "from": "Example Colleague <colleague@example.test>",
+        "subject": "Invented invoice draft",
+        "text": "Could you review the synthetic invoice wording before I send it?",
+        "receivedAt": "2026-08-04T11:45:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": true,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": "work",
+        "automated": false
+      }
+    },
+    {
+      "id": "neutral-list-mail",
+      "message": {
+        "from": "Example Community <community@example.test>",
+        "subject": "Synthetic community update",
+        "text": "A neutral invented list update without the word newsletter.",
+        "receivedAt": "2026-08-04T11:50:00.000Z",
+        "headers": { "listUnsubscribe": "https://example.test/unsubscribe/v2" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": "other",
+        "automated": true
+      }
+    },
+    {
+      "id": "quoted-request-no-action",
+      "message": {
+        "from": "Example Person <person@example.test>",
+        "subject": "Forwarded synthetic note",
+        "text": "The old note said, “Could you send the draft?” It is included for reference; no action is requested.",
+        "receivedAt": "2026-08-04T11:55:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": "work",
+        "automated": false
+      }
+    },
+    {
+      "id": "second-marketing-urgency",
+      "message": {
+        "from": "Example Shop <shop@example.test>",
+        "subject": "Act now — final hours",
+        "text": "An invented discount expires immediately. This is promotional list mail.",
+        "receivedAt": "2026-08-04T12:00:00.000Z",
+        "headers": { "listUnsubscribe": "https://example.test/unsubscribe/shop" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": "other",
+        "automated": true
+      }
+    },
+    {
+      "id": "genuine-human-urgency",
+      "message": {
+        "from": "Example Housemate <housemate@example.test>",
+        "subject": "Water leak",
+        "text": "Please call me immediately. The invented apartment is flooding and help is needed now.",
+        "receivedAt": "2026-08-04T12:05:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": true,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": true,
+        "topic": "personal",
+        "automated": false
+      }
+    },
+    {
+      "id": "security-role-human-ambiguous",
+      "message": {
+        "from": "Shared Security <security@example.test>",
+        "subject": "Lunch note",
+        "text": "A person using the invented shared address wrote about lunch. Automation cannot be established.",
+        "receivedAt": "2026-08-04T12:10:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": "personal",
+        "automated": null
+      }
+    },
+    {
+      "id": "topic-insufficient",
+      "message": {
+        "from": "Example Person <person@example.test>",
+        "subject": "Synthetic update",
+        "text": "The invented item changed. No other context is supplied.",
+        "receivedAt": "2026-08-04T12:15:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": null,
+        "automated": false
+      }
+    }
+  ]
+}

@@ -9,6 +9,13 @@
   },
   "maximumFalseUrgent": 0,
   "maximumMissedUrgent": 0,
+  "maximumAbstentionRate": {
+    "needsReply": 0.15,
+    "hasDeadline": 0.15,
+    "calendarCandidate": 0.2,
+    "urgent": 0.2,
+    "automated": 0.15
+  },
   "topic": {
     "coverage": 0.7,
     "accuracy": 0.8

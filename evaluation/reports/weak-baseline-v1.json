@@ -585,6 +585,36 @@
         "passed": true
       },
       {
+        "gate": "needsReply.abstentionRate",
+        "expected": "<= 0.15",
+        "actual": 0,
+        "passed": true
+      },
+      {
+        "gate": "hasDeadline.abstentionRate",
+        "expected": "<= 0.15",
+        "actual": 0,
+        "passed": true
+      },
+      {
+        "gate": "calendarCandidate.abstentionRate",
+        "expected": "<= 0.2",
+        "actual": 0,
+        "passed": true
+      },
+      {
+        "gate": "urgent.abstentionRate",
+        "expected": "<= 0.2",
+        "actual": 0,
+        "passed": true
+      },
+      {
+        "gate": "automated.abstentionRate",
+        "expected": "<= 0.15",
+        "actual": 0,
+        "passed": true
+      },
+      {
         "gate": "urgent.falsePositives",
         "expected": "<= 0",
         "actual": 1,

@@ -13,12 +13,15 @@ import {
   evaluateClassifier
 } from "../evaluation/scoring.js";
 import { validateEvaluationDataset } from "../evaluation/schema.js";
+import { loadEvaluationDataset } from "../evaluation/dataset.js";
 
 const root = resolve(process.cwd());
 const argumentsList = process.argv.slice(2);
 const outputIndex = argumentsList.indexOf("--output");
 const outputPath = outputIndex >= 0 ? argumentsList[outputIndex + 1] : "";
 const requireGates = argumentsList.includes("--require-gates");
+const datasetIndex = argumentsList.indexOf("--dataset");
+const datasetVersion = datasetIndex >= 0 ? argumentsList[datasetIndex + 1] : "v1";
 const classifierIndex = argumentsList.indexOf("--classifier");
 const classifierName = classifierIndex >= 0 ? argumentsList[classifierIndex + 1] : "weak";
 const classifiers = {
@@ -31,10 +34,7 @@ if (!classifier) {
   throw new Error(`Unknown classifier "${classifierName}". Choose: ${Object.keys(classifiers).join(", ")}`);
 }
 
-const dataset = JSON.parse(await readFile(
-  resolve(root, "evaluation/fixtures/v1/messages.json"),
-  "utf8"
-));
+const dataset = await loadEvaluationDataset(root, datasetVersion);
 const gates = JSON.parse(await readFile(
   resolve(root, "evaluation/quality-gates.json"),
   "utf8"

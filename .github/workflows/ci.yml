@@ -26,9 +26,11 @@ jobs:
       - run: npm run evaluate:report
       - run: npm run evaluate:dates
       - run: npm run evaluate:core
+      - run: npm run evaluate:core:v2
       - run: git diff --exit-code evaluation/reports/weak-baseline-v1.json
       - run: git diff --exit-code evaluation/reports/deterministic-dates-v1.json
       - run: git diff --exit-code evaluation/reports/deterministic-core-v1.json
+      - run: git diff --exit-code evaluation/reports/deterministic-core-v2.json
       - run: npm run mobile:prepare
 
   android:

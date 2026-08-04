@@ -254,7 +254,8 @@ Goal: introduce assistance without restoring the failed learning system.
 Status (2026-08-04): in progress. The private-data-free deterministic core now extracts
 deadlines, calendar candidates, direct reply requests, and automated/list-mail signals
 from synthetic text. It requires evidence and abstains on unsupported or ambiguous input.
-It is not connected to Gmail classification or the product UI.
+The v2 evaluation set contains 28 invented messages, including adversarial near misses and
+explicit abstention limits. It is not connected to Gmail classification or the product UI.
 
 Interface:
 
@@ -368,7 +369,7 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by expanding the public synthetic evaluation set with adversarial and
-ambiguous cases before implementing urgency or topic. Keep all results out of the product
-UI and private Gmail pipeline. Milestones 0 through 3 should not be repeated unless a
-regression is observed. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 by addressing the general multi-event/multi-deadline extraction
+design exposed by v2, then improve automation evidence for explicit generated receipts.
+Do not tune individual fixture phrases. Keep results out of the product UI and private
+Gmail pipeline. Read [WORKLOG.md](WORKLOG.md) for evidence.

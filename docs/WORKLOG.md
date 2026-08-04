@@ -540,3 +540,55 @@ does not run on private Gmail content or appear in the product UI.
 Expand the public evaluation dataset with adversarial, ambiguous, and near-miss cases
 before implementing urgency or topic. The current perfect metric is useful but the dataset
 is too small to support product integration.
+
+## 2026-08-04 — Milestone 4 adversarial evaluation v2
+
+### Outcome
+
+Expanded the public synthetic evaluation set from 12 to 28 messages without changing the
+classifier rules. The new locked cases expose genuine weaknesses instead of preserving a
+misleading perfect score.
+
+### Added coverage
+
+- Indirect and quoted questions that are not reply requests.
+- Explicit no-reply language and direct requests without question marks.
+- Role-address ambiguity and neutral list mail.
+- Generic automated receipts without convenient sender keywords.
+- Publication dates that are neither deadlines nor calendar events.
+- Incomplete and impossible dates that must abstain.
+- A message containing both a separate meeting and a separate deadline.
+- Additional marketing and genuine human urgency examples.
+- Topic-insufficient content.
+
+### Quality-gate hardening
+
+- Added per-label maximum abstention rates so precision cannot be inflated by declining
+  difficult scorable messages.
+- Version selection rejects path traversal and dataset inheritance rejects cycles.
+- V2 extends v1, preserving the original locked fixtures and unique IDs.
+
+### Honest baseline
+
+- Reply precision/recall: `1.0`; abstention rate: `0.037`.
+- Deadline precision/recall: `1.0`.
+- Calendar precision: `1.0`; recall falls to `0.80` on the separate-event/deadline case.
+- Automated precision: `1.0`; recall falls to `0.9091` on a generic generated receipt.
+- Urgency and topic remain unimplemented abstentions.
+- The overall release gate remains closed.
+
+### Verification
+
+- `npm run check` passes.
+- `npm test` passes: 72 tests, 0 failures.
+- All evaluation reports regenerate deterministically.
+- The v2 core report SHA-256 is
+  `75e1953d0e4013accf62ce883bf30063b21d8dc23eebdd1986c633b83bb0ef21`.
+- Existing report hashes changed intentionally because the new abstention gates are now
+  included in every quality-gate assessment; classifier predictions did not change.
+
+### Next slice
+
+Improve the general extraction structure so a message can independently produce a meeting
+and a deadline, then add explicit generated-message evidence for receipts. Avoid adding
+one-off phrases solely to satisfy individual fixtures.
