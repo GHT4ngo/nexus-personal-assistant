@@ -267,8 +267,10 @@ and resolved queues. A default-off batch pipeline now converts valid normalized 
 to in-memory suggestion records with sanitized diagnostics. An explicit-path private store
 now preserves immutable/idempotent suggestions and append-only review history with atomic
 restrictive writes. A default-off service can now persist enabled batch output while
-returning sanitized aggregate results. Product integration remains blocked until a
-read-only review API and UI behavior are implemented and tested.
+returning sanitized aggregate results. A read-only service now projects private storage
+into minimal pending, abstained, and resolved review queues with opaque keys. Product
+integration remains blocked until explicit review-write resolution and HTTP/UI behavior
+are implemented and tested.
 
 Interface:
 
@@ -291,6 +293,7 @@ Work:
 - [x] Cache results by content hash and classifier version.
 - [x] Add private, atomic suggestion/review persistence with no route integration.
 - [x] Add default-off persistence orchestration with aggregate diagnostics only.
+- [x] Add a privacy-safe read-only review view over private projection state.
 - Never infer future messages solely from a sender or domain.
 - [~] Display suggestions separately from user decisions. The record and projection
   boundaries are complete; UI rendering remains.
@@ -386,7 +389,7 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 with a pure read service over the private classifier store and review
-projection. It should return a sanitized review-view model without exposing raw message
-content, and remain disconnected from HTTP routes and UI. Do not add classifier execution,
-provider actions, or automatic review writes. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 with an explicit review-command service that resolves an opaque review
+key against private suggestions and appends one validated classifier review decision.
+Reject unknown/stale keys, sanitize all failures, and keep HTTP routes, UI, provider
+actions, and automatic learning out of scope. Read [WORKLOG.md](WORKLOG.md) for evidence.

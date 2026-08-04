@@ -73,3 +73,8 @@ The optional persistence service writes batch-produced suggestions only when its
 has been explicitly enabled. It returns aggregate counts and stable codes rather than
 records. Human review persistence remains a separate explicit store call; classification
 cannot manufacture a review decision.
+
+The read-only review-view service applies the latest-decision projection and maps records
+to a smaller view model. Opaque review keys support later explicit review targeting, while
+opaque subject keys allow grouping labels for one message. Raw identifiers, evidence
+excerpts, provenance, model versions, and content hashes stay inside private storage.

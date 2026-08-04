@@ -109,3 +109,22 @@ content, evidence, or exception messages. Known store errors retain their stable
 
 This service has no default store, file path, route, scheduled job, Gmail connection, or UI
 integration. It does not persist reviews or create actions.
+
+## Read-only review view
+
+`createClassifierReviewViewService({ store })` reads the explicit classifier store and
+applies the latest-review projection. It returns pending, abstained, and resolved queues
+containing only:
+
+- opaque stable review and subject keys;
+- suggestion type, proposed value, and optional extracted value;
+- confidence, abstention, and whether evidence exists;
+- projected status and effective reviewed value.
+
+The view excludes stored record IDs, Gmail/provider IDs, titles, text, evidence excerpts,
+source metadata, timestamps, model versions, and classifier content hashes. Its opaque
+keys are derived in a separate review-view namespace, so the private identifiers are not
+returned while suggestions for one subject can still be grouped.
+
+Store failures return empty queues plus a stable `store.*` or `store.failed` code. The
+service does not classify, write, import routes, or perform actions.

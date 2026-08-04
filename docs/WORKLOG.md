@@ -920,3 +920,41 @@ explicit private store. It has no route, Gmail, scheduler, or UI integration.
 Add a pure read service over the private classifier store and latest-review projection.
 Return a sanitized review-view model without raw message content, and keep HTTP routes,
 classifier execution, actions, and UI out of scope.
+
+## 2026-08-04 — Milestone 4 privacy-safe review view
+
+### Outcome
+
+Added a read-only service that projects private classifier suggestions and review history
+into minimal pending, abstained, and resolved queues. It has no HTTP route or UI consumer.
+
+### View boundary
+
+- Stored suggestions and reviews pass through the existing latest-decision projection.
+- Each item exposes opaque stable review and subject keys.
+- Subject keys group labels belonging to the same private message without exposing its
+  provider ID.
+- Items expose suggestion type/value, optional extracted value, confidence, abstention,
+  evidence availability, status, and effective reviewed value.
+- Items exclude record IDs, provider IDs, titles, record text, evidence excerpts, source
+  metadata, timestamps, model versions, and classifier content hashes.
+- Missing storage produces empty ready queues.
+- Known and unknown storage failures produce empty queues with sanitized stable codes.
+- Reading invokes no classifier and no suggestion/review writes.
+
+### Verification
+
+- Focused review-view tests pass: 7 tests, 0 failures.
+- Full regression passes: 132 tests, 0 failures.
+- Queue projection covers pending, abstained, and latest corrected state.
+- Opaque keys are stable, unique per suggestion, and shared per subject where appropriate.
+- Synthetic private-like content and provenance are absent from serialized results.
+- Store failure messages are absent from serialized results.
+- Routes, classifier execution, provider actions, storage mutation, and UI remain
+  unchanged.
+
+### Next slice
+
+Add an explicit review-command service that resolves opaque review keys privately and
+appends validated accept, correct, dismiss, or not-enough-information decisions. Reject
+unknown/stale keys and keep routes, UI, actions, and learning out of scope.
