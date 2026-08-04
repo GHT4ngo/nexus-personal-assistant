@@ -117,3 +117,6 @@ Origin enforcement distinguishes explicit cross-origin CORS from same-origin bro
 reads. An absent Origin is accepted only for a non-preflight request whose URL origin is
 allowlisted and whose protected fetch metadata says exactly `same-origin`; the private
 token remains mandatory.
+
+The full pending → accepted → resolved lifecycle also passes through real ephemeral
+loopback HTTP with streamed request bodies and verified no-store/CORS response behavior.

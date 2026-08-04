@@ -296,6 +296,22 @@ and one append-only review, clears the session, and confirms further access is u
 Its POST requests use the approved `Origin`; its GET requests exercise the allowlisted URL
 origin plus `Sec-Fetch-Site: same-origin` fallback.
 
+A second integration test runs the same lifecycle through a real Node HTTP server bound to
+`127.0.0.1` on an operating-system-assigned port. It exercises real incoming request
+streams, bounded body reading, URL/Host-derived origin checks, response writing, dynamic
+HTML delivery, bootstrap redemption, review reads, command submission, and session clear.
+The harness also verifies:
+
+- dynamic HTML uses no-store, no-referrer, and nosniff headers;
+- bootstrap and explicit-Origin commands return exact-origin CORS;
+- Origin-less same-origin GET responses do not add CORS;
+- JSON responses remain no-store and nosniff;
+- missing-token and cross-site requests receive sanitized denial;
+- an oversized streamed bootstrap body is rejected.
+
+The harness is test-only and closes its ephemeral listener. It does not modify or mount
+`local-server.mjs`.
+
 The loopback server integration now composes this lifecycle. Its public integration surface
 contains `handleRequest` and frozen `trustedBootstrap.issue(origin)`/`clear()` functions;
 it no longer exposes the review token directly. Bootstrap redemption is routed before the

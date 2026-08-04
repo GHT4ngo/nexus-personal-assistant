@@ -401,11 +401,11 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 with an unmounted real-HTTP loopback harness. The browser-origin
-contract is now defined and unit/integration tested: explicit allowlisted Origin works,
-while Origin-less reads require an allowlisted request URL plus exact
-`Sec-Fetch-Site: same-origin`, and every request still needs the private token. Next prove
-dynamic HTML delivery, bootstrap POST, review GET, command POST, and clear behavior through
-real Node HTTP request/response streams and security headers. Do not mount the running
-server, change static/mobile assets or Android, or enable classifier execution, Gmail,
-provider actions, UI, or learning. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 by extracting the proven strict Node HTTP response and dynamic
+document behavior into a reusable, unmounted review HTTP application composition. The
+real-loopback lifecycle is green; next remove the test-only adapter duplication while
+keeping listening/binding outside the composition. The app must fail closed, handle only
+the dynamic desktop document and review routes, return secure no-store headers, and expose
+no token. Do not mount `local-server.mjs`, change static/mobile assets or Android, or enable
+classifier execution, Gmail, provider actions, UI, or learning. Read
+[WORKLOG.md](WORKLOG.md) for evidence.

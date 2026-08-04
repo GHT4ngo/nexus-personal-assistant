@@ -1338,3 +1338,31 @@ that omit the Origin header.
 Exercise the complete flow through an unmounted real Node HTTP loopback harness, including
 request streams, response headers, dynamic HTML, bootstrap, review reads, command, and
 session clear. Do not mount the production server yet.
+
+## 2026-08-04 — Milestone 4 real loopback HTTP proof
+
+### Outcome
+
+Proved the complete private desktop lifecycle through a real ephemeral Node HTTP server
+bound only to `127.0.0.1`.
+
+### Behavior and verification
+
+- The operating system assigns the temporary port; the test closes it after completion.
+- Dynamic HTML, bootstrap POST, Origin-less same-origin review GET, explicit-Origin command
+  POST, resolved GET, and session clear all pass through real request/response streams.
+- The default bounded body reader handles the streamed bootstrap and command bodies.
+- Dynamic HTML returns no-store, no-referrer, nosniff, and explicit HTML content type.
+- JSON responses return no-store, no-referrer, nosniff, and explicit JSON content type.
+- Bootstrap and command responses return exact-origin CORS; same-origin GET does not.
+- Missing-token, cross-site, and oversized-bootstrap requests are denied with stable codes.
+- The rendered document and client surface do not expose the private token.
+- Full regression and syntax checks pass: 196 tests, 0 failures.
+- `local-server.mjs`, static/mobile assets, Android, Gmail, classifier execution, provider
+  actions, learning, and UI remain unchanged.
+
+### Next slice
+
+Extract the strict HTTP response and dynamic document behavior into a reusable unmounted
+review HTTP application composition. Keep network listening and production mounting out of
+scope.
