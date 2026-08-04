@@ -1,0 +1,138 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import {
+  createClassifierReviewHttpApp
+} from "../scripts/composition/classifier-review-http-app.js";
+
+const ORIGIN = "http://127.0.0.1:8050";
+const TOKEN = "synthetic-review-http-app-token-over-32-bytes";
+const CODE = "synthetic-review-http-app-code-over-32-bytes";
+const HTML = "<!doctype html><html><head><title>Nexus</title></head><body></body></html>";
+const environment = {
+  NEXUS_CLASSIFIER_REVIEWS: "1",
+  NEXUS_CLASSIFIER_REVIEW_PATH: "/tmp/nexus-review-http-app/classifier.json",
+  NEXUS_CLASSIFIER_REVIEW_ORIGINS: ORIGIN,
+  NEXUS_CLASSIFIER_REVIEW_TOKEN: TOKEN
+};
+
+const createResponse = () => ({
+  headers: {},
+  status: null,
+  body: "",
+  setHeader(name, value) {
+    this.headers[name.toLowerCase()] = value;
+  },
+  writeHead(status, headers = {}) {
+    this.status = status;
+    for (const [name, value] of Object.entries(headers)) {
+      this.setHeader(name, value);
+    }
+  },
+  end(body = "") {
+    this.body = body;
+  }
+});
+
+const createApp = (overrides = {}) => createClassifierReviewHttpApp({
+  environment,
+  serverHost: "127.0.0.1",
+  documentOrigin: ORIGIN,
+  documentHtml: HTML,
+  generateBootstrapCode: () => CODE,
+  bootstrapNow: () => 1_786_000_000_000,
+  ...overrides
+});
+
+test("disabled HTTP app provisions nothing and handles no requests", async () => {
+  for (const value of [undefined, "", "true", true, 1]) {
+    const app = createClassifierReviewHttpApp({
+      environment: { NEXUS_CLASSIFIER_REVIEWS: value }
+    });
+    assert.equal(app.enabled, false);
+    assert.equal(await app.handleRequest({}, {}, {}), false);
+    assert.deepEqual(Object.keys(app).sort(), ["enabled", "handleRequest"]);
+  }
+});
+
+test("enabled HTTP app fails closed on document and binding configuration", () => {
+  for (const documentOrigin of [undefined, "", "not-an-origin", `${ORIGIN}/path`]) {
+    assert.throws(
+      () => createApp({ documentOrigin }),
+      /explicit document origin/
+    );
+  }
+  assert.throws(
+    () => createApp({ documentHtml: "" }),
+    /desktop HTML document/
+  );
+  assert.throws(
+    () => createApp({ serverHost: "0.0.0.0" }),
+    /loopback binding/
+  );
+});
+
+test("serves only the exact dynamic document with secure headers", async () => {
+  const app = createApp();
+  const valid = createResponse();
+  const wrongOrigin = createResponse();
+  const query = createResponse();
+  const method = createResponse();
+  const unrelated = createResponse();
+
+  assert.equal(await app.handleRequest(
+    { method: "GET", headers: {} },
+    new URL(`${ORIGIN}/`),
+    valid
+  ), true);
+  await app.handleRequest(
+    { method: "GET", headers: {} },
+    new URL("http://localhost:8050/"),
+    wrongOrigin
+  );
+  await app.handleRequest(
+    { method: "GET", headers: {} },
+    new URL(`${ORIGIN}/?debug=1`),
+    query
+  );
+  await app.handleRequest(
+    { method: "POST", headers: {} },
+    new URL(`${ORIGIN}/`),
+    method
+  );
+
+  assert.equal(await app.handleRequest(
+    { method: "GET", headers: {} },
+    new URL(`${ORIGIN}/not-owned`),
+    unrelated
+  ), false);
+  assert.equal(valid.status, 200);
+  assert.equal(valid.headers["cache-control"], "no-store, max-age=0");
+  assert.equal(valid.headers["referrer-policy"], "no-referrer");
+  assert.equal(valid.body.includes(CODE), true);
+  assert.equal(valid.body.includes(TOKEN), false);
+  assert.equal(wrongOrigin.status, 403);
+  assert.equal(JSON.parse(wrongOrigin.body).code, "document.origin.denied");
+  assert.equal(query.status, 400);
+  assert.equal(method.status, 405);
+  assert.equal(unrelated.status, null);
+});
+
+test("malformed document fails safely without exposing trusted controls", async () => {
+  const app = createApp({
+    documentHtml: "<html><body>Missing marker</body></html>"
+  });
+  const response = createResponse();
+  await app.handleRequest(
+    { method: "GET", headers: {} },
+    new URL(`${ORIGIN}/`),
+    response
+  );
+
+  assert.equal(response.status, 503);
+  assert.equal(JSON.parse(response.body).code, "document.handoff.unavailable");
+  assert.deepEqual(Object.keys(app).sort(), ["enabled", "handleRequest"]);
+  assert.equal(Object.isFrozen(app), true);
+  assert.equal(JSON.stringify(app).includes(TOKEN), false);
+  assert.equal(Object.hasOwn(app, "trustedBootstrap"), false);
+});

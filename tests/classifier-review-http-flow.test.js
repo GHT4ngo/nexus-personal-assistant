@@ -9,11 +9,8 @@ import {
   createClassifierReviewBootstrapClient
 } from "../scripts/browser/classifier-review-bootstrap-client.js";
 import {
-  createClassifierReviewServerIntegration
-} from "../scripts/composition/classifier-review-server.js";
-import {
-  createClassifierReviewDesktopHandoff
-} from "../scripts/services/classifier-review-desktop-handoff.js";
+  createClassifierReviewHttpApp
+} from "../scripts/composition/classifier-review-http-app.js";
 import { createClassifierStore } from "../scripts/storage/classifier-store.js";
 import { createClassifierSuggestionRecord } from "../src/domain/records.js";
 
@@ -64,28 +61,12 @@ test("serves the private desktop lifecycle through real loopback HTTP", async (t
     normalizedAt: new Date(CLOCK).toISOString()
   })]);
 
-  let integration;
-  let renderer;
+  let app;
   let baseUrl;
-  const sendJson = (response, status, data) => {
-    response.writeHead(status, {
-      "Cache-Control": "no-store",
-      "Content-Type": "application/json; charset=utf-8",
-      "Referrer-Policy": "no-referrer",
-      "X-Content-Type-Options": "nosniff"
-    });
-    response.end(JSON.stringify(data));
-  };
   const server = createServer(async (request, response) => {
     try {
       const url = new URL(request.url || "/", `http://${request.headers.host}`);
-      if (request.method === "GET" && url.pathname === "/" && !url.search) {
-        const rendered = renderer.render({ html: HTML, origin: baseUrl });
-        response.writeHead(200, rendered.headers);
-        response.end(rendered.body);
-        return;
-      }
-      if (await integration.handleRequest(request, url, response)) {
+      if (await app.handleRequest(request, url, response)) {
         return;
       }
       response.writeHead(404, {
@@ -93,10 +74,13 @@ test("serves the private desktop lifecycle through real loopback HTTP", async (t
       });
       response.end("Not found");
     } catch {
-      sendJson(response, 500, {
+      response.writeHead(500, {
+        "Content-Type": "application/json; charset=utf-8"
+      });
+      response.end(JSON.stringify({
         status: "rejected",
         code: "server.failed"
-      });
+      }));
     }
   });
   t.after(async () => {
@@ -107,7 +91,7 @@ test("serves the private desktop lifecycle through real loopback HTTP", async (t
   const address = server.address();
   assert.equal(typeof address, "object");
   baseUrl = `http://127.0.0.1:${address.port}`;
-  integration = createClassifierReviewServerIntegration({
+  app = createClassifierReviewHttpApp({
     environment: {
       NEXUS_CLASSIFIER_REVIEWS: "1",
       NEXUS_CLASSIFIER_REVIEW_PATH: privateFilePath,
@@ -115,29 +99,12 @@ test("serves the private desktop lifecycle through real loopback HTTP", async (t
       NEXUS_CLASSIFIER_REVIEW_TOKEN: TOKEN
     },
     serverHost: "127.0.0.1",
-    sendJson,
-    applyCors: (response, origin) => {
-      response.setHeader("Access-Control-Allow-Origin", origin);
-      response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-      response.setHeader(
-        "Access-Control-Allow-Headers",
-        "Content-Type, X-Nexus-Review-Token"
-      );
-      response.setHeader("Vary", "Origin");
-      response.setHeader("Cache-Control", "no-store");
-    },
-    sendEmpty: (response, status) => {
-      response.writeHead(status);
-      response.end();
-    },
+    documentOrigin: baseUrl,
+    documentHtml: HTML,
     generateBootstrapCode: () => CODE,
     bootstrapNow: () => CLOCK,
     now: () => new Date(CLOCK)
   });
-  renderer = createClassifierReviewDesktopHandoff({
-    trustedBootstrap: integration.trustedBootstrap
-  });
-
   const documentResponse = await fetch(`${baseUrl}/`);
   const documentBody = await documentResponse.text();
   const element = {

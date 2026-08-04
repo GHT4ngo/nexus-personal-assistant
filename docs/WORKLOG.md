@@ -1366,3 +1366,33 @@ bound only to `127.0.0.1`.
 Extract the strict HTTP response and dynamic document behavior into a reusable unmounted
 review HTTP application composition. Keep network listening and production mounting out of
 scope.
+
+## 2026-08-04 — Milestone 4 strict review HTTP application
+
+### Outcome
+
+Extracted secure dynamic-document and review-route HTTP behavior into a reusable
+composition without creating or binding a server.
+
+### Behavior and verification
+
+- Only exact `NEXUS_CLASSIFIER_REVIEWS=1` enables the application.
+- Disabled creation provisions and validates nothing and handles no requests.
+- Enabled creation requires loopback binding, explicit document origin, and desktop HTML.
+- Strict no-store JSON, empty, CORS, and dynamic HTML responses are owned by the app.
+- Only exact `/` plus the isolated review routes are handled; unrelated routes pass through.
+- Wrong document origin, query, method, and malformed handoff fail with stable safe codes.
+- The frozen public surface contains only `enabled` and `handleRequest`.
+- Token, renderer, and trusted issuance controls remain private closure state.
+- The real-loopback lifecycle test now uses this production composition.
+- Four focused HTTP-app tests cover disabled behavior, configuration, document routing,
+  secure headers, and secret-surface exclusion.
+- Full regression and syntax checks pass: 200 tests, 0 failures.
+- `local-server.mjs`, static/mobile assets, Android, Gmail, classifier execution, provider
+  actions, learning, and UI remain unchanged.
+
+### Next slice
+
+Design and test a private desktop browser-runtime owner that initializes the bootstrap
+client, exposes only sanitized status, retains request capability privately, and clears on
+page lifecycle events. Keep it unmounted.

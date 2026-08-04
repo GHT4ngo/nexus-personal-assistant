@@ -312,6 +312,20 @@ The harness also verifies:
 The harness is test-only and closes its ephemeral listener. It does not modify or mount
 `local-server.mjs`.
 
+`createClassifierReviewHttpApp(...)` extracts the proven Node HTTP behavior from that
+harness without creating a listener. Exact flag value `1` is required; disabled creation
+validates nothing and handles nothing. Enabled creation requires the loopback server
+contract, an explicit document origin, and an in-memory desktop HTML template.
+
+The app owns strict JSON, empty, CORS, and dynamic-document responses. It handles only the
+review API paths plus exact `/` document requests. Wrong document origin, queries, methods,
+and unavailable handoffs receive stable no-store JSON failures; unrelated routes pass
+through. Its frozen public surface contains only `enabled` and `handleRequest`. The token,
+renderer, and trusted-bootstrap controls remain private.
+
+The real loopback test now consumes this composition directly. Network listening, static
+file reading, browser-module activation, and production mounting remain outside it.
+
 The loopback server integration now composes this lifecycle. Its public integration surface
 contains `handleRequest` and frozen `trustedBootstrap.issue(origin)`/`clear()` functions;
 it no longer exposes the review token directly. Bootstrap redemption is routed before the

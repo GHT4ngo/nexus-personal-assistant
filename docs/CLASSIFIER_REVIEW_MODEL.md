@@ -120,3 +120,6 @@ token remains mandatory.
 
 The full pending → accepted → resolved lifecycle also passes through real ephemeral
 loopback HTTP with streamed request bodies and verified no-store/CORS response behavior.
+The reusable HTTP application composition owns these responses but does not listen on a
+port. Its only public capability is request handling; token and issuance controls stay
+inside the closure.
