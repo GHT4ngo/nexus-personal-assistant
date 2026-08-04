@@ -42,3 +42,18 @@ Neither suggestion nor review creation:
 
 Reviews are append-only audit history for later explicit product decisions. They are not
 training examples and do not become sender/domain rules.
+
+## Review projection
+
+`projectClassifierReviews(records)` is a pure read over suggestions and decisions:
+
+- the latest classifier review per suggestion wins;
+- unresolved non-abstained suggestions enter `pending`;
+- unresolved abstentions enter `abstained`;
+- accepted, corrected, dismissed, and not-enough-information items enter `resolved`;
+- accepted items expose the original suggestion value;
+- corrected items expose only the explicit corrected value;
+- dismissed and not-enough-information items have no effective value.
+
+Manual organization reviews and reviews targeting absent suggestions are ignored. The
+projection does not mutate inputs or create records/actions.

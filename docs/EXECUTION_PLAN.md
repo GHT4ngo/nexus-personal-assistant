@@ -262,8 +262,9 @@ Gmail classification or the product UI.
 Core v4 adds current-content-only topic scoring and passes every locked v2 quality gate.
 The internal adapter, cache/versioning, minimum-input filter, and default-off switch are
 implemented and tested. Classifier suggestions and human reviews now have separate,
-validated record types. Product integration remains blocked until the review projection
-and UI behavior are implemented and tested.
+validated record types, and a pure latest-decision projection produces pending, abstained,
+and resolved queues. Product integration remains blocked until the default-off batch
+pipeline and UI behavior are implemented and tested.
 
 Interface:
 
@@ -285,8 +286,8 @@ Work:
 - [x] Send the minimum necessary content.
 - [x] Cache results by content hash and classifier version.
 - Never infer future messages solely from a sender or domain.
-- [~] Display suggestions separately from user decisions. The record boundary is complete;
-  projection and UI rendering remain.
+- [~] Display suggestions separately from user decisions. The record and projection
+  boundaries are complete; UI rendering remains.
 - [~] Add accept, correct, dismiss, and “not enough information” review actions. The record
   and validation boundary is complete; UI controls remain.
 
@@ -379,6 +380,6 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by projecting the latest classifier review decision over immutable
-suggestion records, including pending and abstained review queues. Keep provider actions
-and UI rendering out of scope. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 by building a default-off batch pipeline that accepts normalized
+records and returns suggestion records without writing routes, provider actions, or UI
+state. Read [WORKLOG.md](WORKLOG.md) for evidence.

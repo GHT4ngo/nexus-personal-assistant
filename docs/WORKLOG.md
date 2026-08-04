@@ -778,3 +778,35 @@ records without creating actions.
 Build a pure projection that applies the latest human review decision to immutable
 classifier suggestions and produces pending/abstained review queues. Do not add provider
 actions or UI rendering yet.
+
+## 2026-08-04 — Milestone 4 review projection
+
+### Outcome
+
+Added a pure latest-decision projection over immutable classifier suggestions and
+classifier review history.
+
+### Projection behavior
+
+- Unreviewed non-abstained suggestions enter the pending queue.
+- Unreviewed abstentions enter a separate abstained queue.
+- Accepted, corrected, dismissed, and not-enough-information items enter resolved.
+- Accept exposes the original suggested value.
+- Correct exposes the explicit corrected value.
+- Dismiss and not-enough-information expose no effective value.
+- The latest decision wins by decision time with deterministic record-ID tie-breaking.
+- Manual organization reviews and reviews for absent suggestions are ignored.
+- Source records remain unchanged and no new record or action is created.
+
+### Verification
+
+- `npm run check` passes.
+- `npm test` passes: 104 tests, 0 failures.
+- Queue counts, latest-decision replacement, corrections, dismissals, insufficient
+  information, unrelated reviews, and input immutability are covered.
+- Gmail routes, provider actions, and UI rendering remain unchanged.
+
+### Next slice
+
+Create a default-off batch classification pipeline over normalized records. It may return
+suggestion records in memory but must not write routes, provider actions, or UI state.
