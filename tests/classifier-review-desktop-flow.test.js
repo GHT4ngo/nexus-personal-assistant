@@ -95,7 +95,11 @@ test("composes the complete private desktop review lifecycle without mounting it
         value
       ])
     );
-    headers.origin = ORIGIN;
+    if ((options.method || "GET") === "GET") {
+      headers["sec-fetch-site"] = "same-origin";
+    } else {
+      headers.origin = ORIGIN;
+    }
     await integration.handleRequest({
       method: options.method || "GET",
       body: options.body || "",

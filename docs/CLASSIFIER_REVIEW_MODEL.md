@@ -112,3 +112,8 @@ inside a private request closure. The closure is limited to review reads and com
 can be explicitly cleared. A full synthetic desktop flow proves pending → accepted →
 resolved without exposing the token through the client surface. Static/mobile assets never
 contain either value.
+
+Origin enforcement distinguishes explicit cross-origin CORS from same-origin browser
+reads. An absent Origin is accepted only for a non-preflight request whose URL origin is
+allowlisted and whose protected fetch metadata says exactly `same-origin`; the private
+token remains mandatory.

@@ -219,10 +219,22 @@ server configuration path:
 - the token remains inside the composed services; the frozen trusted-bootstrap surface can
   issue or clear one-time codes but cannot read the token.
 
-The request guard now handles origin-approved `OPTIONS` preflight. It permits only the
+The request guard handles origin-approved `OPTIONS` preflight. It permits only the
 endpoint's GET or POST method and only Content-Type plus X-Nexus-Review-Token headers.
-Actual and preflight responses receive exact-origin CORS, `Vary: Origin`, and
-`Cache-Control: no-store`.
+Explicit-origin actual and preflight responses receive exact-origin CORS, `Vary: Origin`,
+and `Cache-Control: no-store`.
+
+Browsers may omit `Origin` on a same-origin GET. For non-OPTIONS requests only, the guard
+therefore accepts an absent—not malformed or `null`—Origin when the request URL origin is
+explicitly allowlisted and the browser-protected `Sec-Fetch-Site` header equals the exact
+value `same-origin`. No CORS headers are needed for that path. Missing fetch metadata,
+`none`, `same-site`, `cross-site`, a mismatched URL origin, or Origin-less preflight remains
+denied before token handling. The strong private token is still required afterward.
+
+This follows the W3C Fetch Metadata algorithm: `same-origin` is emitted only when the
+entire request URL chain remains same-origin, and `Sec-` metadata cannot be modified by
+page JavaScript. Non-browser clients can forge metadata but still cannot pass without the
+private token.
 
 `createBoundedRequestBodyReader()` counts bytes per incoming chunk before buffering. The
 route's 4 KiB command limit cannot exceed the reader's server-wide maximum. Oversized and
@@ -281,9 +293,8 @@ The complete desktop path is covered by one synthetic test using the real render
 client, redemption route, origin/token guard, review view, command service, and private
 store. It reads one pending suggestion, accepts it explicitly, observes one resolved item
 and one append-only review, clears the session, and confirms further access is unavailable.
-The test transport supplies the approved `Origin` header. Actual browser behavior for
-same-origin GET requests must be verified before mounting because browsers do not attach
-`Origin` uniformly to every same-origin request.
+Its POST requests use the approved `Origin`; its GET requests exercise the allowlisted URL
+origin plus `Sec-Fetch-Site: same-origin` fallback.
 
 The loopback server integration now composes this lifecycle. Its public integration surface
 contains `handleRequest` and frozen `trustedBootstrap.issue(origin)`/`clear()` functions;

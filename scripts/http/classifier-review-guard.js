@@ -85,12 +85,21 @@ export const createClassifierReviewRequestGuard = ({
       return handler(request, url, response);
     }
 
-    const requestOrigin = normalizeOrigin(header(request, "origin"));
-    if (!requestOrigin || !originSet.has(requestOrigin)) {
+    const originHeader = header(request, "origin");
+    const requestOrigin = normalizeOrigin(originHeader);
+    const urlOrigin = normalizeOrigin(url?.origin);
+    const sameOriginFallback = originHeader === ""
+      && request.method !== "OPTIONS"
+      && header(request, "sec-fetch-site") === "same-origin"
+      && urlOrigin
+      && originSet.has(urlOrigin);
+    if ((!requestOrigin || !originSet.has(requestOrigin)) && !sameOriginFallback) {
       deny(sendJson, response, "request.origin.denied");
       return true;
     }
-    applyCors(response, requestOrigin);
+    if (requestOrigin) {
+      applyCors(response, requestOrigin);
+    }
 
     if (request.method === "OPTIONS") {
       const requestedMethod = header(request, "access-control-request-method");

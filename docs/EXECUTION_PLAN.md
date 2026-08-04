@@ -401,11 +401,11 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 with a pre-mount HTTP/browser contract audit. The full synthetic
-desktop lifecycle is green, but its transport explicitly supplies `Origin`; verify how the
-chosen desktop origin and actual browser fetch behavior interact with the origin/token
-guard, especially same-origin GET requests. Define and test a safe server-derived
-same-origin fallback or explicit cross-origin layout before mounting anything. Preserve
-the strong token requirement and deny untrusted cross-origin traffic. Do not change the
-running server binding, static/mobile assets, Android, classifier execution, Gmail,
+Continue Milestone 4 with an unmounted real-HTTP loopback harness. The browser-origin
+contract is now defined and unit/integration tested: explicit allowlisted Origin works,
+while Origin-less reads require an allowlisted request URL plus exact
+`Sec-Fetch-Site: same-origin`, and every request still needs the private token. Next prove
+dynamic HTML delivery, bootstrap POST, review GET, command POST, and clear behavior through
+real Node HTTP request/response streams and security headers. Do not mount the running
+server, change static/mobile assets or Android, or enable classifier execution, Gmail,
 provider actions, UI, or learning. Read [WORKLOG.md](WORKLOG.md) for evidence.

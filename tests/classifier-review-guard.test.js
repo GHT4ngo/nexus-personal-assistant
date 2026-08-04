@@ -32,6 +32,8 @@ const createHarness = () => {
     path = "/api/classifier/reviews",
     origin,
     token,
+    secFetchSite,
+    urlOrigin = ORIGIN,
     requestedMethod,
     requestedHeaders
   } = {}) => {
@@ -43,6 +45,9 @@ const createHarness = () => {
     if (token !== undefined) {
       headers[CLASSIFIER_REVIEW_TOKEN_HEADER] = token;
     }
+    if (secFetchSite !== undefined) {
+      headers["sec-fetch-site"] = secFetchSite;
+    }
     if (requestedMethod) {
       headers["access-control-request-method"] = requestedMethod;
     }
@@ -51,7 +56,7 @@ const createHarness = () => {
     }
     const handled = await guard(
       { method, headers },
-      new URL(path, "http://localhost:8050"),
+      new URL(path, urlOrigin),
       {}
     );
     return { handled, reply: replies[0], calls };
@@ -158,6 +163,62 @@ test("denies missing, null, malformed, and unlisted origins before handler acces
   assert.ok(responses.every((entry) =>
     entry.reply.data.code === "request.origin.denied"));
   assert.equal(JSON.stringify(responses).includes(privateLikeOrigin), false);
+});
+
+test("allows an Origin-less same-origin browser request with token and fetch metadata", async () => {
+  const harness = createHarness();
+  const allowed = await harness.invoke({
+    method: "GET",
+    token: TOKEN,
+    secFetchSite: "same-origin"
+  });
+
+  assert.equal(allowed.reply, undefined);
+  assert.equal(harness.calls.handler, 1);
+  assert.equal(harness.calls.corsOrigin, undefined);
+});
+
+test("denies ambiguous and cross-site Origin-less requests before token handling", async () => {
+  const harness = createHarness();
+  const denied = [];
+  for (const request of [
+    { token: TOKEN },
+    { token: TOKEN, secFetchSite: "none" },
+    { token: TOKEN, secFetchSite: "cross-site" },
+    {
+      token: TOKEN,
+      secFetchSite: "same-origin",
+      urlOrigin: "http://127.0.0.1:8050"
+    },
+    {
+      method: "OPTIONS",
+      token: TOKEN,
+      secFetchSite: "same-origin",
+      requestedMethod: "GET",
+      requestedHeaders: "x-nexus-review-token"
+    }
+  ]) {
+    denied.push(await harness.invoke(request));
+  }
+
+  assert.ok(denied.every((entry) =>
+    entry.reply.data.code === "request.origin.denied"));
+  assert.equal(harness.calls.handler, 0);
+});
+
+test("same-origin fallback still requires the private token", async () => {
+  const harness = createHarness();
+  const denied = await harness.invoke({
+    secFetchSite: "same-origin"
+  });
+  const allowed = await harness.invoke({
+    secFetchSite: "same-origin",
+    token: TOKEN
+  });
+
+  assert.equal(denied.reply.data.code, "request.token.denied");
+  assert.equal(allowed.reply, undefined);
+  assert.equal(harness.calls.handler, 1);
 });
 
 test("requires a matching command token for POST without exposing it", async () => {

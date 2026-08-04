@@ -1307,3 +1307,34 @@ boundaries and one synthetic private suggestion.
 Audit and test the real HTTP/browser origin contract, especially same-origin GET requests.
 Choose a safe server-derived same-origin fallback or an explicit cross-origin layout while
 preserving the token requirement. Do not mount the integration yet.
+
+## 2026-08-04 — Milestone 4 browser-origin contract
+
+### Outcome
+
+Defined and implemented a fail-closed path for legitimate same-origin browser requests
+that omit the Origin header.
+
+### Policy and verification
+
+- Explicit allowlisted Origin behavior and exact-origin CORS remain unchanged.
+- Origin-less non-preflight requests require both an allowlisted request URL origin and
+  exact `Sec-Fetch-Site: same-origin`.
+- Malformed/null Origin never falls back to fetch metadata.
+- Missing metadata, `none`, `same-site`, `cross-site`, wrong URL origin, and Origin-less
+  preflight are denied before token handling.
+- The private token remains mandatory for accepted same-origin requests.
+- Same-origin responses do not add unnecessary CORS headers.
+- The synthetic desktop flow now models Origin-bearing POSTs and Origin-less same-origin
+  GETs.
+- The W3C Fetch Metadata specification confirms that `same-origin` covers the entire URL
+  chain and `Sec-` metadata is not modifiable by page JavaScript.
+- Full regression and syntax checks pass: 195 tests, 0 failures.
+- Running server binding, static/mobile assets, Android, Gmail, classifier execution,
+  provider actions, learning, and UI remain unchanged.
+
+### Next slice
+
+Exercise the complete flow through an unmounted real Node HTTP loopback harness, including
+request streams, response headers, dynamic HTML, bootstrap, review reads, command, and
+session clear. Do not mount the production server yet.
