@@ -69,3 +69,27 @@ test("rejects an impossible ISO calendar date instead of rolling it forward", ()
   assert.equal(result.suggestions.hasDeadline, null);
   assert.equal(result.suggestions.calendarCandidate, null);
 });
+
+test("extracts a meeting and a separate deadline independently", () => {
+  const result = classifyDeterministicDates(message(
+    "Attend the invented review on 2026-08-08 at 09:00. "
+      + "Send the notes by 2026-08-09 at 17:00."
+  ));
+
+  assert.equal(result.suggestions.calendarCandidate, true);
+  assert.equal(result.values.calendarCandidate, "2026-08-08T09:00");
+  assert.equal(result.suggestions.hasDeadline, true);
+  assert.equal(result.values.hasDeadline, "2026-08-09T17:00");
+  assert.match(result.evidence.calendarCandidate[0], /^Attend the invented review/);
+  assert.match(result.evidence.hasDeadline[0], /^Send the notes by/);
+});
+
+test("does not reuse event context to turn its deadline into another event", () => {
+  const result = classifyDeterministicDates(message(
+    "Attend the invented review on 2026-08-08 at 09:00. "
+      + "The written summary is due on 2026-08-09 at 17:00."
+  ));
+
+  assert.equal(result.values.calendarCandidate, "2026-08-08T09:00");
+  assert.equal(result.values.hasDeadline, "2026-08-09T17:00");
+});

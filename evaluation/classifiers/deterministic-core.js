@@ -38,6 +38,6 @@ export const classifyWithDeterministicCore = (message) => {
       "topic"
     ],
     values: dates.values,
-    modelVersion: "nexus-deterministic-core/1"
+    modelVersion: "nexus-deterministic-core/2"
   };
 };

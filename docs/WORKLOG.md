@@ -592,3 +592,40 @@ misleading perfect score.
 Improve the general extraction structure so a message can independently produce a meeting
 and a deadline, then add explicit generated-message evidence for receipts. Avoid adding
 one-off phrases solely to satisfy individual fixtures.
+
+## 2026-08-04 — Milestone 4 deterministic core v2
+
+### Outcome
+
+Resolved both structural failures exposed by the locked adversarial dataset without
+altering fixture labels or adding sender-history rules.
+
+### Changes
+
+- Temporal expressions are evaluated independently within sentence boundaries.
+- A message may now suggest both a calendar event and a separate deadline.
+- Event wording from one sentence cannot leak into a later deadline sentence.
+- Explicit statements such as “automatically generated” provide automation evidence even
+  when the sender address is generic.
+- Classifier versions advanced to deterministic dates v2, message signals v2, and core v2.
+- Previous reports remain committed as historical snapshots; new filenames identify both
+  classifier v2 and dataset v2.
+
+### Results on 28 synthetic messages
+
+- Reply precision/recall: `1.0`; abstention rate: `0.037`.
+- Deadline precision/recall: `1.0`.
+- Calendar-candidate precision/recall: `1.0`.
+- Automated precision/recall: `1.0`.
+- Urgency and topic remain unimplemented, so the overall release gate remains closed.
+- `npm test` passes: 75 tests, 0 failures.
+- Date-v2 report SHA-256:
+  `27cbfe2dfe5469166336a0c9f7ba97fc7e39980f987878b483fe93b50427be5e`.
+- Core-v2 report SHA-256:
+  `3c14ab44a163159a53d4e8c2cfdd416d8031a166b8ad6550e7cdba31bebc43f1`.
+
+### Next slice
+
+Define conservative urgency evidence using genuine near-term harm plus immediacy. The word
+“urgent,” countdowns, sales, and list-mail marketing must never be sufficient by
+themselves.

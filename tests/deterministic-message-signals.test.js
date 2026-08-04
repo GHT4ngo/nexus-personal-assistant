@@ -76,3 +76,14 @@ test("combines a role sender and transactional text without sender history", () 
   assert.equal(result.suggestions.automated, true);
   assert.match(result.evidence.automated[1], /invoice/);
 });
+
+test("uses explicit machine-generation language without sender history", () => {
+  const result = classifyDeterministicMessageSignals(message(
+    "This automatically generated receipt confirms the invented purchase. Do not reply.",
+    { from: "Example Service <service@example.test>" }
+  ));
+
+  assert.equal(result.suggestions.automated, true);
+  assert.match(result.evidence.automated[0], /automatically generated/);
+  assert.equal(result.evidence.automated.some((item) => item.includes("@")), false);
+});

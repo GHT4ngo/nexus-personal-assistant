@@ -255,7 +255,9 @@ Status (2026-08-04): in progress. The private-data-free deterministic core now e
 deadlines, calendar candidates, direct reply requests, and automated/list-mail signals
 from synthetic text. It requires evidence and abstains on unsupported or ambiguous input.
 The v2 evaluation set contains 28 invented messages, including adversarial near misses and
-explicit abstention limits. It is not connected to Gmail classification or the product UI.
+explicit abstention limits. Classifier v2 independently extracts meetings and deadlines
+from one message and recognizes explicit generated-message evidence. It is not connected
+to Gmail classification or the product UI.
 
 Interface:
 
@@ -369,7 +371,7 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by addressing the general multi-event/multi-deadline extraction
-design exposed by v2, then improve automation evidence for explicit generated receipts.
-Do not tune individual fixture phrases. Keep results out of the product UI and private
-Gmail pipeline. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 by defining conservative urgency evidence rules against the locked v2
+cases. Marketing language and the word “urgent” alone must remain insufficient. Keep
+results out of the product UI and private Gmail pipeline. Read [WORKLOG.md](WORKLOG.md) for
+evidence.

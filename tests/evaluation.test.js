@@ -91,7 +91,7 @@ test("measures the deterministic date extractor without guessing other labels", 
   const dataset = await readJson("../evaluation/fixtures/v1/messages.json");
   const report = evaluateClassifier(dataset, classifyWithDeterministicDates);
 
-  assert.equal(report.classifierVersion, "nexus-deterministic-dates/1");
+  assert.equal(report.classifierVersion, "nexus-deterministic-dates/2");
   assert.equal(report.metrics.binary.hasDeadline.precision, 1);
   assert.equal(report.metrics.binary.hasDeadline.recall, 1);
   assert.equal(report.metrics.binary.calendarCandidate.precision, 1);
@@ -121,17 +121,21 @@ test("measures the deterministic core while urgency and topic still abstain", as
   assert.deepEqual(report.metrics.evidence.missing, []);
 });
 
-test("preserves known deterministic-core failures on the adversarial v2 dataset", async () => {
+test("fixes the structural v2 failures while unimplemented labels keep gates closed", async () => {
   const dataset = await loadEvaluationDataset(projectRoot, "v2");
   const gates = await readJson("../evaluation/quality-gates.json");
   const report = evaluateClassifier(dataset, classifyWithDeterministicCore);
   const assessment = assessQualityGates(report, gates);
 
-  assert.equal(report.metrics.binary.calendarCandidate.recall, 0.8);
-  assert.equal(report.metrics.binary.automated.recall, 0.9091);
+  assert.equal(report.classifierVersion, "nexus-deterministic-core/2");
+  assert.equal(report.metrics.binary.calendarCandidate.recall, 1);
+  assert.equal(report.metrics.binary.automated.recall, 1);
   assert.equal(report.metrics.binary.needsReply.abstentionRate, 0.037);
   assert.ok(assessment.results.some((result) =>
-    result.gate === "calendarCandidate.recall" && !result.passed));
+    result.gate === "calendarCandidate.recall" && result.passed));
+  assert.ok(assessment.results.some((result) =>
+    result.gate === "automated.recall" && result.passed));
   assert.ok(assessment.results.some((result) =>
     result.gate === "urgent.abstentionRate" && !result.passed));
+  assert.equal(assessment.passed, false);
 });

@@ -1,4 +1,4 @@
-const MODEL_VERSION = "nexus-deterministic-dates/1";
+const MODEL_VERSION = "nexus-deterministic-dates/2";
 const ISO_DATE_TIME =
   /\b20\d{2}-\d{2}-\d{2}(?:\s+(?:at\s+)?\d{1,2}:\d{2})?\b/gi;
 const WEEKDAY_TIME =
@@ -77,8 +77,13 @@ const findTemporalExpressions = (text, receivedAt) => {
 };
 
 const evidenceWindow = (text, expression) => {
-  const start = Math.max(0, expression.index - 80);
-  const end = Math.min(text.length, expression.index + expression.evidence.length + 40);
+  const previousBoundaries = [".", "!", "?", "\n"]
+    .map((separator) => text.lastIndexOf(separator, expression.index - 1));
+  const start = Math.max(...previousBoundaries) + 1;
+  const nextBoundaries = [".", "!", "?", "\n"]
+    .map((separator) => text.indexOf(separator, expression.index + expression.evidence.length))
+    .filter((index) => index >= 0);
+  const end = nextBoundaries.length ? Math.min(...nextBoundaries) + 1 : text.length;
   return text.slice(start, end).trim();
 };
 
@@ -87,9 +92,15 @@ export const classifyDeterministicDates = (record) => {
   const body = record?.text || record?.body || "";
   const text = `${subject}\n${body}`.trim();
   const expressions = findTemporalExpressions(text, record?.receivedAt);
-  const deadline = expressions.find((expression) =>
-    DEADLINE_CONTEXT.test(text.slice(Math.max(0, expression.index - 80), expression.index)));
-  const calendar = !deadline && expressions.find((expression) => {
+  const deadline = expressions.find((expression) => {
+    const sentence = evidenceWindow(text, expression);
+    const localIndex = sentence.indexOf(expression.evidence);
+    return DEADLINE_CONTEXT.test(sentence.slice(0, localIndex));
+  });
+  const calendar = expressions.find((expression) => {
+    if (expression === deadline) {
+      return false;
+    }
     const window = evidenceWindow(text, expression);
     return expression.evidence.includes(":") && CALENDAR_CONTEXT.test(window);
   });

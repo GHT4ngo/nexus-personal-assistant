@@ -1,0 +1,1325 @@
+{
+  "schemaVersion": 1,
+  "datasetId": "nexus-public-synthetic-v2",
+  "classifierVersion": "nexus-deterministic-dates/2",
+  "itemCount": 28,
+  "metrics": {
+    "binary": {
+      "needsReply": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 0,
+        "abstained": 27,
+        "scorable": 27,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "abstentionRate": 1,
+        "brierScore": null
+      },
+      "hasDeadline": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "tn": 22,
+        "abstained": 0,
+        "scorable": 26,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "abstentionRate": 0,
+        "brierScore": 0.0087
+      },
+      "calendarCandidate": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "tn": 21,
+        "abstained": 0,
+        "scorable": 26,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "abstentionRate": 0,
+        "brierScore": 0.0123
+      },
+      "urgent": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 0,
+        "abstained": 28,
+        "scorable": 28,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "abstentionRate": 1,
+        "brierScore": null
+      },
+      "automated": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 0,
+        "abstained": 25,
+        "scorable": 25,
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "abstentionRate": 1,
+        "brierScore": null
+      }
+    },
+    "topic": {
+      "scorable": 25,
+      "predicted": 0,
+      "correct": 0,
+      "coverage": 0,
+      "accuracy": null
+    },
+    "falseUrgentIds": [],
+    "missedUrgentIds": [
+      "security-action",
+      "family-emergency",
+      "genuine-human-urgency"
+    ],
+    "evidence": {
+      "requiredPositivePredictions": 4,
+      "missing": []
+    },
+    "calibration": [
+      {
+        "name": "low",
+        "count": 0,
+        "accuracy": null,
+        "meanConfidence": null
+      },
+      {
+        "name": "medium",
+        "count": 0,
+        "accuracy": null,
+        "meanConfidence": null
+      },
+      {
+        "name": "high",
+        "count": 52,
+        "accuracy": 1,
+        "meanConfidence": 0.9004
+      }
+    ]
+  },
+  "predictions": [
+    {
+      "id": "study-deadline",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": true,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.96,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [
+          "Your invented database assignment is due on 2026-08-10 at 16:00."
+        ],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": "2026-08-10T16:00",
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "personal-dinner-question",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": true,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.94,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [
+          "Would you like to meet for dinner on Friday at 19:00?"
+        ],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": "2026-08-07T19:00"
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "finance-invoice",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": true,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.96,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [
+          "00 must be paid by 2026-08-18."
+        ],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": "2026-08-18",
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "security-action",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "newsletter",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "work-meeting",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": true,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.94,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [
+          "Can you attend the project review on 2026-08-07 at 10:30?"
+        ],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": "2026-08-07T10:30"
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "travel-itinerary",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": true,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.94,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [
+          "Your example train departs Paris on 2026-08-12 at 07:20 and arrives at 09:10."
+        ],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": "2026-08-12T07:20"
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "plain-fyi",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "health-appointment",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": true,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.94,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [
+          "Reminder: your invented appointment is on 2026-08-09 at 14:15."
+        ],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": "2026-08-09T14:15"
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "marketing-urgent-word",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "work-report-request",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": true,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.96,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [
+          "Could you send the invented status report by 2026-08-06 at 12:00?"
+        ],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": "2026-08-06T12:00",
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "family-emergency",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "indirect-faq-question",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "role-address-ambiguous",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "publication-date-not-deadline",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "incomplete-weekday-plan",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": null,
+        "calendarCandidate": null,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0,
+        "calendarCandidate": 0,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "hasDeadline",
+        "calendarCandidate",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "impossible-calendar-date",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": null,
+        "calendarCandidate": null,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0,
+        "calendarCandidate": 0,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "hasDeadline",
+        "calendarCandidate",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "explicit-no-reply-question",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "direct-request-without-question",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "separate-meeting-and-deadline",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": true,
+        "calendarCandidate": true,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.96,
+        "calendarCandidate": 0.94,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [
+          "Send the notes by 2026-08-09 at 17:00."
+        ],
+        "calendarCandidate": [
+          "Attend the invented review on 2026-08-08 at 09:00."
+        ],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": "2026-08-09T17:00",
+        "calendarCandidate": "2026-08-08T09:00"
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "generic-automated-receipt",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "human-invoice-review",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "neutral-list-mail",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "quoted-request-no-action",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "second-marketing-urgency",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "genuine-human-urgency",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "security-role-human-ambiguous",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    },
+    {
+      "id": "topic-insufficient",
+      "labels": {
+        "needsReply": null,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": null,
+        "automated": null,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0,
+        "hasDeadline": 0.9,
+        "calendarCandidate": 0.88,
+        "urgent": 0,
+        "automated": 0,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "needsReply",
+        "urgent",
+        "automated",
+        "topic"
+      ],
+      "values": {
+        "hasDeadline": null,
+        "calendarCandidate": null
+      },
+      "modelVersion": "nexus-deterministic-dates/2"
+    }
+  ],
+  "qualityGates": {
+    "passed": false,
+    "results": [
+      {
+        "gate": "needsReply.precision",
+        "expected": ">= 0.8",
+        "actual": null,
+        "passed": false
+      },
+      {
+        "gate": "needsReply.recall",
+        "expected": ">= 0.9",
+        "actual": null,
+        "passed": false
+      },
+      {
+        "gate": "hasDeadline.precision",
+        "expected": ">= 0.85",
+        "actual": 1,
+        "passed": true
+      },
+      {
+        "gate": "hasDeadline.recall",
+        "expected": ">= 0.95",
+        "actual": 1,
+        "passed": true
+      },
+      {
+        "gate": "calendarCandidate.precision",
+        "expected": ">= 0.85",
+        "actual": 1,
+        "passed": true
+      },
+      {
+        "gate": "calendarCandidate.recall",
+        "expected": ">= 0.9",
+        "actual": 1,
+        "passed": true
+      },
+      {
+        "gate": "urgent.precision",
+        "expected": ">= 0.8",
+        "actual": null,
+        "passed": false
+      },
+      {
+        "gate": "urgent.recall",
+        "expected": ">= 1",
+        "actual": null,
+        "passed": false
+      },
+      {
+        "gate": "automated.precision",
+        "expected": ">= 0.95",
+        "actual": null,
+        "passed": false
+      },
+      {
+        "gate": "automated.recall",
+        "expected": ">= 0.9",
+        "actual": null,
+        "passed": false
+      },
+      {
+        "gate": "needsReply.abstentionRate",
+        "expected": "<= 0.15",
+        "actual": 1,
+        "passed": false
+      },
+      {
+        "gate": "hasDeadline.abstentionRate",
+        "expected": "<= 0.15",
+        "actual": 0,
+        "passed": true
+      },
+      {
+        "gate": "calendarCandidate.abstentionRate",
+        "expected": "<= 0.2",
+        "actual": 0,
+        "passed": true
+      },
+      {
+        "gate": "urgent.abstentionRate",
+        "expected": "<= 0.2",
+        "actual": 1,
+        "passed": false
+      },
+      {
+        "gate": "automated.abstentionRate",
+        "expected": "<= 0.15",
+        "actual": 1,
+        "passed": false
+      },
+      {
+        "gate": "urgent.falsePositives",
+        "expected": "<= 0",
+        "actual": 0,
+        "passed": true
+      },
+      {
+        "gate": "urgent.missed",
+        "expected": "<= 0",
+        "actual": 3,
+        "passed": false
+      },
+      {
+        "gate": "evidence.missing",
+        "expected": "0",
+        "actual": 0,
+        "passed": true
+      },
+      {
+        "gate": "topic.coverage",
+        "expected": ">= 0.7",
+        "actual": 0,
+        "passed": false
+      },
+      {
+        "gate": "topic.accuracy",
+        "expected": ">= 0.8",
+        "actual": null,
+        "passed": false
+      }
+    ]
+  }
+}

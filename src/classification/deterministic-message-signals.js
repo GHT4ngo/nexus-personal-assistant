@@ -1,4 +1,4 @@
-const MODEL_VERSION = "nexus-deterministic-message-signals/1";
+const MODEL_VERSION = "nexus-deterministic-message-signals/2";
 const REPLY_REQUEST =
   /\b(could you|can you|would you|please confirm|please let me know|please call|reply(?:\s+to)?|let me know)\b/i;
 const NO_REPLY =
@@ -7,6 +7,8 @@ const ROLE_SENDER = /\b(no-?reply|billing|security|tickets?|reminder|news|offers
 const STRONG_AUTOMATED_SENDER = /\bno-?reply@/i;
 const TRANSACTIONAL_CONTENT =
   /\b(invoice|sign-in (?:was )?detected|booking itinerary|appointment reminder|weekly digest|unsubscribe|sale)\b/i;
+const EXPLICIT_AUTOMATION =
+  /\b(automatically generated|automated message|machine-generated|do not reply)\b/i;
 
 const sourceText = (record) => {
   const title = record?.subject || record?.title || "";
@@ -43,8 +45,10 @@ export const classifyDeterministicMessageSignals = (record) => {
   const strongAutomatedSender = from.match(STRONG_AUTOMATED_SENDER);
   const roleSender = from.match(ROLE_SENDER);
   const transactionalMatch = text.match(TRANSACTIONAL_CONTENT);
+  const explicitAutomationMatch = text.match(EXPLICIT_AUTOMATION);
   const automated = listHeader
     || Boolean(strongAutomatedSender)
+    || Boolean(explicitAutomationMatch)
     || Boolean(roleSender && transactionalMatch);
   const uncertainAutomated = !automated && Boolean(roleSender);
 
@@ -57,6 +61,9 @@ export const classifyDeterministicMessageSignals = (record) => {
     automated: [
       ...(listHeader ? ["List-Unsubscribe header present"] : []),
       ...(strongAutomatedSender ? [strongAutomatedSender[0]] : []),
+      ...(explicitAutomationMatch
+        ? [evidenceSentence(text, explicitAutomationMatch)]
+        : []),
       ...(roleSender && transactionalMatch
         ? [roleSender[0], evidenceSentence(text, transactionalMatch)]
         : [])
