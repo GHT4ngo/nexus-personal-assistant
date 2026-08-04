@@ -266,8 +266,9 @@ validated record types, and a pure latest-decision projection produces pending, 
 and resolved queues. A default-off batch pipeline now converts valid normalized messages
 to in-memory suggestion records with sanitized diagnostics. An explicit-path private store
 now preserves immutable/idempotent suggestions and append-only review history with atomic
-restrictive writes. Product integration remains blocked until opt-in orchestration and UI
-behavior are implemented and tested.
+restrictive writes. A default-off service can now persist enabled batch output while
+returning sanitized aggregate results. Product integration remains blocked until a
+read-only review API and UI behavior are implemented and tested.
 
 Interface:
 
@@ -289,6 +290,7 @@ Work:
 - [x] Send the minimum necessary content.
 - [x] Cache results by content hash and classifier version.
 - [x] Add private, atomic suggestion/review persistence with no route integration.
+- [x] Add default-off persistence orchestration with aggregate diagnostics only.
 - Never infer future messages solely from a sender or domain.
 - [~] Display suggestions separately from user decisions. The record and projection
   boundaries are complete; UI rendering remains.
@@ -384,7 +386,7 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 with a service-level orchestration boundary that can pass enabled
-batch output to the explicit private store. It must remain opt-in and disconnected from
-routes/UI, never persist when disabled, and expose only sanitized result counts and codes.
-Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 with a pure read service over the private classifier store and review
+projection. It should return a sanitized review-view model without exposing raw message
+content, and remain disconnected from HTTP routes and UI. Do not add classifier execution,
+provider actions, or automatic review writes. Read [WORKLOG.md](WORKLOG.md) for evidence.

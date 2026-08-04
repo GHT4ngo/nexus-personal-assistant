@@ -882,3 +882,41 @@ It remains disconnected from the batch pipeline, server, routes, Gmail, and UI.
 Add an opt-in service orchestration boundary between the default-off batch pipeline and
 the explicit private store. Keep routes/UI out of scope, write nothing while disabled, and
 return sanitized counts/codes only.
+
+## 2026-08-04 — Milestone 4 opt-in persistence orchestration
+
+### Outcome
+
+Added a service boundary that can pass enabled batch-classifier suggestions to the
+explicit private store. It has no route, Gmail, scheduler, or UI integration.
+
+### Behavior
+
+- The service inherits the pipeline's default-off state.
+- Disabled processing short-circuits before invoking the batch pipeline or storage.
+- Enabling requires an explicit `setEnabled(true)` call or an explicitly enabled injected
+  pipeline.
+- Enabled runs persist classifier suggestions only.
+- Exact repeat runs are idempotent.
+- Results contain summary counts, storage status, and diagnostic-code counts only.
+- Pipeline record IDs, suggestion records, evidence, message content, and exception
+  messages are not returned.
+- Known storage errors retain stable `store.*` codes; unexpected failures become
+  `store.failed`.
+- Storage failures do not create partial action records or human reviews.
+
+### Verification
+
+- Focused persistence-orchestration tests pass: 8 tests, 0 failures.
+- Full regression passes: 125 tests, 0 failures.
+- Disabled spies confirm zero pipeline and zero storage calls.
+- Enabled synthetic processing persists 12 suggestions for two distinct messages.
+- Repeat synthetic processing reports six idempotent suggestions and no duplicates.
+- Failure and invalid-record results contain no synthetic private-like content.
+- Routes, Gmail retrieval, provider actions, review writes, and UI remain unchanged.
+
+### Next slice
+
+Add a pure read service over the private classifier store and latest-review projection.
+Return a sanitized review-view model without raw message content, and keep HTTP routes,
+classifier execution, actions, and UI out of scope.

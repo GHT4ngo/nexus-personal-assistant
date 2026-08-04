@@ -93,3 +93,19 @@ The store:
 Rejected-record diagnostics contain collection, array index, record ID, and stable code
 only. They do not contain titles, message bodies, evidence, corrected values, or parser
 errors. The store is process-local and does not claim concurrent-writer locking.
+
+## Persistence orchestration
+
+`createClassificationPersistenceService({ pipeline, store })` is the only boundary that
+connects batch output to classifier storage. It is still default-off because its default
+pipeline is default-off. While disabled, `processRecords()` returns a disabled summary
+without invoking the pipeline or touching storage.
+
+When explicitly enabled, the service classifies the supplied normalized records and passes
+only suggestion records to `appendSuggestions()`. Its result contains counts, storage
+status, and diagnostic-code counts. It does not return suggestions, record IDs, message
+content, evidence, or exception messages. Known store errors retain their stable
+`store.*` code; unexpected errors become `store.failed`.
+
+This service has no default store, file path, route, scheduled job, Gmail connection, or UI
+integration. It does not persist reviews or create actions.

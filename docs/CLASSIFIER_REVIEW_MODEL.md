@@ -68,3 +68,8 @@ decision without deleting the audit trail.
 The store accepts neither manual-organization reviews nor task, calendar, approval, or
 action-history records. It requires an explicit private file path, performs atomic
 restrictive writes, and is not connected to routes or automatic classification.
+
+The optional persistence service writes batch-produced suggestions only when its pipeline
+has been explicitly enabled. It returns aggregate counts and stable codes rather than
+records. Human review persistence remains a separate explicit store call; classification
+cannot manufacture a review decision.
