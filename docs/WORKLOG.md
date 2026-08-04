@@ -474,3 +474,34 @@ AI model, or changing the Nexus product UI.
 Start Milestone 4 with deterministic fact extraction for deadline and calendar evidence.
 Keep predictions out of Today and Inbox, require abstention for uncertain results, and
 compare every candidate against the committed evaluation gates before considering AI.
+
+## 2026-08-04 — Milestone 4 deterministic date slice
+
+### Outcome
+
+Added the first suggestion-engine implementation for deadline and calendar-candidate
+facts. It operates only in source tests and public synthetic evaluation; Gmail, Today, and
+Inbox remain unchanged.
+
+### Safety boundary
+
+- Every positive suggestion includes the source text that caused it.
+- Unsupported, incomplete, malformed, and impossible dates abstain instead of guessing.
+- Written date/time values remain timezone-unresolved; the extractor does not invent UTC.
+- Labels outside deadline and calendar responsibility always abstain.
+- Suggestions are not user decisions and do not create tasks or calendar events.
+
+### Evidence
+
+- Deadline precision and recall: `1.0` on the 12-message synthetic fixture set.
+- Calendar-candidate precision and recall: `1.0` on the same set.
+- Direct-question, urgency, automation, and topic labels abstain completely in this slice.
+- The full release gate remains intentionally closed because those labels are not yet
+  implemented.
+- The deterministic report reproduces with SHA-256
+  `83a74e8744aed3976411c3f05726ad32115d9970391a865f0c3aa2657581a405`.
+
+### Next slice
+
+Add deterministic direct-question detection and sender/list-mail evidence behind the same
+interface. Re-evaluate using only synthetic fixtures before considering any UI connection.

@@ -3,6 +3,9 @@ import { dirname, resolve } from "node:path";
 
 import { classifyWithWeakBaseline } from "../evaluation/baselines/weak.js";
 import {
+  classifyWithDeterministicDates
+} from "../evaluation/classifiers/deterministic-dates.js";
+import {
   assessQualityGates,
   evaluateClassifier
 } from "../evaluation/scoring.js";
@@ -13,6 +16,16 @@ const argumentsList = process.argv.slice(2);
 const outputIndex = argumentsList.indexOf("--output");
 const outputPath = outputIndex >= 0 ? argumentsList[outputIndex + 1] : "";
 const requireGates = argumentsList.includes("--require-gates");
+const classifierIndex = argumentsList.indexOf("--classifier");
+const classifierName = classifierIndex >= 0 ? argumentsList[classifierIndex + 1] : "weak";
+const classifiers = {
+  weak: classifyWithWeakBaseline,
+  "deterministic-dates": classifyWithDeterministicDates
+};
+const classifier = classifiers[classifierName];
+if (!classifier) {
+  throw new Error(`Unknown classifier "${classifierName}". Choose: ${Object.keys(classifiers).join(", ")}`);
+}
 
 const dataset = JSON.parse(await readFile(
   resolve(root, "evaluation/fixtures/v1/messages.json"),
@@ -27,7 +40,7 @@ if (!validation.valid) {
   throw new Error(`Evaluation dataset is invalid:\n${validation.errors.join("\n")}`);
 }
 
-const report = evaluateClassifier(dataset, classifyWithWeakBaseline);
+const report = evaluateClassifier(dataset, classifier);
 report.qualityGates = assessQualityGates(report, gates);
 const serialized = `${JSON.stringify(report, null, 2)}\n`;
 

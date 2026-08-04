@@ -4,6 +4,9 @@ import test from "node:test";
 
 import { classifyWithWeakBaseline } from "../evaluation/baselines/weak.js";
 import {
+  classifyWithDeterministicDates
+} from "../evaluation/classifiers/deterministic-dates.js";
+import {
   assessQualityGates,
   evaluateClassifier
 } from "../evaluation/scoring.js";
@@ -62,4 +65,17 @@ test("documents that the deliberately weak baseline does not pass all gates", as
 
   assert.equal(assessment.passed, false);
   assert.ok(assessment.results.some((result) => !result.passed));
+});
+
+test("measures the deterministic date extractor without guessing other labels", async () => {
+  const dataset = await readJson("../evaluation/fixtures/v1/messages.json");
+  const report = evaluateClassifier(dataset, classifyWithDeterministicDates);
+
+  assert.equal(report.classifierVersion, "nexus-deterministic-dates/1");
+  assert.equal(report.metrics.binary.hasDeadline.precision, 1);
+  assert.equal(report.metrics.binary.hasDeadline.recall, 1);
+  assert.equal(report.metrics.binary.calendarCandidate.precision, 1);
+  assert.equal(report.metrics.binary.calendarCandidate.recall, 1);
+  assert.equal(report.metrics.binary.needsReply.abstentionRate, 1);
+  assert.deepEqual(report.metrics.evidence.missing, []);
 });
