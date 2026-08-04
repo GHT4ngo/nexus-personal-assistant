@@ -151,6 +151,51 @@ export const createExtractedSignalRecord = ({
   value: compactText(value)
 });
 
+export const createClassifierSuggestionRecord = ({
+  source = "nexus-classifier",
+  sourceId,
+  title,
+  text = "",
+  sourceUrl = null,
+  subjectRecordId,
+  suggestionType,
+  suggestedValue = null,
+  extractedValue = null,
+  confidence,
+  evidence = [],
+  abstained = false,
+  modelVersion,
+  contentHash,
+  observedAt,
+  normalizedAt,
+  processingVersion,
+  retentionExpiresAt
+}) => assertValidRecord({
+  ...baseRecord({
+    recordType: "classifier-suggestion",
+    source,
+    sourceId,
+    title,
+    text,
+    sourceUrl,
+    observedAt,
+    normalizedAt,
+    processingVersion,
+    retentionExpiresAt
+  }),
+  subjectRecordId: compactText(subjectRecordId),
+  suggestionType: compactText(suggestionType),
+  suggestedValue: typeof suggestedValue === "string"
+    ? compactText(suggestedValue)
+    : suggestedValue,
+  extractedValue: extractedValue === null ? null : compactText(extractedValue),
+  confidence: Number(confidence),
+  evidence: uniqueStrings(evidence),
+  abstained: Boolean(abstained),
+  modelVersion: compactText(modelVersion),
+  contentHash: compactText(contentHash)
+});
+
 export const createTaskRecord = ({
   source = "local",
   sourceId,
@@ -229,6 +274,8 @@ export const createReviewDecisionRecord = ({
   sourceUrl = null,
   subjectRecordId,
   decision,
+  reviewKind = "manual-organization",
+  correctedValue = null,
   decidedAt,
   normalizedAt,
   processingVersion,
@@ -250,9 +297,24 @@ export const createReviewDecisionRecord = ({
     }),
     subjectRecordId: compactText(subjectRecordId),
     decision: compactText(decision),
+    reviewKind: compactText(reviewKind),
+    correctedValue: typeof correctedValue === "string"
+      ? compactText(correctedValue)
+      : correctedValue,
     decidedAt: decidedTimestamp
   });
 };
+
+export const createClassifierReviewDecisionRecord = ({
+  decision,
+  correctedValue = null,
+  ...fields
+}) => createReviewDecisionRecord({
+  ...fields,
+  decision,
+  correctedValue,
+  reviewKind: "classifier-suggestion"
+});
 
 export const createApprovalRequestRecord = ({
   source = "local",

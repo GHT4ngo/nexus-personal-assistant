@@ -9,11 +9,22 @@ const isIsoDate = (value) =>
   typeof value === "string" && ISO_DATE_PATTERN.test(value) && !Number.isNaN(Date.parse(value));
 const isNullableIsoDate = (value) => value === null || isIsoDate(value);
 const isOneOf = (value, allowed) => typeof value === "string" && allowed.includes(value);
+const isSuggestionValue = (value) =>
+  value === null || typeof value === "boolean" || typeof value === "string";
+const CLASSIFIER_LABELS = [
+  "needsReply",
+  "hasDeadline",
+  "calendarCandidate",
+  "urgent",
+  "automated",
+  "topic"
+];
 
 export const RECORD_TYPES = [
   "message",
   "calendar-event",
   "extracted-signal",
+  "classifier-suggestion",
   "task",
   "goal",
   "review-decision",
@@ -138,6 +149,90 @@ export const validateRecord = (record) => {
     }
   }
 
+  if (record.recordType === "classifier-suggestion") {
+    if (!isNonEmptyString(record.subjectRecordId)) {
+      errors.push(error(
+        "subjectRecordId",
+        "field.required",
+        "Classifier suggestion subjectRecordId is required."
+      ));
+    }
+    if (!isOneOf(record.suggestionType, CLASSIFIER_LABELS)) {
+      errors.push(error(
+        "suggestionType",
+        "field.enum",
+        "Classifier suggestion type is invalid."
+      ));
+    }
+    if (!isSuggestionValue(record.suggestedValue)) {
+      errors.push(error(
+        "suggestedValue",
+        "field.type",
+        "Classifier suggestedValue must be boolean, string, or null."
+      ));
+    }
+    if (!isNullableString(record.extractedValue)) {
+      errors.push(error(
+        "extractedValue",
+        "field.type",
+        "Classifier extractedValue must be a string or null."
+      ));
+    }
+    if (typeof record.confidence !== "number"
+      || !Number.isFinite(record.confidence)
+      || record.confidence < 0
+      || record.confidence > 1) {
+      errors.push(error(
+        "confidence",
+        "field.range",
+        "Classifier confidence must be between 0 and 1."
+      ));
+    }
+    if (!isStringArray(record.evidence)) {
+      errors.push(error(
+        "evidence",
+        "field.type",
+        "Classifier evidence must contain only strings."
+      ));
+    }
+    if (typeof record.abstained !== "boolean") {
+      errors.push(error("abstained", "field.type", "Classifier abstained must be boolean."));
+    }
+    if (record.abstained === true && record.suggestedValue !== null) {
+      errors.push(error(
+        "suggestedValue",
+        "state.invalid",
+        "An abstained classifier suggestion must have a null value."
+      ));
+    }
+    if (record.abstained === false && record.suggestedValue === null) {
+      errors.push(error(
+        "suggestedValue",
+        "field.required",
+        "A non-abstained classifier suggestion requires a value."
+      ));
+    }
+    if (record.abstained === false
+      && record.suggestedValue !== false
+      && record.evidence.length === 0) {
+      errors.push(error(
+        "evidence",
+        "field.required",
+        "A positive classifier suggestion requires evidence."
+      ));
+    }
+    if (!isNonEmptyString(record.modelVersion)) {
+      errors.push(error("modelVersion", "field.required", "Classifier modelVersion is required."));
+    }
+    if (typeof record.contentHash !== "string" || !/^[a-f0-9]{64}$/.test(record.contentHash)) {
+      errors.push(error(
+        "contentHash",
+        "field.format",
+        "Classifier contentHash must be a SHA-256 hex digest."
+      ));
+    }
+  }
+
   if (record.recordType === "task") {
     if (!isOneOf(record.status, ["todo", "doing", "done", "dismissed"])) {
       errors.push(error("status", "field.enum", "Task status is invalid."));
@@ -186,6 +281,39 @@ export const validateRecord = (record) => {
     }
     if (!isIsoDate(record.decidedAt)) {
       errors.push(error("decidedAt", "date.invalid", "Review decidedAt must be an ISO UTC timestamp."));
+    }
+    if (!isOneOf(record.reviewKind, ["manual-organization", "classifier-suggestion"])) {
+      errors.push(error("reviewKind", "field.enum", "Review kind is invalid."));
+    }
+    if (!isSuggestionValue(record.correctedValue)) {
+      errors.push(error(
+        "correctedValue",
+        "field.type",
+        "Review correctedValue must be boolean, string, or null."
+      ));
+    }
+    if (record.reviewKind === "classifier-suggestion") {
+      if (!["accept", "correct", "dismiss", "not-enough-information"].includes(record.decision)) {
+        errors.push(error(
+          "decision",
+          "field.enum",
+          "Classifier review decision is invalid."
+        ));
+      }
+      if (record.decision === "correct" && record.correctedValue === null) {
+        errors.push(error(
+          "correctedValue",
+          "field.required",
+          "A classifier correction requires correctedValue."
+        ));
+      }
+      if (record.decision !== "correct" && record.correctedValue !== null) {
+        errors.push(error(
+          "correctedValue",
+          "state.invalid",
+          "Only a correction may contain correctedValue."
+        ));
+      }
     }
   }
 

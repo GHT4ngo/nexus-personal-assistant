@@ -738,3 +738,43 @@ The adapter remains disconnected from Gmail routes and UI rendering and defaults
 Define classifier suggestions as records distinct from human review decisions. Add
 synthetic persistence tests for accept, correct, dismiss, and
 not-enough-information—without provider actions or UI integration.
+
+## 2026-08-04 — Milestone 4 suggestion/review record separation
+
+### Outcome
+
+Added a dedicated `classifier-suggestion` record and restricted classifier review
+decisions. Suggestions, abstentions, and human judgments now persist as distinct auditable
+records without creating actions.
+
+### Suggestion provenance
+
+- Each record identifies its subject message, label, value, confidence, evidence,
+  abstention state, classifier version, and content hash.
+- One enabled classification produces one record for each supported label.
+- Abstentions persist with null values and no guessed evidence.
+- Deterministic IDs make the same classifier/content/label combination idempotent.
+- Disabled classifications create no suggestion records.
+
+### Review boundary
+
+- Classifier reviews support accept, correct, dismiss, and not-enough-information.
+- Corrections require an explicit corrected value.
+- Non-correction decisions cannot carry corrected values.
+- Manual organization decisions remain compatible.
+- Organization-only actions such as pin are rejected as classifier reviews.
+- Review creation does not create tasks, calendar events, approvals, or action history.
+
+### Verification
+
+- `npm run check` passes.
+- `npm test` passes: 98 tests, 0 failures.
+- Synthetic storage contains six suggestions and four separate review decisions with zero
+  rejected records and zero action-bearing records.
+- Gmail routes, provider actions, and UI rendering remain unchanged.
+
+### Next slice
+
+Build a pure projection that applies the latest human review decision to immutable
+classifier suggestions and produces pending/abstained review queues. Do not add provider
+actions or UI rendering yet.
