@@ -15,6 +15,7 @@ export const normalizeGmailMessage = (message, options = {}) => createMessageRec
   receivedAt: message.date,
   from: message.from,
   attachmentNames: message.attachmentNames || [],
+  hasListUnsubscribe: Boolean(message.hasListUnsubscribe),
   normalizedAt: options.normalizedAt,
   processingVersion: options.processingVersion,
   retentionExpiresAt: options.retentionExpiresAt

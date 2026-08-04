@@ -25,6 +25,8 @@ test("parses a synthetic plain-text MIME message", async () => {
   assert.equal(message.subject, "Synthetic plain message");
   assert.equal(message.from, "Synthetic Sender <sender@example.test>");
   assert.equal(message.bodyPreview, "This is a synthetic plain-text message.");
+  assert.equal(message.hasListUnsubscribe, true);
+  assert.doesNotMatch(JSON.stringify(message), /synthetic-private-token/);
   assert.equal(message.parser, "postal-mime");
   assert.equal(calls.length, 1);
 });
@@ -76,6 +78,7 @@ test("uses the Gmail full-message fallback when raw parsing is incomplete", asyn
   assert.equal(message.subject, "Synthetic fallback subject");
   assert.equal(message.from, "Fallback Sender <fallback@example.test>");
   assert.equal(message.bodyPreview, "Synthetic fallback body");
+  assert.equal(message.hasListUnsubscribe, false);
   assert.equal(calls.length, 2);
 });
 

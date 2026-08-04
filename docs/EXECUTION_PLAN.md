@@ -251,10 +251,10 @@ Evidence:
 
 Goal: introduce assistance without restoring the failed learning system.
 
-Status (2026-08-04): in progress. The first private-data-free slice extracts deadlines and
-calendar candidates from synthetic text. It preserves timezone-unresolved date/time values,
-requires evidence, and abstains on unsupported or invalid temporal expressions. It is not
-connected to Gmail processing or the product UI.
+Status (2026-08-04): in progress. The private-data-free deterministic core now extracts
+deadlines, calendar candidates, direct reply requests, and automated/list-mail signals
+from synthetic text. It requires evidence and abstains on unsupported or ambiguous input.
+It is not connected to Gmail classification or the product UI.
 
 Interface:
 
@@ -270,7 +270,7 @@ classify(normalizedRecord) -> {
 
 Work:
 
-- [~] Start with deterministic fact extraction for dates, direct questions, sender type, and
+- [x] Start with deterministic fact extraction for dates, direct questions, sender type, and
   list-mail headers.
 - Put any AI provider behind one internal adapter.
 - Send the minimum necessary content.
@@ -368,7 +368,7 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by adding deterministic direct-question and sender/list-mail
-extraction behind the same suggestion interface. Keep all results out of the product UI
-and private Gmail pipeline. Milestones 0 through 3 should not be repeated unless a
+Continue Milestone 4 by expanding the public synthetic evaluation set with adversarial and
+ambiguous cases before implementing urgency or topic. Keep all results out of the product
+UI and private Gmail pipeline. Milestones 0 through 3 should not be repeated unless a
 regression is observed. Read [WORKLOG.md](WORKLOG.md) for evidence.

@@ -7,6 +7,9 @@ import {
   classifyWithDeterministicDates
 } from "../evaluation/classifiers/deterministic-dates.js";
 import {
+  classifyWithDeterministicCore
+} from "../evaluation/classifiers/deterministic-core.js";
+import {
   assessQualityGates,
   evaluateClassifier
 } from "../evaluation/scoring.js";
@@ -77,5 +80,26 @@ test("measures the deterministic date extractor without guessing other labels", 
   assert.equal(report.metrics.binary.calendarCandidate.precision, 1);
   assert.equal(report.metrics.binary.calendarCandidate.recall, 1);
   assert.equal(report.metrics.binary.needsReply.abstentionRate, 1);
+  assert.deepEqual(report.metrics.evidence.missing, []);
+});
+
+test("measures the deterministic core while urgency and topic still abstain", async () => {
+  const dataset = await readJson("../evaluation/fixtures/v1/messages.json");
+  const gates = await readJson("../evaluation/quality-gates.json");
+  const report = evaluateClassifier(dataset, classifyWithDeterministicCore);
+  const assessment = assessQualityGates(report, gates);
+
+  for (const label of [
+    "needsReply",
+    "hasDeadline",
+    "calendarCandidate",
+    "automated"
+  ]) {
+    assert.equal(report.metrics.binary[label].precision, 1);
+    assert.equal(report.metrics.binary[label].recall, 1);
+  }
+  assert.equal(report.metrics.binary.urgent.abstentionRate, 1);
+  assert.equal(report.metrics.topic.coverage, 0);
+  assert.equal(assessment.passed, false);
   assert.deepEqual(report.metrics.evidence.missing, []);
 });

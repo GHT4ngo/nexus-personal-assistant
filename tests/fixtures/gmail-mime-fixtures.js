@@ -3,6 +3,7 @@ export const plainTextMime = [
   "To: recipient@example.test",
   "Subject: Synthetic plain message",
   "Date: Mon, 03 Aug 2026 10:00:00 +0000",
+  "List-Unsubscribe: <https://example.test/unsubscribe/synthetic-private-token>",
   "Content-Type: text/plain; charset=utf-8",
   "",
   "This is a synthetic plain-text message."

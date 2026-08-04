@@ -27,6 +27,7 @@ test("normalizes a synthetic Gmail message into a valid record", () => {
   assert.equal(record.recordType, "message");
   assert.equal(record.receivedAt, "2026-08-03T08:30:00.000Z");
   assert.deepEqual(record.attachmentNames, ["instructions.pdf"]);
+  assert.equal(record.hasListUnsubscribe, true);
   assert.deepEqual(validateRecord(record), { valid: true, errors: [] });
 });
 
@@ -80,6 +81,17 @@ test("rejects malformed dates before a record is created", () => {
     }),
     /startAt must contain a valid date/
   );
+});
+
+test("normalization retains only list-header presence, not its value", () => {
+  const privateLikeHeader = "https://example.test/unsubscribe/synthetic-private-token";
+  const record = normalizeGmailMessage({
+    ...gmailMessageFixture,
+    hasListUnsubscribe: Boolean(privateLikeHeader)
+  }, { normalizedAt: NORMALIZED_AT });
+
+  assert.equal(record.hasListUnsubscribe, true);
+  assert.doesNotMatch(JSON.stringify(record), /synthetic-private-token/);
 });
 
 test("rejects an event whose end precedes its start", () => {

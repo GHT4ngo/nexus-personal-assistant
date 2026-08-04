@@ -57,6 +57,7 @@ export const createMessageRecord = ({
   receivedAt,
   from,
   attachmentNames = [],
+  hasListUnsubscribe = false,
   normalizedAt,
   processingVersion,
   retentionExpiresAt
@@ -77,7 +78,8 @@ export const createMessageRecord = ({
     }),
     receivedAt: receivedTimestamp,
     from: compactText(from),
-    attachmentNames: uniqueStrings(attachmentNames)
+    attachmentNames: uniqueStrings(attachmentNames),
+    hasListUnsubscribe: Boolean(hasListUnsubscribe)
   });
 };
 

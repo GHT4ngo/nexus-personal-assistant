@@ -505,3 +505,38 @@ Inbox remain unchanged.
 
 Add deterministic direct-question detection and sender/list-mail evidence behind the same
 interface. Re-evaluate using only synthetic fixtures before considering any UI connection.
+
+## 2026-08-04 — Milestone 4 deterministic message-signal slice
+
+### Outcome
+
+Added evidence-backed direct-reply and automated/list-mail suggestions, then composed them
+with deterministic date extraction in a versioned core evaluation adapter. The core still
+does not run on private Gmail content or appear in the product UI.
+
+### Safety boundary
+
+- Direct requests need an explicit phrase and return the containing sentence as evidence.
+- Explicit “no reply needed” language overrides a question mark.
+- Ambiguous questions abstain instead of being marked non-actionable.
+- A role sender alone is insufficient to classify automation; supporting transactional
+  content is required.
+- List mail retains only a `hasListUnsubscribe` boolean. Header URLs and tokens are neither
+  normalized nor returned as evidence.
+- No rule learns from sender history or assigns future behavior to a domain.
+
+### Evidence
+
+- The 12-message public fixture set reports precision and recall `1.0` for reply, deadline,
+  calendar-candidate, and automated labels.
+- Urgency and topic remain complete abstentions, keeping the overall release gate closed.
+- `npm test` passes: 70 tests, 0 failures.
+- The deterministic-core report reproduces with SHA-256
+  `a67da26d67a3af7cf3be767fe4ec88bbedecb8d51bd9db7347d8bce29ea2486f`.
+- Existing weak-baseline and deterministic-date reports still reproduce unchanged.
+
+### Next slice
+
+Expand the public evaluation dataset with adversarial, ambiguous, and near-miss cases
+before implementing urgency or topic. The current perfect metric is useful but the dataset
+is too small to support product integration.

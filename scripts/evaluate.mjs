@@ -6,6 +6,9 @@ import {
   classifyWithDeterministicDates
 } from "../evaluation/classifiers/deterministic-dates.js";
 import {
+  classifyWithDeterministicCore
+} from "../evaluation/classifiers/deterministic-core.js";
+import {
   assessQualityGates,
   evaluateClassifier
 } from "../evaluation/scoring.js";
@@ -20,7 +23,8 @@ const classifierIndex = argumentsList.indexOf("--classifier");
 const classifierName = classifierIndex >= 0 ? argumentsList[classifierIndex + 1] : "weak";
 const classifiers = {
   weak: classifyWithWeakBaseline,
-  "deterministic-dates": classifyWithDeterministicDates
+  "deterministic-dates": classifyWithDeterministicDates,
+  "deterministic-core": classifyWithDeterministicCore
 };
 const classifier = classifiers[classifierName];
 if (!classifier) {

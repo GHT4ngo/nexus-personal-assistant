@@ -8,6 +8,7 @@ export const gmailMessageFixture = {
   snippet: "A synthetic assignment is due next week.",
   bodyPreview: "A synthetic assignment is due next week. No reply is required.",
   attachmentNames: ["instructions.pdf"],
+  hasListUnsubscribe: true,
   gmailUrl: "https://mail.google.com/mail/u/0/#all/synthetic-message-001",
   source: "gmail"
 };

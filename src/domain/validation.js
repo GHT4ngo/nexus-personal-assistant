@@ -96,6 +96,13 @@ export const validateRecord = (record) => {
         "attachmentNames must contain only strings."
       ));
     }
+    if (typeof record.hasListUnsubscribe !== "boolean") {
+      errors.push(error(
+        "hasListUnsubscribe",
+        "field.type",
+        "Message hasListUnsubscribe must be boolean."
+      ));
+    }
   }
 
   if (record.recordType === "calendar-event") {

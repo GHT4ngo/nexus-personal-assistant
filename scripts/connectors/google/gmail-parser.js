@@ -242,6 +242,9 @@ export const createGmailMessageParser = ({
     ).slice(0, 320);
     const subject = parsed?.subject || header("Subject") || extractRawHeader(rawMessage, "Subject");
     const from = parsed?.from || header("From") || extractRawHeader(rawMessage, "From");
+    const hasListUnsubscribe = Boolean(
+      header("List-Unsubscribe") || extractRawHeader(rawMessage, "List-Unsubscribe")
+    );
 
     return {
       id: message.id,
@@ -252,6 +255,7 @@ export const createGmailMessageParser = ({
       snippet,
       bodyPreview,
       attachmentNames,
+      hasListUnsubscribe,
       isBlank: !bodyPreview && !attachmentNames.length,
       gmailUrl: `https://mail.google.com/mail/u/0/#all/${message.id}`,
       parser: parsed?.parser || (rawError ? "raw-unavailable" : "fallback"),
