@@ -100,7 +100,7 @@ test("measures the deterministic date extractor without guessing other labels", 
   assert.deepEqual(report.metrics.evidence.missing, []);
 });
 
-test("measures the deterministic core while topic still abstains", async () => {
+test("measures the complete deterministic core on the original fixtures", async () => {
   const dataset = await readJson("../evaluation/fixtures/v1/messages.json");
   const gates = await readJson("../evaluation/quality-gates.json");
   const report = evaluateClassifier(dataset, classifyWithDeterministicCore);
@@ -116,18 +116,19 @@ test("measures the deterministic core while topic still abstains", async () => {
     assert.equal(report.metrics.binary[label].precision, 1);
     assert.equal(report.metrics.binary[label].recall, 1);
   }
-  assert.equal(report.metrics.topic.coverage, 0);
-  assert.equal(assessment.passed, false);
+  assert.equal(report.metrics.topic.coverage, 0.9091);
+  assert.equal(report.metrics.topic.accuracy, 1);
+  assert.equal(assessment.passed, true);
   assert.deepEqual(report.metrics.evidence.missing, []);
 });
 
-test("passes binary v2 gates while unimplemented topic keeps release closed", async () => {
+test("passes every locked v2 quality gate with evidence", async () => {
   const dataset = await loadEvaluationDataset(projectRoot, "v2");
   const gates = await readJson("../evaluation/quality-gates.json");
   const report = evaluateClassifier(dataset, classifyWithDeterministicCore);
   const assessment = assessQualityGates(report, gates);
 
-  assert.equal(report.classifierVersion, "nexus-deterministic-core/3");
+  assert.equal(report.classifierVersion, "nexus-deterministic-core/4");
   assert.equal(report.metrics.binary.calendarCandidate.recall, 1);
   assert.equal(report.metrics.binary.automated.recall, 1);
   assert.equal(report.metrics.binary.needsReply.abstentionRate, 0.037);
@@ -140,5 +141,7 @@ test("passes binary v2 gates while unimplemented topic keeps release closed", as
   assert.deepEqual(report.metrics.falseUrgentIds, []);
   assert.deepEqual(report.metrics.missedUrgentIds, []);
   assert.deepEqual(report.metrics.evidence.missing, []);
-  assert.equal(assessment.passed, false);
+  assert.equal(report.metrics.topic.coverage, 0.88);
+  assert.equal(report.metrics.topic.accuracy, 1);
+  assert.equal(assessment.passed, true);
 });

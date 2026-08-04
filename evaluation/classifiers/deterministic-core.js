@@ -5,11 +5,15 @@ import {
 import {
   classifyDeterministicUrgency
 } from "../../src/classification/deterministic-urgency.js";
+import {
+  classifyDeterministicTopic
+} from "../../src/classification/deterministic-topic.js";
 
 export const classifyWithDeterministicCore = (message) => {
   const dates = classifyDeterministicDates(message);
   const messageSignals = classifyDeterministicMessageSignals(message);
   const urgency = classifyDeterministicUrgency(message);
+  const topic = classifyDeterministicTopic(message);
   return {
     labels: {
       needsReply: messageSignals.suggestions.needsReply,
@@ -17,7 +21,7 @@ export const classifyWithDeterministicCore = (message) => {
       calendarCandidate: dates.suggestions.calendarCandidate,
       urgent: urgency.suggestions.urgent,
       automated: messageSignals.suggestions.automated,
-      topic: null
+      topic: topic.suggestions.topic
     },
     confidence: {
       needsReply: messageSignals.confidence.needsReply,
@@ -25,7 +29,7 @@ export const classifyWithDeterministicCore = (message) => {
       calendarCandidate: dates.confidence.calendarCandidate,
       urgent: urgency.confidence.urgent,
       automated: messageSignals.confidence.automated,
-      topic: 0
+      topic: topic.confidence.topic
     },
     evidence: {
       needsReply: messageSignals.evidence.needsReply,
@@ -33,15 +37,15 @@ export const classifyWithDeterministicCore = (message) => {
       calendarCandidate: dates.evidence.calendarCandidate,
       urgent: urgency.evidence.urgent,
       automated: messageSignals.evidence.automated,
-      topic: []
+      topic: topic.evidence.topic
     },
     abstained: [
       ...dates.abstained,
       ...messageSignals.abstained,
       ...urgency.abstained,
-      "topic"
+      ...topic.abstained
     ],
     values: dates.values,
-    modelVersion: "nexus-deterministic-core/3"
+    modelVersion: "nexus-deterministic-core/4"
   };
 };

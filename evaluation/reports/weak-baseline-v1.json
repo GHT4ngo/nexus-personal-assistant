@@ -83,7 +83,7 @@
     ],
     "missedUrgentIds": [],
     "evidence": {
-      "requiredPositivePredictions": 20,
+      "requiredPositivePredictions": 31,
       "missing": []
     },
     "calibration": [

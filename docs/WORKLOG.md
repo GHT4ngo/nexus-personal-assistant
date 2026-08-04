@@ -664,3 +664,43 @@ v2 dataset; topic remains unimplemented and keeps the overall release gate close
 
 Add conservative broad-topic suggestions using current-message content only. Ambiguous
 content and overlapping topics must abstain; sender and domain history remain prohibited.
+
+## 2026-08-04 — Milestone 4 deterministic topic and passing evaluation
+
+### Outcome
+
+Added evidence-scored broad topics to deterministic core v4. For the first time, the
+classifier passes every written quality gate on the locked 28-message v2 dataset. It
+remains deliberately disconnected from private Gmail content and the Nexus UI.
+
+### Topic boundary
+
+- Rules inspect the current subject/body only.
+- Sender addresses, domains, and previous messages are excluded.
+- The unique strongest topic wins; tied or absent evidence abstains.
+- Evidence contains only the matched current-message terms.
+- Multiple cues may outweigh a single incidental word, such as work-oriented review/draft
+  language outweighing one invoice mention.
+
+### Results
+
+- Topic coverage: `0.88`, above the `0.70` gate.
+- Topic accuracy: `1.0`, above the `0.80` gate.
+- Three topic results abstain.
+- All binary precision/recall, abstention, false/missed urgent, evidence, and topic gates
+  pass.
+- The evaluator now also rejects topic suggestions without evidence.
+- `npm test` passes: 85 tests, 0 failures.
+- Core-v4 report SHA-256:
+  `ac989e7b569e2236315a0c813f5a8d0802ddf951cab7e353a454f6cbaef1229f`.
+
+### Remaining integration boundary
+
+Passing synthetic evaluation is necessary but not sufficient for product use. Nexus still
+needs one internal adapter, versioned content-hash caching, a tested classifier off switch,
+and explicit review-history separation before any UI connection.
+
+### Next slice
+
+Build the internal classifier adapter, deterministic content hash/cache key, and off switch
+with synthetic tests only. Do not connect the adapter to Gmail routes or UI rendering yet.

@@ -259,6 +259,9 @@ explicit abstention limits. Classifier v2 independently extracts meetings and de
 from one message and recognizes explicit generated-message evidence. Core v3 adds
 two-part urgency evidence while rejecting promotional pressure. It is not connected to
 Gmail classification or the product UI.
+Core v4 adds current-content-only topic scoring and passes every locked v2 quality gate.
+Product integration remains blocked until adapter, cache/versioning, off-switch, and
+review-history boundaries are implemented and tested.
 
 Interface:
 
@@ -372,7 +375,6 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by defining broad topic rules based only on the current message
-content. Ambiguous content must abstain, and sender/domain history must remain excluded.
-Keep results out of the product UI and private Gmail pipeline. Read
-[WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 by adding one internal classifier adapter with a content-hash and
+classifier-version cache plus a tested off switch. Do not connect it to Gmail routes or the
+product UI yet. Read [WORKLOG.md](WORKLOG.md) for evidence.

@@ -116,6 +116,11 @@ export const evaluateClassifier = (dataset, classifier) => {
         missingEvidence.push({ id: item.id, label });
       }
     }
+    if (predictions[index].labels.topic !== null
+      && predictions[index].labels.topic !== undefined
+      && !predictions[index].evidence?.topic?.length) {
+      missingEvidence.push({ id: item.id, label: "topic" });
+    }
   });
   const falseUrgentIds = dataset.items
     .filter((item, index) =>
@@ -139,7 +144,9 @@ export const evaluateClassifier = (dataset, classifier) => {
       evidence: {
         requiredPositivePredictions: dataset.items.reduce((count, _item, index) =>
           count + BINARY_LABELS.filter((label) =>
-            predictions[index].labels[label] === true).length, 0),
+            predictions[index].labels[label] === true).length
+            + Number(predictions[index].labels.topic !== null
+              && predictions[index].labels.topic !== undefined), 0),
         missing: missingEvidence
       },
       calibration: calibrationBuckets(dataset.items, predictions)

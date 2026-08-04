@@ -17,7 +17,7 @@ Additional gates:
 
 - zero false urgent results on the locked public fixture set;
 - zero missed urgent results;
-- zero positive binary suggestions without evidence;
+- zero positive binary or topic suggestions without evidence;
 - topic coverage of at least 0.70;
 - topic accuracy of at least 0.80 on non-abstained predictions.
 - abstention rate at most 0.15 for reply, deadline, and automated labels;

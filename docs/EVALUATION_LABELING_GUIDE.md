@@ -57,6 +57,10 @@ Choose one broad topic only when the message provides enough evidence:
 - `other`: clear content that does not fit the categories above;
 - `null`: not enough context for a reliable topic.
 
+A classifier must use only the current message subject/body, return the matched topic
+evidence, and abstain when the strongest topics tie. Sender and domain history are not
+topic evidence.
+
 ### `automated`
 
 Use `true` for system-generated notices, receipts, reminders, newsletters, list mail, and
