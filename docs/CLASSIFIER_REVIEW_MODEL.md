@@ -105,4 +105,6 @@ after full buffering.
 
 Runtime access uses a short-lived one-time bootstrap code rather than embedding the review
 token in static assets. A reload gets a new code and invalidates the prior unredeemed code
-for that origin. The redeemed token remains in memory only.
+for that origin. On desktop, an unmounted dynamic renderer can place only this code,
+expiry, and fixed redemption path in an inert JSON element in a no-store response. The
+redeemed token remains in memory only. Static/mobile assets never contain either value.

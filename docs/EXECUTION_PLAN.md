@@ -401,10 +401,10 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by designing a trusted runtime bootstrap that can deliver the
-in-memory review token to the desktop page and Android WebView without logging it or
-placing it in static assets. The one-time lifecycle is complete; next compose issuance and
-redemption into the unmounted loopback integration and test bootstrap → view → command.
-That composition is now complete. Next design the desktop dynamic handoff without mounting
-routes or changing mobile static assets. Keep classifier execution, Gmail, provider
-actions, and UI out of scope. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 by connecting the completed desktop handoff to a minimal in-memory
+browser bootstrap client under test. The renderer, issuance, redemption, and complete
+review lifecycle are implemented but remain unmounted. Next, read and immediately remove
+the inert handoff element, redeem the code, retain the token in JavaScript memory only,
+and expose no review UI yet. Do not change server binding, mobile static assets, Android,
+classifier execution, Gmail, provider actions, or learning. Read
+[WORKLOG.md](WORKLOG.md) for evidence.

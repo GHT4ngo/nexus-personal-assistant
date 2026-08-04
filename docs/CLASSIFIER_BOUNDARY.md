@@ -216,8 +216,8 @@ server configuration path:
 - private path and comma-separated allowed origins remain explicit;
 - an injected token is used when configured, otherwise 32 random bytes produce an
   in-memory base64url token;
-- the token and origins are returned in a frozen `clientAccess` object for trusted runtime
-  bootstrap only and are never logged or persisted by the integration.
+- the token remains inside the composed services; the frozen trusted-bootstrap surface can
+  issue or clear one-time codes but cannot read the token.
 
 The request guard now handles origin-approved `OPTIONS` preflight. It permits only the
 endpoint's GET or POST method and only Content-Type plus X-Nexus-Review-Token headers.
@@ -248,7 +248,19 @@ bounded JSON code and supports Content-Type-only preflight. A successful redempt
 the review token with no-store CORS. The client must keep it in JavaScript memory only—not
 localStorage, sessionStorage, URLs, static assets, or logs.
 
-Desktop HTML injection and the Android native bridge remain unimplemented.
+`createClassifierReviewDesktopHandoff(...)` now provides the unmounted desktop delivery
+boundary. Trusted server code supplies an HTML template and allowed origin. The renderer
+issues a new code and inserts one inert `application/json` element immediately before the
+single configured marker. It returns an in-memory response descriptor with no-store,
+no-cache, no-referrer, nosniff, and explicit HTML content-type headers.
+
+The renderer escapes HTML-active JSON characters, includes only the code, expiry, and
+fixed bootstrap path, and rejects invalid templates, duplicate/missing markers, denied
+origins, and malformed issuance. It never receives the review token. The page must remove
+the handoff element immediately after reading it and redeem the code once.
+
+This renderer remains unmounted. Static desktop files, copied mobile assets, and the
+Android native bridge remain unchanged.
 
 The loopback server integration now composes this lifecycle. Its public integration surface
 contains `handleRequest` and frozen `trustedBootstrap.issue(origin)`/`clear()` functions;

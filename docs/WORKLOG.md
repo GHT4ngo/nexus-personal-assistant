@@ -1221,3 +1221,31 @@ integration. Removed the direct token-bearing client-access surface.
 Design a dynamic desktop handoff that gives a one-time bootstrap code to the served page
 without placing it in a URL, log, or static asset. Keep Android native handoff separate and
 do not mount review routes yet.
+
+## 2026-08-04 — Milestone 4 dynamic desktop handoff
+
+### Outcome
+
+Added an unmounted server-side desktop renderer that injects only an ephemeral bootstrap
+code into an in-memory HTML response. The review token never enters the renderer.
+
+### Behavior and verification
+
+- The handoff contains only the one-time code, expiry, and fixed redemption path in an
+  inert `application/json` element.
+- HTML-active JSON characters are escaped before insertion.
+- Responses are explicitly no-store, no-cache, no-referrer, nosniff, and HTML typed.
+- Invalid documents, missing or duplicate markers, denied origins, and malformed issuance
+  fail closed without returning a document.
+- Reload replaces the previous outstanding code; the newest code redeems once and replay
+  is denied.
+- Five focused handoff tests pass.
+- Full regression and syntax checks pass: 185 tests, 0 failures.
+- `local-server.mjs`, desktop/mobile static assets, Android, Gmail, classifier execution,
+  provider actions, learning, and UI remain unchanged.
+
+### Next slice
+
+Build a minimal tested desktop browser bootstrap client that reads and immediately removes
+the inert handoff element, redeems once, and retains the review token in memory only. Keep
+it unmounted and do not add review UI yet.
