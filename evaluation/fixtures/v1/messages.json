@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "datasetId": "nexus-public-synthetic-v1",
+  "description": "Invented messages for repeatable classifier evaluation. No real people, accounts, or organizations.",
+  "items": [
+    {
+      "id": "study-deadline",
+      "message": {
+        "from": "Study Portal <no-reply@example.test>",
+        "subject": "Synthetic assignment deadline",
+        "text": "Your invented database assignment is due on 2026-08-10 at 16:00. Upload it through the example portal.",
+        "receivedAt": "2026-08-04T08:00:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": true,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": "study",
+        "automated": true
+      }
+    },
+    {
+      "id": "personal-dinner-question",
+      "message": {
+        "from": "Alex Example <alex@example.test>",
+        "subject": "Dinner on Friday?",
+        "text": "Would you like to meet for dinner on Friday at 19:00? Please let me know.",
+        "receivedAt": "2026-08-04T08:15:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": true,
+        "hasDeadline": false,
+        "calendarCandidate": true,
+        "urgent": false,
+        "topic": "personal",
+        "automated": false
+      }
+    },
+    {
+      "id": "finance-invoice",
+      "message": {
+        "from": "Example Billing <billing@example.test>",
+        "subject": "Invoice EX-1042",
+        "text": "This synthetic invoice for EUR 42.00 must be paid by 2026-08-18.",
+        "receivedAt": "2026-08-04T08:30:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": true,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": "finance",
+        "automated": true
+      }
+    },
+    {
+      "id": "security-action",
+      "message": {
+        "from": "Example Security <security@example.test>",
+        "subject": "Urgent synthetic security alert",
+        "text": "An invented sign-in was detected. Review the example account immediately.",
+        "receivedAt": "2026-08-04T08:45:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": true,
+        "topic": "other",
+        "automated": true
+      }
+    },
+    {
+      "id": "newsletter",
+      "message": {
+        "from": "Example Weekly <news@example.test>",
+        "subject": "Five invented tools this week",
+        "text": "Here is a synthetic weekly digest. Read more on example.test. Unsubscribe at any time.",
+        "receivedAt": "2026-08-04T09:00:00.000Z",
+        "headers": { "listUnsubscribe": "https://example.test/unsubscribe" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": "other",
+        "automated": true
+      }
+    },
+    {
+      "id": "work-meeting",
+      "message": {
+        "from": "Project Colleague <colleague@example.test>",
+        "subject": "Synthetic project review",
+        "text": "Can you attend the project review on 2026-08-07 at 10:30? Please confirm.",
+        "receivedAt": "2026-08-04T09:15:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": true,
+        "hasDeadline": false,
+        "calendarCandidate": true,
+        "urgent": false,
+        "topic": "work",
+        "automated": false
+      }
+    },
+    {
+      "id": "travel-itinerary",
+      "message": {
+        "from": "Example Rail <tickets@example.test>",
+        "subject": "Synthetic booking itinerary",
+        "text": "Your example train departs Paris on 2026-08-12 at 07:20 and arrives at 09:10.",
+        "receivedAt": "2026-08-04T09:30:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": true,
+        "urgent": false,
+        "topic": "travel",
+        "automated": true
+      }
+    },
+    {
+      "id": "plain-fyi",
+      "message": {
+        "from": "Example Person <person@example.test>",
+        "subject": "Notes from the invented discussion",
+        "text": "For your information, these are the synthetic notes we discussed. No action is requested.",
+        "receivedAt": "2026-08-04T09:45:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": null,
+        "automated": false
+      }
+    },
+    {
+      "id": "health-appointment",
+      "message": {
+        "from": "Example Clinic <reminder@example.test>",
+        "subject": "Synthetic appointment reminder",
+        "text": "Reminder: your invented appointment is on 2026-08-09 at 14:15. No reply is needed.",
+        "receivedAt": "2026-08-04T10:00:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": true,
+        "urgent": false,
+        "topic": "health",
+        "automated": true
+      }
+    },
+    {
+      "id": "marketing-urgent-word",
+      "message": {
+        "from": "Example Offers <offers@example.test>",
+        "subject": "Urgent sale ends tonight",
+        "text": "Marketing copy for a synthetic sale. Nothing requires personal attention. Unsubscribe here.",
+        "receivedAt": "2026-08-04T10:15:00.000Z",
+        "headers": { "listUnsubscribe": "https://example.test/unsubscribe" }
+      },
+      "expected": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": "other",
+        "automated": true
+      }
+    },
+    {
+      "id": "work-report-request",
+      "message": {
+        "from": "Example Manager <manager@example.test>",
+        "subject": "Synthetic report request",
+        "text": "Could you send the invented status report by 2026-08-06 at 12:00?",
+        "receivedAt": "2026-08-04T10:30:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": true,
+        "hasDeadline": true,
+        "calendarCandidate": false,
+        "urgent": false,
+        "topic": "work",
+        "automated": false
+      }
+    },
+    {
+      "id": "family-emergency",
+      "message": {
+        "from": "Family Example <family@example.test>",
+        "subject": "Please call",
+        "text": "Please call me as soon as possible about an invented family emergency.",
+        "receivedAt": "2026-08-04T10:45:00.000Z",
+        "headers": { "listUnsubscribe": "" }
+      },
+      "expected": {
+        "needsReply": true,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": true,
+        "topic": "personal",
+        "automated": false
+      }
+    }
+  ]
+}

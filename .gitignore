@@ -10,6 +10,8 @@
 # Private local data
 data/private/
 data/raw/
+evaluation/private/
+evaluation/reports/private/
 exports/
 backups/
 takeout/

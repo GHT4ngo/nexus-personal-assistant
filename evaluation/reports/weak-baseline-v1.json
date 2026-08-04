@@ -1,0 +1,619 @@
+{
+  "schemaVersion": 1,
+  "datasetId": "nexus-public-synthetic-v1",
+  "classifierVersion": "nexus-weak-keywords/1",
+  "itemCount": 12,
+  "metrics": {
+    "binary": {
+      "needsReply": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "tn": 8,
+        "abstained": 0,
+        "scorable": 12,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "abstentionRate": 0,
+        "brierScore": 0.1437
+      },
+      "hasDeadline": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "tn": 9,
+        "abstained": 0,
+        "scorable": 12,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "abstentionRate": 0,
+        "brierScore": 0.1519
+      },
+      "calendarCandidate": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 1,
+        "tn": 8,
+        "abstained": 0,
+        "scorable": 12,
+        "precision": 1,
+        "recall": 0.75,
+        "f1": 0.8571,
+        "abstentionRate": 0,
+        "brierScore": 0.1652
+      },
+      "urgent": {
+        "tp": 2,
+        "fp": 1,
+        "fn": 0,
+        "tn": 9,
+        "abstained": 0,
+        "scorable": 12,
+        "precision": 0.6667,
+        "recall": 1,
+        "f1": 0.8,
+        "abstentionRate": 0,
+        "brierScore": 0.1886
+      },
+      "automated": {
+        "tp": 7,
+        "fp": 0,
+        "fn": 0,
+        "tn": 5,
+        "abstained": 0,
+        "scorable": 12,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "abstentionRate": 0,
+        "brierScore": 0.1192
+      }
+    },
+    "topic": {
+      "scorable": 11,
+      "predicted": 11,
+      "correct": 11,
+      "coverage": 1,
+      "accuracy": 1
+    },
+    "falseUrgentIds": [
+      "marketing-urgent-word"
+    ],
+    "missedUrgentIds": [],
+    "evidence": {
+      "requiredPositivePredictions": 7,
+      "missing": []
+    },
+    "calibration": [
+      {
+        "name": "low",
+        "count": 40,
+        "accuracy": 0.975,
+        "meanConfidence": 0.58
+      },
+      {
+        "name": "medium",
+        "count": 20,
+        "accuracy": 0.95,
+        "meanConfidence": 0.72
+      },
+      {
+        "name": "high",
+        "count": 0,
+        "accuracy": null,
+        "meanConfidence": null
+      }
+    ]
+  },
+  "predictions": [
+    {
+      "id": "study-deadline",
+      "labels": {
+        "needsReply": false,
+        "hasDeadline": true,
+        "calendarCandidate": false,
+        "urgent": false,
+        "automated": true,
+        "topic": "study"
+      },
+      "confidence": {
+        "needsReply": 0.58,
+        "hasDeadline": 0.72,
+        "calendarCandidate": 0.58,
+        "urgent": 0.58,
+        "automated": 0.72,
+        "topic": 0.72
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [
+          "deadline"
+        ],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [
+          "no-reply"
+        ],
+        "topic": [
+          "study"
+        ]
+      },
+      "abstained": [],
+      "modelVersion": "nexus-weak-keywords/1"
+    },
+    {
+      "id": "personal-dinner-question",
+      "labels": {
+        "needsReply": true,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "automated": false,
+        "topic": "personal"
+      },
+      "confidence": {
+        "needsReply": 0.72,
+        "hasDeadline": 0.58,
+        "calendarCandidate": 0.58,
+        "urgent": 0.58,
+        "automated": 0.58,
+        "topic": 0.72
+      },
+      "evidence": {
+        "needsReply": [
+          "?"
+        ],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": [
+          "dinner"
+        ]
+      },
+      "abstained": [],
+      "modelVersion": "nexus-weak-keywords/1"
+    },
+    {
+      "id": "finance-invoice",
+      "labels": {
+        "needsReply": false,
+        "hasDeadline": true,
+        "calendarCandidate": false,
+        "urgent": false,
+        "automated": true,
+        "topic": "finance"
+      },
+      "confidence": {
+        "needsReply": 0.58,
+        "hasDeadline": 0.72,
+        "calendarCandidate": 0.58,
+        "urgent": 0.58,
+        "automated": 0.72,
+        "topic": 0.72
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [
+          "must be paid"
+        ],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [
+          "billing"
+        ],
+        "topic": [
+          "billing"
+        ]
+      },
+      "abstained": [],
+      "modelVersion": "nexus-weak-keywords/1"
+    },
+    {
+      "id": "security-action",
+      "labels": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": true,
+        "automated": true,
+        "topic": "other"
+      },
+      "confidence": {
+        "needsReply": 0.58,
+        "hasDeadline": 0.58,
+        "calendarCandidate": 0.58,
+        "urgent": 0.72,
+        "automated": 0.72,
+        "topic": 0.72
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [
+          "urgent"
+        ],
+        "automated": [
+          "security"
+        ],
+        "topic": [
+          "security"
+        ]
+      },
+      "abstained": [],
+      "modelVersion": "nexus-weak-keywords/1"
+    },
+    {
+      "id": "newsletter",
+      "labels": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "automated": true,
+        "topic": "other"
+      },
+      "confidence": {
+        "needsReply": 0.58,
+        "hasDeadline": 0.58,
+        "calendarCandidate": 0.58,
+        "urgent": 0.58,
+        "automated": 0.72,
+        "topic": 0.72
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [
+          "weekly"
+        ],
+        "topic": [
+          "digest"
+        ]
+      },
+      "abstained": [],
+      "modelVersion": "nexus-weak-keywords/1"
+    },
+    {
+      "id": "work-meeting",
+      "labels": {
+        "needsReply": true,
+        "hasDeadline": false,
+        "calendarCandidate": true,
+        "urgent": false,
+        "automated": false,
+        "topic": "work"
+      },
+      "confidence": {
+        "needsReply": 0.72,
+        "hasDeadline": 0.58,
+        "calendarCandidate": 0.72,
+        "urgent": 0.58,
+        "automated": 0.58,
+        "topic": 0.72
+      },
+      "evidence": {
+        "needsReply": [
+          "can you"
+        ],
+        "hasDeadline": [],
+        "calendarCandidate": [
+          "2026-08-07 at 10:30"
+        ],
+        "urgent": [],
+        "automated": [],
+        "topic": [
+          "project"
+        ]
+      },
+      "abstained": [],
+      "modelVersion": "nexus-weak-keywords/1"
+    },
+    {
+      "id": "travel-itinerary",
+      "labels": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": true,
+        "urgent": false,
+        "automated": true,
+        "topic": "travel"
+      },
+      "confidence": {
+        "needsReply": 0.58,
+        "hasDeadline": 0.58,
+        "calendarCandidate": 0.72,
+        "urgent": 0.58,
+        "automated": 0.72,
+        "topic": 0.72
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [
+          "2026-08-12 at 07:20 and arrives at 09:10"
+        ],
+        "urgent": [],
+        "automated": [
+          "tickets"
+        ],
+        "topic": [
+          "booking"
+        ]
+      },
+      "abstained": [],
+      "modelVersion": "nexus-weak-keywords/1"
+    },
+    {
+      "id": "plain-fyi",
+      "labels": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": false,
+        "automated": false,
+        "topic": null
+      },
+      "confidence": {
+        "needsReply": 0.58,
+        "hasDeadline": 0.58,
+        "calendarCandidate": 0.58,
+        "urgent": 0.58,
+        "automated": 0.58,
+        "topic": 0
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": []
+      },
+      "abstained": [
+        "topic"
+      ],
+      "modelVersion": "nexus-weak-keywords/1"
+    },
+    {
+      "id": "health-appointment",
+      "labels": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": true,
+        "urgent": false,
+        "automated": true,
+        "topic": "health"
+      },
+      "confidence": {
+        "needsReply": 0.58,
+        "hasDeadline": 0.58,
+        "calendarCandidate": 0.72,
+        "urgent": 0.58,
+        "automated": 0.72,
+        "topic": 0.72
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [
+          "2026-08-09 at 14:15"
+        ],
+        "urgent": [],
+        "automated": [
+          "reminder"
+        ],
+        "topic": [
+          "clinic"
+        ]
+      },
+      "abstained": [],
+      "modelVersion": "nexus-weak-keywords/1"
+    },
+    {
+      "id": "marketing-urgent-word",
+      "labels": {
+        "needsReply": false,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": true,
+        "automated": true,
+        "topic": "other"
+      },
+      "confidence": {
+        "needsReply": 0.58,
+        "hasDeadline": 0.58,
+        "calendarCandidate": 0.58,
+        "urgent": 0.72,
+        "automated": 0.72,
+        "topic": 0.72
+      },
+      "evidence": {
+        "needsReply": [],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [
+          "urgent"
+        ],
+        "automated": [
+          "offers"
+        ],
+        "topic": [
+          "sale"
+        ]
+      },
+      "abstained": [],
+      "modelVersion": "nexus-weak-keywords/1"
+    },
+    {
+      "id": "work-report-request",
+      "labels": {
+        "needsReply": true,
+        "hasDeadline": true,
+        "calendarCandidate": false,
+        "urgent": false,
+        "automated": false,
+        "topic": "work"
+      },
+      "confidence": {
+        "needsReply": 0.72,
+        "hasDeadline": 0.72,
+        "calendarCandidate": 0.58,
+        "urgent": 0.58,
+        "automated": 0.58,
+        "topic": 0.72
+      },
+      "evidence": {
+        "needsReply": [
+          "could you"
+        ],
+        "hasDeadline": [
+          "send the invented status report by"
+        ],
+        "calendarCandidate": [],
+        "urgent": [],
+        "automated": [],
+        "topic": [
+          "manager"
+        ]
+      },
+      "abstained": [],
+      "modelVersion": "nexus-weak-keywords/1"
+    },
+    {
+      "id": "family-emergency",
+      "labels": {
+        "needsReply": true,
+        "hasDeadline": false,
+        "calendarCandidate": false,
+        "urgent": true,
+        "automated": false,
+        "topic": "personal"
+      },
+      "confidence": {
+        "needsReply": 0.72,
+        "hasDeadline": 0.58,
+        "calendarCandidate": 0.58,
+        "urgent": 0.72,
+        "automated": 0.58,
+        "topic": 0.72
+      },
+      "evidence": {
+        "needsReply": [
+          "call me"
+        ],
+        "hasDeadline": [],
+        "calendarCandidate": [],
+        "urgent": [
+          "as soon as possible"
+        ],
+        "automated": [],
+        "topic": [
+          "family"
+        ]
+      },
+      "abstained": [],
+      "modelVersion": "nexus-weak-keywords/1"
+    }
+  ],
+  "qualityGates": {
+    "passed": false,
+    "results": [
+      {
+        "gate": "needsReply.precision",
+        "expected": ">= 0.8",
+        "actual": 1,
+        "passed": true
+      },
+      {
+        "gate": "needsReply.recall",
+        "expected": ">= 0.9",
+        "actual": 1,
+        "passed": true
+      },
+      {
+        "gate": "hasDeadline.precision",
+        "expected": ">= 0.85",
+        "actual": 1,
+        "passed": true
+      },
+      {
+        "gate": "hasDeadline.recall",
+        "expected": ">= 0.95",
+        "actual": 1,
+        "passed": true
+      },
+      {
+        "gate": "calendarCandidate.precision",
+        "expected": ">= 0.85",
+        "actual": 1,
+        "passed": true
+      },
+      {
+        "gate": "calendarCandidate.recall",
+        "expected": ">= 0.9",
+        "actual": 0.75,
+        "passed": false
+      },
+      {
+        "gate": "urgent.precision",
+        "expected": ">= 0.8",
+        "actual": 0.6667,
+        "passed": false
+      },
+      {
+        "gate": "urgent.recall",
+        "expected": ">= 1",
+        "actual": 1,
+        "passed": true
+      },
+      {
+        "gate": "automated.precision",
+        "expected": ">= 0.95",
+        "actual": 1,
+        "passed": true
+      },
+      {
+        "gate": "automated.recall",
+        "expected": ">= 0.9",
+        "actual": 1,
+        "passed": true
+      },
+      {
+        "gate": "urgent.falsePositives",
+        "expected": "<= 0",
+        "actual": 1,
+        "passed": false
+      },
+      {
+        "gate": "urgent.missed",
+        "expected": "<= 0",
+        "actual": 0,
+        "passed": true
+      },
+      {
+        "gate": "evidence.missing",
+        "expected": "0",
+        "actual": 0,
+        "passed": true
+      },
+      {
+        "gate": "topic.coverage",
+        "expected": ">= 0.7",
+        "actual": 1,
+        "passed": true
+      },
+      {
+        "gate": "topic.accuracy",
+        "expected": ">= 0.8",
+        "actual": 1,
+        "passed": true
+      }
+    ]
+  }
+}

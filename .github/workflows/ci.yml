@@ -23,6 +23,8 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm test
+      - run: npm run evaluate:report
+      - run: git diff --exit-code evaluation/reports/weak-baseline-v1.json
       - run: npm run mobile:prepare
 
   android:

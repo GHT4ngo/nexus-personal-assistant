@@ -437,3 +437,40 @@ Start Milestone 3 without touching private Gmail content:
 
 Do not add classification to Today or Inbox yet. Do not create learning rules from review
 history. Do not request additional Google permissions.
+
+## 2026-08-04 — Milestone 3 evaluation framework
+
+### Outcome
+
+Completed the evaluation foundation without reading private Gmail content, connecting an
+AI model, or changing the Nexus product UI.
+
+### Completed
+
+- Added versioned dataset `nexus-public-synthetic-v1` with 12 entirely invented messages.
+- Defined reply, deadline, calendar-candidate, urgency, topic, and automated labels.
+- Added a labeling guide with explicit null, abstention, and evidence rules.
+- Added deterministic scoring for precision, recall, F1, abstention, Brier score,
+  calibration, topic coverage/accuracy, false urgent, and missed urgent results.
+- Added written quality gates before selecting a model or prompt.
+- Added a deliberately weak keyword baseline and committed its versioned report.
+- Added ignored private evaluation paths for any future locally held material.
+- Made CI reproduce the committed evaluation report and reject report drift.
+
+### Evidence
+
+- `npm run check` passes.
+- `npm test` passes: 55 tests, 0 failures.
+- `npm run mobile:prepare` passes.
+- Two consecutive report generations produced SHA-256
+  `61bf8e7ce1e66ba6f1c04431bf486784983072ec191f7e756aef5fc272b0b8f2`.
+- The weak baseline correctly fails the release gates: urgent precision is `0.6667` because
+  it mistakes marketing urgency for real urgency, and calendar-candidate recall is `0.75`.
+- No fixture contains a real address; synthetic addresses use the reserved
+  `example.test` domain.
+
+### Next milestone
+
+Start Milestone 4 with deterministic fact extraction for deadline and calendar evidence.
+Keep predictions out of Today and Inbox, require abstention for uncertain results, and
+compare every candidate against the committed evaluation gates before considering AI.

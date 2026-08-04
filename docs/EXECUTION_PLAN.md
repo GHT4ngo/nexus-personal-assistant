@@ -205,23 +205,22 @@ Exit criteria:
 
 Goal: measure classification before adding it to the product.
 
-Status (2026-08-03): next. Begin with synthetic public fixtures and a labeling guide. Do
-not connect a model, use real mailbox content, or change the product UI during the first
-slice.
+Status (2026-08-04): complete. The first version uses only 12 invented public messages.
+It does not connect a model, use real mailbox content, or change the product UI.
 
 Build:
 
-- A private, ignored evaluation dataset created from sanitized or synthetic messages.
-- A versioned public fixture set containing no personal information.
-- A labeling guide for:
+- [x] Private evaluation paths are ignored; no private dataset was needed for this slice.
+- [x] A versioned public fixture set containing no personal information.
+- [x] A labeling guide for:
   - needs reply;
   - has deadline;
   - calendar candidate;
   - urgency;
   - broad topic;
   - newsletter or automated notification.
-- A command that scores a classifier against expected labels.
-- Reports for precision, recall, false urgent results, missed urgent results, abstention,
+- [x] A command that scores a classifier against expected labels.
+- [x] Reports for precision, recall, false urgent results, missed urgent results, abstention,
   and confidence calibration.
 
 Initial quality gates:
@@ -235,9 +234,18 @@ Initial quality gates:
 
 Exit criteria:
 
-- The same evaluation command produces repeatable results.
-- A deliberately weak baseline is documented for comparison.
-- Quality thresholds are written before choosing a model or prompt.
+- [x] The same evaluation command produces repeatable results.
+- [x] A deliberately weak baseline is documented for comparison.
+- [x] Quality thresholds were written before choosing a model or prompt.
+
+Evidence:
+
+- `npm run evaluate:report` reproduces the committed report byte-for-byte.
+- CI regenerates the report and rejects an unexplained difference.
+- The weak baseline intentionally fails the release gates: one marketing message is falsely
+  urgent and calendar-candidate recall is below threshold.
+- 55 tests pass, including dataset validation, deterministic scoring, evidence enforcement,
+  and the expected weak-baseline failure.
 
 ## Milestone 4 — Suggestion engine
 
@@ -355,6 +363,8 @@ For every milestone:
 
 ## Resume point
 
-Start Milestone 3 by defining the evaluation fixture format, labeling guide, scoring
-command, deliberately weak baseline, and quality gates. Milestones 0 through 2 should not
-be repeated unless a regression is observed. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Start Milestone 4 with deterministic, evidence-backed fact extraction against the public
+synthetic fixtures. Begin with deadlines and calendar candidates, keep all results out of
+the product UI, and add abstention before evaluating any AI model. Milestones 0 through 3
+should not be repeated unless a regression is observed. Read [WORKLOG.md](WORKLOG.md) for
+evidence.
