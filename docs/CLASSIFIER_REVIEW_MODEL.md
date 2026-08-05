@@ -146,6 +146,11 @@ Actions are unavailable until both private bootstrap and initial safe-view rende
 succeed. Entry/view failure and explicit teardown clear all layers. Late asynchronous
 reads or commands cannot recreate DOM or announcements after teardown.
 
+Real Chromium verifies the full unmounted UI behavior with hostile synthetic text and a
+native button submission. The accepted decision is persisted and the view refreshes from
+pending to resolved; page lifecycle teardown removes the rendered UI and private session.
+The three UI modules remain smoke-harness-only and outside strict production delivery.
+
 Origin enforcement distinguishes explicit cross-origin CORS from same-origin browser
 reads. An absent Origin is accepted only for a non-preflight request whose URL origin is
 allowlisted and whose protected fetch metadata says exactly `same-origin`; the private

@@ -22,6 +22,7 @@ const outcome = (status, code = null) => Object.freeze({ status, code });
 export const createClassifierReviewUi = ({
   document,
   root,
+  lifecycleTarget = document?.defaultView,
   entry = defaultEntry,
   createDom = createClassifierReviewDomAdapter,
   createRenderer = createClassifierReviewRenderer,
@@ -35,6 +36,11 @@ export const createClassifierReviewUi = ({
     || typeof root.addEventListener !== "function"
     || typeof root.removeEventListener !== "function") {
     throw new TypeError("Review UI requires an explicit root element.");
+  }
+  if (!lifecycleTarget
+    || typeof lifecycleTarget.addEventListener !== "function"
+    || typeof lifecycleTarget.removeEventListener !== "function") {
+    throw new TypeError("Review UI requires a lifecycle target.");
   }
   if (!entry
     || typeof entry.start !== "function"
@@ -53,6 +59,7 @@ export const createClassifierReviewUi = ({
   let state = "idle";
   let startPromise = null;
   let renderer = null;
+  let listenersAttached = true;
   const dom = createDom({
     document,
     root,
@@ -78,6 +85,11 @@ export const createClassifierReviewUi = ({
   }
 
   const teardown = () => {
+    if (listenersAttached) {
+      lifecycleTarget.removeEventListener("pagehide", clear);
+      lifecycleTarget.removeEventListener("beforeunload", clear);
+      listenersAttached = false;
+    }
     renderer.clear();
     dom.clear();
     entry.clear();
@@ -137,6 +149,8 @@ export const createClassifierReviewUi = ({
     state = "cleared";
     teardown();
   };
+  lifecycleTarget.addEventListener("pagehide", clear);
+  lifecycleTarget.addEventListener("beforeunload", clear);
 
   return Object.freeze({
     start,

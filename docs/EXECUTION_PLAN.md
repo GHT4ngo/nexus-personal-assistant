@@ -285,7 +285,9 @@ into accessible section/action models while retaining opaque command targets pri
 An unmounted native-DOM adapter now renders those models without HTML parsing and accepts
 only render-owned delegated form submissions. An unmounted UI composition now starts the
 private entry before rendering, bridges actions only while ready, and coordinates terminal
-teardown across all three layers.
+teardown across all three layers. The full composition now passes an opt-in real-Chromium
+proof covering hostile text, native controls, a persisted decision, resolved refresh, and
+page lifecycle cleanup.
 
 Interface:
 
@@ -409,12 +411,11 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 with an opt-in real-browser smoke proof of the complete unmounted UI
-composition. Serve the additional renderer, DOM-adapter, and UI-composition sources only
-from the ephemeral smoke harness—not from the strict production graph. Provide an
-explicit synthetic root, verify native accessible controls and inert hostile values in
-Chromium, submit one synthetic decision through the actual DOM, observe the refreshed
-resolved queue, and prove page teardown clears the UI. Do not expand the production served
-graph or mount anything in static/mobile assets, `local-server.mjs`, Android, Gmail,
-classifier execution, provider actions, or learning. Read [WORKLOG.md](WORKLOG.md) for
-evidence.
+Continue Milestone 4 by designing strict optional delivery for the proven UI modules
+without mounting it. Define a separate UI activation module with one fixed explicit root
+contract, extend module-source validation from the four-module private runtime graph to an
+exact UI graph only when UI delivery is explicitly configured, and preserve the current
+runtime-only mode. Test missing roots, missing/extra sources, immutable source snapshots,
+relative imports, no-store/nosniff delivery, and absence from default documents. Do not
+mount anything in static/mobile assets, `local-server.mjs`, Android, Gmail, classifier
+execution, provider actions, or learning. Read [WORKLOG.md](WORKLOG.md) for evidence.

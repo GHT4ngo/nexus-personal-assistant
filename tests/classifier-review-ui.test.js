@@ -11,6 +11,19 @@ const root = {
   addEventListener() {},
   removeEventListener() {}
 };
+const createLifecycle = () => {
+  const listeners = new Map();
+  return {
+    listeners,
+    addEventListener: (name, listener) => listeners.set(name, listener),
+    removeEventListener: (name, listener) => {
+      if (listeners.get(name) === listener) {
+        listeners.delete(name);
+      }
+    },
+    dispatch: (name) => listeners.get(name)?.()
+  };
+};
 
 const createHarness = ({
   entryStart = async () => ({ status: "ready", code: null }),
@@ -18,6 +31,7 @@ const createHarness = ({
   rendererActivate = async () => ({ status: "ready", code: null })
 } = {}) => {
   const calls = [];
+  const lifecycle = createLifecycle();
   let actionHandler;
   const entry = {
     start: async (options) => {
@@ -55,6 +69,7 @@ const createHarness = ({
   const ui = createClassifierReviewUi({
     document,
     root,
+    lifecycleTarget: lifecycle,
     entry,
     createDom: ({ document: receivedDocument, root: receivedRoot, onAction }) => {
       calls.push({
@@ -78,6 +93,7 @@ const createHarness = ({
   return {
     ui,
     calls,
+    lifecycle,
     action: (...args) => actionHandler(...args)
   };
 };
@@ -238,7 +254,7 @@ test("clear during refresh wins and cannot restore readiness", async () => {
 });
 
 test("explicit clear is coordinated and idempotent", async () => {
-  const { ui, calls, action } = createHarness();
+  const { ui, calls, action, lifecycle } = createHarness();
   await ui.start();
   ui.clear();
   ui.clear();
@@ -249,6 +265,21 @@ test("explicit clear is coordinated and idempotent", async () => {
   assert.equal(calls.filter((call) => call.entryClear).length, 1);
   assert.equal((await ui.start()).code, "ui.start.unavailable");
   assert.equal((await action({ decision: "accept" })).code, "ui.action.unavailable");
+  assert.equal(lifecycle.listeners.size, 0);
+});
+
+test("page lifecycle clears the complete UI composition", async () => {
+  for (const event of ["pagehide", "beforeunload"]) {
+    const { ui, calls, lifecycle } = createHarness();
+    await ui.start();
+    lifecycle.dispatch(event);
+
+    assert.deepEqual(ui.status(), { status: "cleared", code: null });
+    assert.equal(calls.filter((call) => call.rendererClear).length, 1);
+    assert.equal(calls.filter((call) => call.domClear).length, 1);
+    assert.equal(calls.filter((call) => call.entryClear).length, 1);
+    assert.equal(lifecycle.listeners.size, 0);
+  }
 });
 
 test("requires explicit browser roots, entrypoint, and valid factories", () => {
@@ -264,13 +295,23 @@ test("requires explicit browser roots, entrypoint, and valid factories", () => {
     /explicit root element/
   );
   assert.throws(
-    () => createClassifierReviewUi({ document, root, entry: {} }),
+    () => createClassifierReviewUi({ document, root }),
+    /lifecycle target/
+  );
+  assert.throws(
+    () => createClassifierReviewUi({
+      document,
+      root,
+      lifecycleTarget: createLifecycle(),
+      entry: {}
+    }),
     /controlled entrypoint/
   );
   assert.throws(
     () => createClassifierReviewUi({
       document,
       root,
+      lifecycleTarget: createLifecycle(),
       entry,
       createDom: "invalid"
     }),
@@ -280,6 +321,7 @@ test("requires explicit browser roots, entrypoint, and valid factories", () => {
     () => createClassifierReviewUi({
       document,
       root,
+      lifecycleTarget: createLifecycle(),
       entry,
       generateCommandId: "invalid"
     }),
@@ -289,6 +331,7 @@ test("requires explicit browser roots, entrypoint, and valid factories", () => {
     () => createClassifierReviewUi({
       document,
       root,
+      lifecycleTarget: createLifecycle(),
       entry,
       createDom: () => ({}),
       createRenderer: () => ({})

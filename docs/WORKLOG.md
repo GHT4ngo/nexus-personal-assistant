@@ -1618,3 +1618,34 @@ native-DOM adapter, and closed late-completion teardown races in the renderer.
 
 Exercise the complete UI composition in an opt-in ephemeral real-browser smoke harness,
 including hostile text, native controls, a real review command, refresh, and teardown.
+
+## 2026-08-05 — Milestone 4 real-browser review UI proof
+
+### Outcome
+
+Executed the complete unmounted review UI composition successfully in Chromium 140 against
+the ephemeral loopback review app.
+
+### Behavior and verification
+
+- The strict HTTP app remains on its original four-module graph.
+- Only the smoke harness serves the DOM adapter, renderer, and UI composition modules.
+- The synthetic document supplies one explicit review root.
+- One hostile image/onerror classifier value is rendered as inert visible text.
+- No image or script element is created inside the review root.
+- The hostile payload creates no browser global side effect.
+- Native forms, a labelled correction input, and four submit buttons are present.
+- Clicking the real Accept button submits through the complete browser/HTTP/store stack.
+- The private store records exactly one append-only review decision.
+- The UI refreshes from one pending suggestion to one resolved decision.
+- Dispatching `pagehide` empties the UI root and clears the private entry session.
+- Reads after teardown return `entry.session.unavailable`.
+- Composition-level pagehide/beforeunload listeners are now explicit and tested.
+- Full regression and syntax checks pass: 247 tests, 0 failures.
+- The opt-in Chromium UI smoke command passes.
+- UI modules remain outside strict production delivery and all product/mobile entrypoints.
+
+### Next slice
+
+Design and test a separate, strictly optional UI module-delivery graph and fixed root
+activation contract while preserving the existing runtime-only delivery mode.

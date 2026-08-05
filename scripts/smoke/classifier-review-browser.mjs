@@ -13,7 +13,18 @@ import { createClassifierSuggestionRecord } from "../../src/domain/records.js";
 
 const TOKEN = "synthetic-browser-review-token-over-32-bytes";
 const CODE = "synthetic-browser-bootstrap-code-over-32-bytes";
-const HTML = "<!doctype html><html><head><title>Nexus</title></head><body></body></html>";
+const HOSTILE_VALUE = "<img src=x onerror=globalThis.compromised=true>";
+const HTML = `<!doctype html>
+<html>
+  <head><title>Nexus</title></head>
+  <body><main id="classifier-review-root"></main></body>
+</html>`;
+const UI_MODULE_ROOT = "/__nexus/classifier-review/";
+const UI_MODULE_FILES = Object.freeze([
+  "classifier-review-dom.js",
+  "classifier-review-renderer.js",
+  "classifier-review-ui.js"
+]);
 const playwrightModule = process.env.NEXUS_PLAYWRIGHT_MODULE;
 const chromiumExecutable = process.env.NEXUS_CHROMIUM_EXECUTABLE;
 
@@ -54,6 +65,13 @@ const readBrowserModuleSources = async () => ({
   ), "utf8")
 });
 
+const readUiModuleSources = async () => new Map(await Promise.all(
+  UI_MODULE_FILES.map(async (fileName) => [
+    `${UI_MODULE_ROOT}${fileName}`,
+    await readFile(new URL(`../browser/${fileName}`, import.meta.url), "utf8")
+  ])
+));
+
 const main = async () => {
   const { chromium } = await import(pathToFileURL(playwrightModule).href);
   const directory = await mkdtemp(join(tmpdir(), "nexus-review-browser-"));
@@ -68,7 +86,7 @@ const main = async () => {
     title: "Synthetic browser review",
     subjectRecordId: "gmail:synthetic-browser",
     suggestionType: "topic",
-    suggestedValue: "school",
+    suggestedValue: HOSTILE_VALUE,
     confidence: 0.94,
     evidence: ["Synthetic browser evidence"],
     abstained: false,
@@ -77,12 +95,25 @@ const main = async () => {
     observedAt: new Date(now).toISOString(),
     normalizedAt: new Date(now).toISOString()
   })]);
+  const uiModuleSources = await readUiModuleSources();
 
   let app;
   const server = createServer(async (request, response) => {
     try {
       const url = new URL(request.url || "/", `http://${request.headers.host}`);
       if (await app.handleRequest(request, url, response)) {
+        return;
+      }
+      if (request.method === "GET"
+        && !url.search
+        && uiModuleSources.has(url.pathname)) {
+        response.writeHead(200, {
+          "Cache-Control": "no-store",
+          "Content-Type": "text/javascript; charset=utf-8",
+          "Referrer-Policy": "no-referrer",
+          "X-Content-Type-Options": "nosniff"
+        });
+        response.end(uiModuleSources.get(url.pathname));
         return;
       }
       response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
@@ -121,48 +152,59 @@ const main = async () => {
     const context = await browser.newContext();
     const page = await context.newPage();
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
-    const report = await page.evaluate(async () => {
+    const started = await page.evaluate(async () => {
+      const { createClassifierReviewUi } = await import(
+        "/__nexus/classifier-review/classifier-review-ui.js"
+      );
+      const ui = createClassifierReviewUi({
+        document,
+        root: document.getElementById("classifier-review-root")
+      });
+      return await ui.start();
+    });
+
+    assert.deepEqual(started, { status: "ready", code: null });
+    const root = page.locator("#classifier-review-root");
+    assert.equal(await root.locator("h1").textContent(), "Classifier review");
+    assert.equal(await root.locator("form").count(), 1);
+    assert.equal(await root.locator("button[type=submit]").count(), 4);
+    assert.equal(await root.locator("input[type=text]").count(), 1);
+    assert.equal(await root.locator("img").count(), 0);
+    assert.equal(await root.locator("script").count(), 0);
+    assert.match(await root.textContent(), /<img src=x onerror=/);
+    assert.equal(await page.evaluate(() => globalThis.compromised), undefined);
+
+    await root.getByRole("button", { name: "Accept suggestion" }).click();
+    await root.getByRole("heading", {
+      name: "Reviewed suggestions (1)"
+    }).waitFor();
+    assert.match(await root.textContent(), /Reviewed suggestions \(1\)/);
+    assert.match(await root.textContent(), /Effective value/);
+    assert.equal((await store.read()).reviews.length, 1);
+
+    const teardown = await page.evaluate(async () => {
+      globalThis.dispatchEvent(new PageTransitionEvent("pagehide"));
       const entry = await import(
         "/__nexus/classifier-review/classifier-review-entry.js"
       );
-      const started = await entry.startClassifierReviewEntry();
-      const beforeClear = entry.classifierReviewEntryStatus();
-      const review = await entry.readClassifierReviewView();
-      globalThis.dispatchEvent(new PageTransitionEvent("pagehide"));
-      const afterClear = entry.classifierReviewEntryStatus();
-      const readAfterClear = await entry.readClassifierReviewView();
       return {
-        started,
-        beforeClear,
-        summary: review.view?.summary || null,
-        firstPending: review.view?.queues?.pending?.[0] || null,
-        afterClear,
-        readAfterClear
+        childCount: document.getElementById("classifier-review-root").childElementCount,
+        entryStatus: entry.classifierReviewEntryStatus(),
+        readAfterClear: await entry.readClassifierReviewView()
       };
     });
-
-    assert.deepEqual(report.started, { status: "ready", code: null });
-    assert.deepEqual(report.beforeClear, { status: "ready", code: null });
-    assert.deepEqual(report.summary, {
-      total: 1,
-      pending: 1,
-      abstained: 0,
-      resolved: 0
-    });
-    assert.match(report.firstPending.subjectKey, /^[a-f0-9]{64}$/);
-    assert.notEqual(report.firstPending.subjectKey, "gmail:synthetic-browser");
-    assert.equal(report.firstPending.suggestionType, "topic");
-    assert.equal(report.firstPending.suggestedValue, "school");
-    assert.equal(Object.hasOwn(report.firstPending, "title"), false);
-    assert.deepEqual(report.afterClear, { status: "cleared", code: null });
-    assert.deepEqual(report.readAfterClear, {
+    assert.equal(teardown.childCount, 0);
+    assert.deepEqual(teardown.entryStatus, { status: "cleared", code: null });
+    assert.deepEqual(teardown.readAfterClear, {
       status: "rejected",
       code: "entry.session.unavailable",
       view: null
     });
 
-    console.log("Browser review smoke test passed.");
-    console.log("Automatic bootstrap, privacy-safe queue read, and pagehide teardown verified.");
+    console.log("Browser review UI smoke test passed.");
+    console.log(
+      "Safe DOM rendering, real decision refresh, and pagehide teardown verified."
+    );
   } finally {
     await browser?.close();
     await close(server);

@@ -389,6 +389,18 @@ view refresh, or command submission wins permanently; late completions cannot re
 announce, refresh, or restore readiness. The composition is not automatically constructed,
 served, or mounted.
 
+The opt-in real-browser smoke harness now exercises this complete composition in Chromium.
+The strict HTTP app still serves only its original four production modules; the ephemeral
+harness alone serves the DOM, renderer, and UI sources on their relative module paths. Its
+synthetic page supplies one explicit root and one hostile classifier value.
+
+Chromium confirms the hostile image payload remains visible inert text, no image or script
+appears inside the root, native labelled correction/button controls exist, and no hostile
+global is created. Clicking the real Accept button crosses the DOM adapter, renderer,
+entrypoint, HTTP command route, and private store, then refreshes pending to resolved.
+`pagehide` empties the root, removes listeners, clears the entry session, and rejects later
+reads. No UI module was added to the strict production graph.
+
 The complete desktop path is covered by one synthetic test using the real renderer,
 client, redemption route, origin/token guard, review view, command service, and private
 store. It reads one pending suggestion, accepts it explicitly, observes one resolved item
