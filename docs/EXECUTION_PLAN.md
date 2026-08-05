@@ -401,11 +401,11 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by composing an unmounted desktop browser entry module. The private
-runtime owner is complete and used by the synthetic flow, but no served module constructs
-it in a real page. Next create a module-scoped entrypoint that wires `document`, `fetch`,
-and lifecycle adapters, starts once, exports only the controlled runtime methods to trusted
-module imports, and never writes a capability to `window` or DOM. Test duplicate imports,
-failed start, and teardown. Do not serve or inject it yet; do not change
-`local-server.mjs`, static/mobile assets, Android, classifier execution, Gmail, provider
-actions, review UI, or learning. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 by designing dynamic module delivery for the unmounted review HTTP
+application. The module-scoped entrypoint is complete and used by the synthetic flow, but
+the served document neither loads nor starts it. Next add a tiny activation module that
+starts the entrypoint without global state, inject only its fixed module URL into dynamic
+HTML, and serve the isolated browser modules with immutable source and no-store/nosniff
+headers. Keep the HTTP app unmounted and do not alter static/mobile assets,
+`local-server.mjs`, Android, classifier execution, Gmail, provider actions, review UI, or
+learning. Read [WORKLOG.md](WORKLOG.md) for evidence.

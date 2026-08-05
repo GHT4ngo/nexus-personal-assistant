@@ -5,11 +5,8 @@ import { join } from "node:path";
 import test from "node:test";
 
 import {
-  createClassifierReviewBootstrapClient
-} from "../scripts/browser/classifier-review-bootstrap-client.js";
-import {
-  createClassifierReviewRuntime
-} from "../scripts/browser/classifier-review-runtime.js";
+  createClassifierReviewEntry
+} from "../scripts/browser/classifier-review-entry.js";
 import {
   createClassifierReviewServerIntegration
 } from "../scripts/composition/classifier-review-server.js";
@@ -119,36 +116,34 @@ test("composes the complete private desktop review lifecycle without mounting it
       text: async () => JSON.stringify(response.data)
     };
   };
-  const client = createClassifierReviewBootstrapClient({
-    document: { getElementById: () => element },
-    fetch: transport,
-    now: () => CLOCK
-  });
   const lifecycleListeners = new Map();
-  const runtime = createClassifierReviewRuntime({
-    client,
-    lifecycleTarget: {
-      addEventListener: (name, listener) =>
-        lifecycleListeners.set(name, listener),
-      removeEventListener: (name, listener) => {
-        if (lifecycleListeners.get(name) === listener) {
-          lifecycleListeners.delete(name);
-        }
+  const lifecycleTarget = {
+    addEventListener: (name, listener) =>
+      lifecycleListeners.set(name, listener),
+    removeEventListener: (name, listener) => {
+      if (lifecycleListeners.get(name) === listener) {
+        lifecycleListeners.delete(name);
       }
     }
-  });
+  };
+  const entry = createClassifierReviewEntry();
 
-  const initialized = await runtime.initialize();
-  const pendingResult = await runtime.readReviewView();
+  const initialized = await entry.start({
+    document: { getElementById: () => element },
+    fetch: transport,
+    lifecycleTarget,
+    now: () => CLOCK
+  });
+  const pendingResult = await entry.readReviewView();
   const pendingView = pendingResult.view;
   const pending = pendingView.queues.pending[0];
-  const commandResult = await runtime.submitReview({
+  const commandResult = await entry.submitReview({
     reviewKey: pending.reviewKey,
     expectedStatus: pending.status,
     commandId: "123e4567-e89b-42d3-a456-426614174001",
     decision: "accept"
   });
-  const resolvedResult = await runtime.readReviewView();
+  const resolvedResult = await entry.readReviewView();
   const resolvedView = resolvedResult.view;
   lifecycleListeners.get("pagehide")();
 
@@ -156,8 +151,7 @@ test("composes the complete private desktop review lifecycle without mounting it
   assert.equal(element.removed, true);
   assert.equal(element.textContent, "");
   assert.equal(rendered.body.includes(TOKEN), false);
-  assert.equal(JSON.stringify(client).includes(TOKEN), false);
-  assert.equal(JSON.stringify(runtime).includes(TOKEN), false);
+  assert.equal(JSON.stringify(entry).includes(TOKEN), false);
   assert.equal(pendingResult.status, "ready");
   assert.equal(pendingView.summary.pending, 1);
   assert.equal(commandResult.status, "ready");
@@ -166,9 +160,9 @@ test("composes the complete private desktop review lifecycle without mounting it
   assert.equal(resolvedView.summary.pending, 0);
   assert.equal(resolvedView.summary.resolved, 1);
   assert.equal((await store.read()).reviews.length, 1);
-  assert.deepEqual(runtime.status(), { status: "cleared", code: null });
+  assert.deepEqual(entry.status(), { status: "cleared", code: null });
   assert.equal(
-    (await runtime.readReviewView()).code,
-    "runtime.session.unavailable"
+    (await entry.readReviewView()).code,
+    "entry.session.unavailable"
   );
 });

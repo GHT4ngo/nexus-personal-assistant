@@ -308,6 +308,21 @@ The synthetic full desktop flow now uses this runtime for initialization, pendin
 read, explicit accept, resolved-view read, and pagehide cleanup. The runtime remains
 unmounted and is not referenced by application or mobile assets.
 
+`classifier-review-entry.js` adds a module-scoped owner above the runtime. Importing the
+module is inert and creates no global property. Explicit `start(...)` constructs the
+client/runtime exactly once; concurrent and duplicate starts share that result. Trusted
+module imports receive only controlled start, view, command, status, and clear functions.
+The client and runtime objects remain closure-private.
+
+Start-before-use, clear-before-start, construction failure, initialization failure, and
+duplicate-start behavior all return stable outcomes. A clear during asynchronous bootstrap
+cannot restore the session when initialization later resolves. Runtime lifecycle teardown
+also prevents subsequent entrypoint reads or commands.
+
+The synthetic full desktop flow now starts through a fresh entrypoint factory rather than
+constructing the client or runtime directly. The module is still neither injected nor
+served by the HTTP application.
+
 The complete desktop path is covered by one synthetic test using the real renderer,
 client, redemption route, origin/token guard, review view, command service, and private
 store. It reads one pending suggestion, accepts it explicitly, observes one resolved item

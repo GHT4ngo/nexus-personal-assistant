@@ -189,6 +189,28 @@ test("page lifecycle and explicit clear destroy the session idempotently", async
   }
 });
 
+test("teardown during initialization cannot restore a cleared session", async () => {
+  let resolveInitialization;
+  const initialization = new Promise((resolve) => {
+    resolveInitialization = resolve;
+  });
+  const { runtime, lifecycle, calls } = createHarness({
+    initialize: async () => await initialization
+  });
+
+  const starting = runtime.initialize();
+  lifecycle.dispatch("pagehide");
+  resolveInitialization({ status: "ready", code: null });
+  const result = await starting;
+
+  assert.deepEqual(result, {
+    status: "rejected",
+    code: "runtime.bootstrap.unavailable"
+  });
+  assert.deepEqual(runtime.status(), { status: "cleared", code: null });
+  assert.equal(calls.filter((call) => call.clear).length, 1);
+});
+
 test("requires explicit private client and lifecycle adapters", () => {
   assert.throws(
     () => createClassifierReviewRuntime(),

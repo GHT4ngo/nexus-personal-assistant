@@ -1427,3 +1427,34 @@ placing the token, client, fetch capability, or runtime object on global state.
 
 Compose and test an unmounted module-scoped desktop entrypoint that constructs and starts
 the runtime once without exporting anything to `window` or the DOM. Do not serve it yet.
+
+## 2026-08-05 — Milestone 4 module-scoped desktop entrypoint
+
+### Outcome
+
+Added an inert module-scoped entrypoint that constructs the bootstrap client and private
+runtime once without adding any capability to `window`, global state, or the DOM.
+
+### Behavior and verification
+
+- Importing the module has no startup or global side effect.
+- Explicit start wires document, fetch, lifecycle, and clock adapters.
+- Concurrent and duplicate starts create exactly one client and one runtime.
+- Only controlled start, view, command, status, and clear functions are exposed.
+- Client and runtime instances remain inside closure state.
+- Reads and commands before start or after clear return stable unavailable outcomes.
+- Construction and initialization failures are sanitized and cannot retry the consumed
+  handoff.
+- Clear during an in-progress bootstrap cannot be undone by late initialization.
+- Six focused entrypoint tests cover one-time start, delegation, early clear, failures,
+  global isolation, and dependency validation.
+- The runtime suite adds a teardown-during-initialization race test.
+- The synthetic pending → accepted → resolved lifecycle now starts through the entrypoint.
+- Full regression and syntax checks pass: 214 tests, 0 failures.
+- HTTP module delivery, production mounting, `local-server.mjs`, static/mobile assets,
+  Android, Gmail, classifier execution, provider actions, learning, and UI remain unchanged.
+
+### Next slice
+
+Design and test dynamic delivery of a tiny activation module plus the isolated browser
+module graph from the unmounted strict HTTP app. Do not change static/mobile assets.

@@ -117,6 +117,11 @@ A separate browser runtime owns the client capability without placing it on glob
 It validates bounded privacy-safe views and explicit commands, reports stable status only,
 and clears the session on pagehide, beforeunload, or explicit teardown.
 
+A module-scoped entrypoint constructs that runtime once and exposes controlled functions
+only to trusted ES-module imports. Import alone has no side effect, duplicate starts do not
+create duplicate sessions, and teardown during bootstrap cannot be reversed by a late
+asynchronous completion.
+
 Origin enforcement distinguishes explicit cross-origin CORS from same-origin browser
 reads. An absent Origin is accepted only for a non-preflight request whose URL origin is
 allowlisted and whose protected fetch metadata says exactly `same-origin`; the private

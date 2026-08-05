@@ -145,6 +145,9 @@ export const createClassifierReviewRuntime = ({
     } catch {
       initialized = null;
     }
+    if (state === "cleared") {
+      return outcome("rejected", "runtime.bootstrap.unavailable");
+    }
     if (initialized?.status !== "ready") {
       state = "failed";
       lastCode = SAFE_BOOTSTRAP_CODES.has(initialized?.code)
