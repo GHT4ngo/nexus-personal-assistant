@@ -8,6 +8,9 @@ import {
   createClassifierReviewBootstrapClient
 } from "../scripts/browser/classifier-review-bootstrap-client.js";
 import {
+  createClassifierReviewRuntime
+} from "../scripts/browser/classifier-review-runtime.js";
+import {
   createClassifierReviewServerIntegration
 } from "../scripts/composition/classifier-review-server.js";
 import {
@@ -108,6 +111,11 @@ test("composes the complete private desktop review lifecycle without mounting it
     return {
       ok: response.status >= 200 && response.status < 300,
       status: response.status,
+      headers: {
+        get: (name) => name === "content-type"
+          ? "application/json; charset=utf-8"
+          : null
+      },
       text: async () => JSON.stringify(response.data)
     };
   };
@@ -116,43 +124,51 @@ test("composes the complete private desktop review lifecycle without mounting it
     fetch: transport,
     now: () => CLOCK
   });
-
-  const initialized = await client.initialize();
-  const pendingResponse = await client.reviewRequest("/api/classifier/reviews");
-  const pendingView = JSON.parse(await pendingResponse.text());
-  const pending = pendingView.queues.pending[0];
-  const commandResponse = await client.reviewRequest(
-    "/api/classifier/reviews/commands",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        reviewKey: pending.reviewKey,
-        expectedStatus: pending.status,
-        commandId: "123e4567-e89b-42d3-a456-426614174001",
-        decision: "accept"
-      })
+  const lifecycleListeners = new Map();
+  const runtime = createClassifierReviewRuntime({
+    client,
+    lifecycleTarget: {
+      addEventListener: (name, listener) =>
+        lifecycleListeners.set(name, listener),
+      removeEventListener: (name, listener) => {
+        if (lifecycleListeners.get(name) === listener) {
+          lifecycleListeners.delete(name);
+        }
+      }
     }
-  );
-  const resolvedResponse = await client.reviewRequest("/api/classifier/reviews");
-  const resolvedView = JSON.parse(await resolvedResponse.text());
-  client.clear();
+  });
+
+  const initialized = await runtime.initialize();
+  const pendingResult = await runtime.readReviewView();
+  const pendingView = pendingResult.view;
+  const pending = pendingView.queues.pending[0];
+  const commandResult = await runtime.submitReview({
+    reviewKey: pending.reviewKey,
+    expectedStatus: pending.status,
+    commandId: "123e4567-e89b-42d3-a456-426614174001",
+    decision: "accept"
+  });
+  const resolvedResult = await runtime.readReviewView();
+  const resolvedView = resolvedResult.view;
+  lifecycleListeners.get("pagehide")();
 
   assert.deepEqual(initialized, { status: "ready", code: null });
   assert.equal(element.removed, true);
   assert.equal(element.textContent, "");
   assert.equal(rendered.body.includes(TOKEN), false);
   assert.equal(JSON.stringify(client).includes(TOKEN), false);
-  assert.equal(pendingResponse.status, 200);
+  assert.equal(JSON.stringify(runtime).includes(TOKEN), false);
+  assert.equal(pendingResult.status, "ready");
   assert.equal(pendingView.summary.pending, 1);
-  assert.equal(commandResponse.status, 201);
-  assert.equal(resolvedResponse.status, 200);
+  assert.equal(commandResult.status, "ready");
+  assert.equal(commandResult.result.status, "accepted");
+  assert.equal(resolvedResult.status, "ready");
   assert.equal(resolvedView.summary.pending, 0);
   assert.equal(resolvedView.summary.resolved, 1);
   assert.equal((await store.read()).reviews.length, 1);
-  assert.equal(client.status(), "cleared");
-  await assert.rejects(
-    client.reviewRequest("/api/classifier/reviews"),
-    /session is not ready/
+  assert.deepEqual(runtime.status(), { status: "cleared", code: null });
+  assert.equal(
+    (await runtime.readReviewView()).code,
+    "runtime.session.unavailable"
   );
 });

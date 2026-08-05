@@ -1396,3 +1396,34 @@ composition without creating or binding a server.
 Design and test a private desktop browser-runtime owner that initializes the bootstrap
 client, exposes only sanitized status, retains request capability privately, and clears on
 page lifecycle events. Keep it unmounted.
+
+## 2026-08-05 — Milestone 4 private browser runtime owner
+
+### Outcome
+
+Added an unmounted browser runtime that owns the bootstrap client capability without
+placing the token, client, fetch capability, or runtime object on global state.
+
+### Behavior and verification
+
+- Explicit client and lifecycle adapters are required.
+- Initialization returns only stable ready/rejected status.
+- Privacy-safe review views are field-allowlisted and capped at 64 KiB.
+- Command results are shape-validated and capped at 8 KiB.
+- Commands require exact allowed fields before the private client is called.
+- Content type, declared length, actual UTF-8 length, JSON shape, and unexpected fields
+  fail safely.
+- Unknown bootstrap failures are converted to stable runtime codes.
+- Pagehide, beforeunload, and explicit clear destroy the client capability and detach
+  listeners idempotently.
+- Seven focused runtime tests cover readiness, view, command, bounds, malformed data,
+  failed initialization, lifecycle cleanup, and dependency validation.
+- The synthetic pending → accepted → resolved flow now uses the runtime and pagehide clear.
+- Full regression and syntax checks pass: 207 tests, 0 failures.
+- HTTP app/listening, `local-server.mjs`, static/mobile assets, Android, Gmail, classifier
+  execution, provider actions, learning, and UI remain unchanged.
+
+### Next slice
+
+Compose and test an unmounted module-scoped desktop entrypoint that constructs and starts
+the runtime once without exporting anything to `window` or the DOM. Do not serve it yet.

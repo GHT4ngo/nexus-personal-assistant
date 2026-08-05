@@ -113,6 +113,10 @@ can be explicitly cleared. A full synthetic desktop flow proves pending → acce
 resolved without exposing the token through the client surface. Static/mobile assets never
 contain either value.
 
+A separate browser runtime owns the client capability without placing it on global state.
+It validates bounded privacy-safe views and explicit commands, reports stable status only,
+and clears the session on pagehide, beforeunload, or explicit teardown.
+
 Origin enforcement distinguishes explicit cross-origin CORS from same-origin browser
 reads. An absent Origin is accepted only for a non-preflight request whose URL origin is
 allowlisted and whose protected fetch metadata says exactly `same-origin`; the private

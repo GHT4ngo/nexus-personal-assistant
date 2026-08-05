@@ -289,6 +289,25 @@ removed handoff, and errors return content-free stable codes.
 The client lives outside `src/`, is not imported by the application, and is not copied
 into the current Android bundle.
 
+`createClassifierReviewRuntime(...)` owns that client for a trusted browser module. It
+requires explicit client and lifecycle adapters and stores neither on global state. Its
+frozen surface exposes initialization, privacy-safe view reads, explicit review commands,
+sanitized status, and clear—never the token or unrestricted fetch.
+
+The runtime accepts only the exact review-view shape and an allowlist of privacy-safe item
+fields. View JSON is capped at 64 KiB; command-result JSON is capped at 8 KiB. Content type,
+declared length, actual UTF-8 length, JSON shape, and command fields are validated before
+data is returned or sent. Unknown fields and malformed or oversized responses fail with
+stable content-free codes.
+
+`pagehide` and `beforeunload` both clear the private client capability and detach lifecycle
+listeners. Explicit clear is idempotent. Failed initialization consumes and clears the
+client, sanitizes unknown failure codes, and cannot retry the removed handoff.
+
+The synthetic full desktop flow now uses this runtime for initialization, pending-view
+read, explicit accept, resolved-view read, and pagehide cleanup. The runtime remains
+unmounted and is not referenced by application or mobile assets.
+
 The complete desktop path is covered by one synthetic test using the real renderer,
 client, redemption route, origin/token guard, review view, command service, and private
 store. It reads one pending suggestion, accepts it explicitly, observes one resolved item
