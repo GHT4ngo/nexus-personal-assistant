@@ -130,6 +130,12 @@ The production graph is browser-smoke-tested through explicit external Playwrigh
 Chromium paths. The real browser confirms one-time bootstrap, pseudonymized review
 projection, and lifecycle teardown without mounting the app or adding a browser dependency.
 
+The unmounted renderer further narrows that projection before it reaches a DOM adapter.
+Review/subject keys remain private closure state and are replaced with render-local item
+IDs. Suggestions, abstentions, and prior decisions are separate labelled sections.
+Actions are explicit accessible labels; abstentions cannot be accepted and resolved items
+cannot be acted on. Adapter announcements contain only stable user-facing messages.
+
 Origin enforcement distinguishes explicit cross-origin CORS from same-origin browser
 reads. An absent Origin is accepted only for a non-preflight request whose URL origin is
 allowlisted and whose protected fetch metadata says exactly `same-origin`; the private

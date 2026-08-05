@@ -280,7 +280,8 @@ An unmounted server-integration factory now adds exact flag parsing, loopback-on
 origin-approved preflight, bounded streaming bodies, and runtime-only token generation.
 The isolated production browser graph now has an opt-in real Chromium smoke test covering
 automatic bootstrap, pseudonymized queue access, and lifecycle teardown without adding a
-browser dependency or mounting the app.
+browser dependency or mounting the app. An unmounted renderer now converts that safe view
+into accessible section/action models while retaining opaque command targets privately.
 
 Interface:
 
@@ -404,11 +405,11 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 with an unmounted, DOM-adapter-driven review renderer for the
-privacy-safe projection. Render pending and abstained suggestions separately from resolved
-decisions, show evidence availability and confidence without exposing raw message content,
-and define accessible accept, correct, dismiss, and not-enough-information controls.
-Keep command dispatch injected and test the renderer with synthetic DOM adapters before
-any HTTP app or product mounting. Do not change static/mobile assets, `local-server.mjs`,
-Android, classifier execution, Gmail, provider actions, or learning. Read
-[WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 with a concrete unmounted browser DOM adapter for the proven renderer.
+Use element creation and `textContent` only, labelled sections and controls, a live
+announcement region, delegated action handling, and an explicit correction input. Test
+hostile synthetic values to prove no HTML execution, keyboard-accessible native controls,
+replacement rather than accumulation, and listener cleanup. Do not add the adapter to the
+served module graph or mount it in static/mobile assets, `local-server.mjs`, Android,
+Gmail, classifier execution, provider actions, or learning. Read [WORKLOG.md](WORKLOG.md)
+for evidence.

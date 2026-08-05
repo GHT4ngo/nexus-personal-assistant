@@ -351,6 +351,19 @@ pseudonymized, dispatches `pagehide`, and proves the private entry session becom
 unavailable. The runner requires explicit module and browser executable paths; Playwright
 and Chromium are not application dependencies.
 
+`createClassifierReviewRenderer(...)` is the next unmounted browser boundary. It consumes
+only the controlled entrypoint view/command methods and an injected DOM adapter. Opaque
+review and subject keys stay in a private command-target map; the adapter receives only
+local presentation IDs, classifier type/value, formatted confidence, evidence presence,
+status, effective value, and accessible action labels.
+
+Pending suggestions expose accept, correct, dismiss, and not-enough-information actions.
+Abstained suggestions cannot be accepted, and resolved decisions expose no action controls.
+Correction input is trimmed and validated before submission. Every command receives an
+injected one-time ID and the private expected status. Successful commands refresh the view;
+stale, unavailable, exception, and invalid-action paths return stable renderer codes and
+sanitized announcements. The renderer creates no DOM directly and remains unmounted.
+
 The complete desktop path is covered by one synthetic test using the real renderer,
 client, redemption route, origin/token guard, review view, command service, and private
 store. It reads one pending suggestion, accepts it explicitly, observes one resolved item

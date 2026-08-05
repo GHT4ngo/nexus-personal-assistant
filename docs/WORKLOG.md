@@ -1520,3 +1520,37 @@ graph successfully in Chromium 140 against an ephemeral loopback HTTP app.
 
 Build an unmounted, DOM-adapter-driven review renderer over the privacy-safe projection.
 Define accessible synthetic controls and keep command dispatch injected.
+
+## 2026-08-05 — Milestone 4 unmounted review renderer
+
+### Outcome
+
+Added an adapter-driven review renderer over the privacy-safe projection without creating
+or mounting product DOM.
+
+### Behavior and verification
+
+- Pending, abstained, and resolved records render as separate labelled sections.
+- The model states that suggestions remain separate from user decisions and never become
+  automatic actions.
+- Confidence and evidence availability are visible without exposing raw evidence.
+- Opaque review and subject keys remain in private closure state.
+- DOM adapters receive only render-local item IDs and approved display fields.
+- Pending items expose accessible accept, correct, dismiss, and
+  not-enough-information labels.
+- Abstained items cannot be accepted; resolved items have no actions.
+- Corrections require a non-empty string or boolean and strings are trimmed.
+- Commands include a generated ID and private expected-status guard.
+- Successful decisions refresh the safe view.
+- Invalid, stale, unavailable, and exception paths fail with stable codes and sanitized
+  announcements.
+- Clear drops command targets and removes rendered state idempotently.
+- Eight focused renderer tests pass.
+- The renderer remains outside the four-module served graph and is not product-mounted.
+- Static/mobile assets, `local-server.mjs`, Android, Gmail, classifier execution, provider
+  actions, and learning remain unchanged.
+
+### Next slice
+
+Build and test an unmounted concrete browser DOM adapter using safe element creation,
+native accessible controls, delegated events, and listener cleanup.
