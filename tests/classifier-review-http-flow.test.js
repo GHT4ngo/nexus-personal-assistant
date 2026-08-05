@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -9,6 +9,7 @@ import {
   createClassifierReviewBootstrapClient
 } from "../scripts/browser/classifier-review-bootstrap-client.js";
 import {
+  CLASSIFIER_REVIEW_BROWSER_MODULE_PATHS,
   createClassifierReviewHttpApp
 } from "../scripts/composition/classifier-review-http-app.js";
 import { createClassifierStore } from "../scripts/storage/classifier-store.js";
@@ -91,6 +92,24 @@ test("serves the private desktop lifecycle through real loopback HTTP", async (t
   const address = server.address();
   assert.equal(typeof address, "object");
   baseUrl = `http://127.0.0.1:${address.port}`;
+  const browserModuleSources = {
+    activation: await readFile(new URL(
+      "../scripts/browser/classifier-review-activate.js",
+      import.meta.url
+    ), "utf8"),
+    client: await readFile(new URL(
+      "../scripts/browser/classifier-review-bootstrap-client.js",
+      import.meta.url
+    ), "utf8"),
+    entry: await readFile(new URL(
+      "../scripts/browser/classifier-review-entry.js",
+      import.meta.url
+    ), "utf8"),
+    runtime: await readFile(new URL(
+      "../scripts/browser/classifier-review-runtime.js",
+      import.meta.url
+    ), "utf8")
+  };
   app = createClassifierReviewHttpApp({
     environment: {
       NEXUS_CLASSIFIER_REVIEWS: "1",
@@ -101,6 +120,7 @@ test("serves the private desktop lifecycle through real loopback HTTP", async (t
     serverHost: "127.0.0.1",
     documentOrigin: baseUrl,
     documentHtml: HTML,
+    browserModuleSources,
     generateBootstrapCode: () => CODE,
     bootstrapNow: () => CLOCK,
     now: () => new Date(CLOCK)
@@ -161,6 +181,10 @@ test("serves the private desktop lifecycle through real loopback HTTP", async (t
   assert.deepEqual(initialized, { status: "ready", code: null });
   assert.equal(element.removed, true);
   assert.equal(documentBody.includes(TOKEN), false);
+  assert.match(
+    documentBody,
+    /<script type="module" src="\/__nexus\/classifier-review\/classifier-review-activate\.js"><\/script>/
+  );
   assert.equal(documentResponse.headers.get("cache-control"), "no-store, max-age=0");
   assert.equal(documentResponse.headers.get("referrer-policy"), "no-referrer");
   assert.equal(responses[0].path, "/api/classifier/reviews/bootstrap");
@@ -179,6 +203,20 @@ test("serves the private desktop lifecycle through real loopback HTTP", async (t
     client.reviewRequest("/api/classifier/reviews"),
     /session is not ready/
   );
+
+  for (const [name, path] of Object.entries(
+    CLASSIFIER_REVIEW_BROWSER_MODULE_PATHS
+  )) {
+    const moduleResponse = await fetch(`${baseUrl}${path}`);
+    assert.equal(moduleResponse.status, 200);
+    assert.equal(
+      moduleResponse.headers.get("content-type"),
+      "text/javascript; charset=utf-8"
+    );
+    assert.equal(moduleResponse.headers.get("cache-control"), "no-store");
+    assert.equal(moduleResponse.headers.get("x-content-type-options"), "nosniff");
+    assert.equal(await moduleResponse.text(), browserModuleSources[name]);
+  }
 
   const missingToken = await fetch(`${baseUrl}/api/classifier/reviews`, {
     headers: { "Sec-Fetch-Site": "same-origin" }

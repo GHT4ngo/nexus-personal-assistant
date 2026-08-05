@@ -122,6 +122,10 @@ only to trusted ES-module imports. Import alone has no side effect, duplicate st
 create duplicate sessions, and teardown during bootstrap cannot be reversed by a late
 asynchronous completion.
 
+The unmounted HTTP app can optionally inject a fixed activation-module URL and serve an
+exact four-module source graph from an immutable in-memory snapshot. Modules are
+same-origin, no-store, nosniff, and absent unless explicitly configured.
+
 Origin enforcement distinguishes explicit cross-origin CORS from same-origin browser
 reads. An absent Origin is accepted only for a non-preflight request whose URL origin is
 allowlisted and whose protected fetch metadata says exactly `same-origin`; the private

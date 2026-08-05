@@ -1458,3 +1458,36 @@ runtime once without adding any capability to `window`, global state, or the DOM
 
 Design and test dynamic delivery of a tiny activation module plus the isolated browser
 module graph from the unmounted strict HTTP app. Do not change static/mobile assets.
+
+## 2026-08-05 — Milestone 4 isolated browser module delivery
+
+### Outcome
+
+Added optional explicit delivery of the isolated browser module graph through the
+unmounted strict HTTP app.
+
+### Behavior and verification
+
+- A tiny activation module imports and starts the entrypoint, exports nothing, and creates
+  no global capability.
+- Exactly four non-empty module sources are required when delivery is enabled.
+- Missing, extra, empty, or configured-token-bearing source graphs fail construction.
+- Sources are copied into an immutable in-memory snapshot.
+- Dynamic HTML injects only one fixed same-origin activation-module URL.
+- Exact module routes require document origin, GET, and no query.
+- Module responses are JavaScript typed, no-store, no-referrer, and nosniff.
+- Wrong origin, query, and method return stable safe failures; unknown modules pass through.
+- Without explicit sources, module injection and delivery remain disabled.
+- The real-loopback test supplies the actual production sources and verifies every served
+  response byte-for-byte plus security headers.
+- An activation import test confirms no exports and no global capability.
+- Full regression and syntax checks pass: 218 tests, 0 failures.
+- The graph is not yet browser-executed or production-mounted. `local-server.mjs`,
+  static/mobile assets, Android, Gmail, classifier execution, provider actions, learning,
+  and UI remain unchanged.
+
+### Next slice
+
+Inspect locally available headless Chromium tooling and, without adding a dependency,
+execute the dynamic module graph against the ephemeral loopback app if possible. Verify
+automatic bootstrap, controlled queue access, and teardown.

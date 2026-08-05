@@ -7,6 +7,14 @@ import {
 
 const DOCUMENT_PATH = "/";
 const disabledHandler = async () => false;
+const MODULE_ROOT = "/__nexus/classifier-review/";
+const MODULE_PATHS = Object.freeze({
+  activation: `${MODULE_ROOT}classifier-review-activate.js`,
+  client: `${MODULE_ROOT}classifier-review-bootstrap-client.js`,
+  entry: `${MODULE_ROOT}classifier-review-entry.js`,
+  runtime: `${MODULE_ROOT}classifier-review-runtime.js`
+});
+const MODULE_NAMES = Object.freeze(Object.keys(MODULE_PATHS).sort());
 
 const normalizeOrigin = (value) => {
   try {
@@ -23,6 +31,10 @@ const secureHeaders = Object.freeze({
   "Cache-Control": "no-store",
   "Referrer-Policy": "no-referrer",
   "X-Content-Type-Options": "nosniff"
+});
+const moduleHeaders = Object.freeze({
+  ...secureHeaders,
+  "Content-Type": "text/javascript; charset=utf-8"
 });
 
 const sendJson = (response, status, data) => {
@@ -65,6 +77,7 @@ export const createClassifierReviewHttpApp = ({
   serverHost,
   documentOrigin,
   documentHtml,
+  browserModuleSources,
   readRequestBody,
   generateToken,
   generateBootstrapCode,
@@ -85,6 +98,30 @@ export const createClassifierReviewHttpApp = ({
   if (typeof documentHtml !== "string" || documentHtml.length === 0) {
     throw new TypeError("Review HTTP app requires a desktop HTML document.");
   }
+  let modules = null;
+  if (browserModuleSources !== undefined) {
+    if (!browserModuleSources
+      || Array.isArray(browserModuleSources)
+      || typeof browserModuleSources !== "object"
+      || Object.keys(browserModuleSources).sort().join(",")
+        !== MODULE_NAMES.join(",")
+      || MODULE_NAMES.some((name) =>
+        typeof browserModuleSources[name] !== "string"
+        || browserModuleSources[name].length === 0)) {
+      throw new TypeError("Review HTTP app requires the exact browser module graph.");
+    }
+    const configuredToken = environment.NEXUS_CLASSIFIER_REVIEW_TOKEN;
+    if (typeof configuredToken === "string"
+      && configuredToken
+      && MODULE_NAMES.some((name) =>
+        browserModuleSources[name].includes(configuredToken))) {
+      throw new TypeError("Review HTTP app browser modules contain private access data.");
+    }
+    modules = Object.freeze(Object.fromEntries(MODULE_NAMES.map((name) => [
+      MODULE_PATHS[name],
+      browserModuleSources[name]
+    ])));
+  }
 
   const integration = createClassifierReviewServerIntegration({
     environment,
@@ -100,11 +137,29 @@ export const createClassifierReviewHttpApp = ({
     now
   });
   const renderer = createClassifierReviewDesktopHandoff({
-    trustedBootstrap: integration.trustedBootstrap
+    trustedBootstrap: integration.trustedBootstrap,
+    activationPath: modules ? MODULE_PATHS.activation : null
   });
 
   const handleRequest = async (request, url, response) => {
     if (await integration.handleRequest(request, url, response)) {
+      return true;
+    }
+    if (url.pathname.startsWith(MODULE_ROOT)) {
+      if (!modules || !Object.hasOwn(modules, url.pathname)) {
+        return false;
+      }
+      if (url.origin !== normalizedDocumentOrigin) {
+        return reject(response, 403, "module.origin.denied");
+      }
+      if (url.search) {
+        return reject(response, 400, "module.query.unsupported");
+      }
+      if (request.method !== "GET") {
+        return reject(response, 405, "module.method.not-allowed");
+      }
+      response.writeHead(200, moduleHeaders);
+      response.end(modules[url.pathname]);
       return true;
     }
     if (url.pathname !== DOCUMENT_PATH) {
@@ -142,3 +197,5 @@ export const createClassifierReviewHttpApp = ({
     handleRequest
   });
 };
+
+export const CLASSIFIER_REVIEW_BROWSER_MODULE_PATHS = MODULE_PATHS;

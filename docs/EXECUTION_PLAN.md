@@ -401,11 +401,11 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by designing dynamic module delivery for the unmounted review HTTP
-application. The module-scoped entrypoint is complete and used by the synthetic flow, but
-the served document neither loads nor starts it. Next add a tiny activation module that
-starts the entrypoint without global state, inject only its fixed module URL into dynamic
-HTML, and serve the isolated browser modules with immutable source and no-store/nosniff
-headers. Keep the HTTP app unmounted and do not alter static/mobile assets,
-`local-server.mjs`, Android, classifier execution, Gmail, provider actions, review UI, or
-learning. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 with an actual headless-browser smoke test against the ephemeral
+loopback HTTP app. Dynamic module injection and delivery are complete, but current tests
+retrieve rather than execute the graph. First inspect available local Chromium/browser
+tooling without adding a dependency. If available, verify page load automatically redeems
+the handoff, a trusted module import reports ready, the privacy-safe queue can be read, and
+page teardown clears the session. Keep the app ephemeral and unmounted. Do not change
+static/mobile assets, `local-server.mjs`, Android, classifier execution, Gmail, provider
+actions, review UI, or learning. Read [WORKLOG.md](WORKLOG.md) for evidence.

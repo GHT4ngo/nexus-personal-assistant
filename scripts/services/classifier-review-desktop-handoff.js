@@ -27,13 +27,19 @@ const reject = (code) => Object.freeze({
 
 export const createClassifierReviewDesktopHandoff = ({
   trustedBootstrap,
-  marker = DEFAULT_MARKER
+  marker = DEFAULT_MARKER,
+  activationPath = null
 } = {}) => {
   if (!trustedBootstrap || typeof trustedBootstrap.issue !== "function") {
     throw new TypeError("Desktop handoff requires trusted bootstrap issuance.");
   }
   if (typeof marker !== "string" || marker.length === 0) {
     throw new TypeError("Desktop handoff requires an explicit HTML marker.");
+  }
+  if (activationPath !== null
+    && (typeof activationPath !== "string"
+      || !/^\/[a-z0-9/_-]+\.js$/.test(activationPath))) {
+    throw new TypeError("Desktop handoff requires a safe activation path.");
   }
 
   return Object.freeze({
@@ -59,7 +65,11 @@ export const createClassifierReviewDesktopHandoff = ({
         bootstrapPath: BOOTSTRAP_PATH,
         expiresAt: issued.expiresAt
       });
-      const handoff = `<script type="application/json" id="${HANDOFF_ID}">${payload}</script>`;
+      const activation = activationPath
+        ? `<script type="module" src="${activationPath}"></script>`
+        : "";
+      const handoff =
+        `<script type="application/json" id="${HANDOFF_ID}">${payload}</script>${activation}`;
       return Object.freeze({
         status: "ready",
         code: null,

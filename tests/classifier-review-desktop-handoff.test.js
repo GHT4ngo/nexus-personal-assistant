@@ -62,6 +62,23 @@ test("renders only an ephemeral bootstrap code into a no-store desktop response"
   assert.equal(Object.isFrozen(rendered.headers), true);
 });
 
+test("optionally injects one fixed activation module without changing the handoff", () => {
+  const integration = createIntegration();
+  const renderer = createClassifierReviewDesktopHandoff({
+    trustedBootstrap: integration.trustedBootstrap,
+    activationPath:
+      "/__nexus/classifier-review/classifier-review-activate.js"
+  });
+  const rendered = renderer.render({ html: HTML, origin: ORIGIN });
+
+  assert.match(
+    rendered.body,
+    /<script type="module" src="\/__nexus\/classifier-review\/classifier-review-activate\.js"><\/script><\/head>/
+  );
+  assert.equal(readPayload(rendered.body).bootstrapCode, CODE_ONE);
+  assert.equal(rendered.body.includes(TOKEN), false);
+});
+
 test("reload replaces the first handoff and only the newest code redeems", async () => {
   const replies = [];
   const integrationWithReplies = createClassifierReviewServerIntegration({
@@ -159,5 +176,12 @@ test("requires explicit trusted dependencies", () => {
       marker: ""
     }),
     /explicit HTML marker/
+  );
+  assert.throws(
+    () => createClassifierReviewDesktopHandoff({
+      trustedBootstrap: { issue: () => {} },
+      activationPath: "https://example.test/collect.js"
+    }),
+    /safe activation path/
   );
 });

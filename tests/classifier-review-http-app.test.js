@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  CLASSIFIER_REVIEW_BROWSER_MODULE_PATHS,
   createClassifierReviewHttpApp
 } from "../scripts/composition/classifier-review-http-app.js";
 
@@ -14,6 +15,12 @@ const environment = {
   NEXUS_CLASSIFIER_REVIEW_PATH: "/tmp/nexus-review-http-app/classifier.json",
   NEXUS_CLASSIFIER_REVIEW_ORIGINS: ORIGIN,
   NEXUS_CLASSIFIER_REVIEW_TOKEN: TOKEN
+};
+const browserModuleSources = {
+  activation: "import './classifier-review-entry.js';",
+  client: "export const client = true;",
+  entry: "export const entry = true;",
+  runtime: "export const runtime = true;"
 };
 
 const createResponse = () => ({
@@ -70,6 +77,95 @@ test("enabled HTTP app fails closed on document and binding configuration", () =
     () => createApp({ serverHost: "0.0.0.0" }),
     /loopback binding/
   );
+  for (const graph of [
+    null,
+    {},
+    { ...browserModuleSources, extra: "unexpected" },
+    { ...browserModuleSources, runtime: "" }
+  ]) {
+    assert.throws(
+      () => createApp({ browserModuleSources: graph }),
+      /exact browser module graph/
+    );
+  }
+  assert.throws(
+    () => createApp({
+      browserModuleSources: {
+        ...browserModuleSources,
+        entry: `export const leaked = "${TOKEN}";`
+      }
+    }),
+    /private access data/
+  );
+});
+
+test("injects and serves an explicit in-memory browser module graph", async () => {
+  const suppliedSources = { ...browserModuleSources };
+  const app = createApp({ browserModuleSources: suppliedSources });
+  suppliedSources.entry = "export const mutatedAfterCreation = true;";
+  const documentResponse = createResponse();
+  await app.handleRequest(
+    { method: "GET", headers: {} },
+    new URL(`${ORIGIN}/`),
+    documentResponse
+  );
+
+  assert.match(
+    documentResponse.body,
+    /<script type="module" src="\/__nexus\/classifier-review\/classifier-review-activate\.js"><\/script>/
+  );
+  for (const [name, path] of Object.entries(
+    CLASSIFIER_REVIEW_BROWSER_MODULE_PATHS
+  )) {
+    const response = createResponse();
+    assert.equal(await app.handleRequest(
+      { method: "GET", headers: {} },
+      new URL(`${ORIGIN}${path}`),
+      response
+    ), true);
+    assert.equal(response.status, 200);
+    assert.equal(response.body, browserModuleSources[name]);
+    assert.equal(
+      response.headers["content-type"],
+      "text/javascript; charset=utf-8"
+    );
+    assert.equal(response.headers["cache-control"], "no-store");
+    assert.equal(response.headers["x-content-type-options"], "nosniff");
+  }
+});
+
+test("module delivery rejects wrong origin, query, and method", async () => {
+  const app = createApp({ browserModuleSources });
+  const path = CLASSIFIER_REVIEW_BROWSER_MODULE_PATHS.activation;
+  const cases = [
+    {
+      request: { method: "GET", headers: {} },
+      url: new URL(`http://localhost:8050${path}`),
+      status: 403
+    },
+    {
+      request: { method: "GET", headers: {} },
+      url: new URL(`${ORIGIN}${path}?debug=1`),
+      status: 400
+    },
+    {
+      request: { method: "POST", headers: {} },
+      url: new URL(`${ORIGIN}${path}`),
+      status: 405
+    }
+  ];
+  for (const item of cases) {
+    const response = createResponse();
+    await app.handleRequest(item.request, item.url, response);
+    assert.equal(response.status, item.status);
+    assert.equal(response.headers["cache-control"], "no-store");
+  }
+  const unknown = createResponse();
+  assert.equal(await app.handleRequest(
+    { method: "GET", headers: {} },
+    new URL(`${ORIGIN}/__nexus/classifier-review/unknown.js`),
+    unknown
+  ), false);
 });
 
 test("serves only the exact dynamic document with secure headers", async () => {

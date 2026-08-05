@@ -323,6 +323,27 @@ The synthetic full desktop flow now starts through a fresh entrypoint factory ra
 constructing the client or runtime directly. The module is still neither injected nor
 served by the HTTP application.
 
+Dynamic module delivery is now an explicit optional HTTP-app configuration. The caller
+must provide exactly four non-empty sources: activation, bootstrap client, entrypoint, and
+runtime. Extra/missing modules, empty sources, or a configured review token embedded in a
+source fail construction. Sources are copied into an immutable in-memory route snapshot,
+so later caller mutation cannot change served code.
+
+When that graph is configured, the dynamic handoff inserts one fixed same-origin module
+URL after the inert bootstrap JSON. The tiny activation module imports the entrypoint and
+starts it; it exports nothing and creates no global capability. The remaining relative
+imports resolve within the fixed isolated module directory.
+
+Only exact allowlisted module paths are served. They require the document origin, GET, and
+no query string, and return JavaScript content type with no-store, no-referrer, and nosniff
+headers. Wrong origin, query, or method returns stable safe JSON; unknown paths pass
+through. Without explicit sources, no activation tag is injected and no module route is
+handled.
+
+The real loopback HTTP test loads the production source files into this explicit graph,
+verifies the injected activation URL, retrieves every byte-identical module, and checks
+security headers. It does not yet execute the graph in a real browser.
+
 The complete desktop path is covered by one synthetic test using the real renderer,
 client, redemption route, origin/token guard, review view, command service, and private
 store. It reads one pending suggestion, accepts it explicitly, observes one resolved item
