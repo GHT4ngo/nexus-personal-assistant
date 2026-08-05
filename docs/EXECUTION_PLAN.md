@@ -278,6 +278,9 @@ absolute private path. Enabled composition now requires exact allowed origins an
 constant-time checked review-session token before any read or command reaches storage.
 An unmounted server-integration factory now adds exact flag parsing, loopback-only binding,
 origin-approved preflight, bounded streaming bodies, and runtime-only token generation.
+The isolated production browser graph now has an opt-in real Chromium smoke test covering
+automatic bootstrap, pseudonymized queue access, and lifecycle teardown without adding a
+browser dependency or mounting the app.
 
 Interface:
 
@@ -401,11 +404,11 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 with an actual headless-browser smoke test against the ephemeral
-loopback HTTP app. Dynamic module injection and delivery are complete, but current tests
-retrieve rather than execute the graph. First inspect available local Chromium/browser
-tooling without adding a dependency. If available, verify page load automatically redeems
-the handoff, a trusted module import reports ready, the privacy-safe queue can be read, and
-page teardown clears the session. Keep the app ephemeral and unmounted. Do not change
-static/mobile assets, `local-server.mjs`, Android, classifier execution, Gmail, provider
-actions, review UI, or learning. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 with an unmounted, DOM-adapter-driven review renderer for the
+privacy-safe projection. Render pending and abstained suggestions separately from resolved
+decisions, show evidence availability and confidence without exposing raw message content,
+and define accessible accept, correct, dismiss, and not-enough-information controls.
+Keep command dispatch injected and test the renderer with synthetic DOM adapters before
+any HTTP app or product mounting. Do not change static/mobile assets, `local-server.mjs`,
+Android, classifier execution, Gmail, provider actions, or learning. Read
+[WORKLOG.md](WORKLOG.md) for evidence.

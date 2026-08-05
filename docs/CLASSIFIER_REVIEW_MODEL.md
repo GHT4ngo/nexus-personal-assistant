@@ -126,6 +126,10 @@ The unmounted HTTP app can optionally inject a fixed activation-module URL and s
 exact four-module source graph from an immutable in-memory snapshot. Modules are
 same-origin, no-store, nosniff, and absent unless explicitly configured.
 
+The production graph is browser-smoke-tested through explicit external Playwright and
+Chromium paths. The real browser confirms one-time bootstrap, pseudonymized review
+projection, and lifecycle teardown without mounting the app or adding a browser dependency.
+
 Origin enforcement distinguishes explicit cross-origin CORS from same-origin browser
 reads. An absent Origin is accepted only for a non-preflight request whose URL origin is
 allowlisted and whose protected fetch metadata says exactly `same-origin`; the private

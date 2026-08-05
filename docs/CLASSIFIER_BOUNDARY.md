@@ -342,7 +342,14 @@ handled.
 
 The real loopback HTTP test loads the production source files into this explicit graph,
 verifies the injected activation URL, retrieves every byte-identical module, and checks
-security headers. It does not yet execute the graph in a real browser.
+security headers.
+
+An opt-in browser smoke runner also executes that exact graph through a temporary
+Playwright/Chromium installation. It starts the real activation module, redeems the
+one-time handoff, reads the privacy-safe projected queue, confirms subject identity remains
+pseudonymized, dispatches `pagehide`, and proves the private entry session becomes
+unavailable. The runner requires explicit module and browser executable paths; Playwright
+and Chromium are not application dependencies.
 
 The complete desktop path is covered by one synthetic test using the real renderer,
 client, redemption route, origin/token guard, review view, command service, and private

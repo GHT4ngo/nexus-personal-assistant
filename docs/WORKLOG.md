@@ -1491,3 +1491,32 @@ unmounted strict HTTP app.
 Inspect locally available headless Chromium tooling and, without adding a dependency,
 execute the dynamic module graph against the ephemeral loopback app if possible. Verify
 automatic bootstrap, controlled queue access, and teardown.
+
+## 2026-08-05 — Milestone 4 real-browser lifecycle proof
+
+### Outcome
+
+Added a repeatable opt-in browser smoke runner and executed the isolated production review
+graph successfully in Chromium 140 against an ephemeral loopback HTTP app.
+
+### Behavior and verification
+
+- Playwright and Chromium are supplied through explicit environment paths and are not
+  application dependencies.
+- The smoke run uses only a synthetic suggestion, temporary private store, temporary
+  browser state, and an operating-system-assigned loopback port.
+- The document's real activation module automatically redeems its one-time handoff.
+- The module-scoped entrypoint reports ready without placing its capability on global state.
+- A real browser read returns one privacy-safe pending suggestion.
+- The subject key is a 64-character pseudonymized hash and never the raw Gmail identifier.
+- Raw title content is absent from the projected item.
+- Dispatching `pagehide` clears the entry session.
+- Reads after teardown return the stable `entry.session.unavailable` outcome.
+- The temporary browser smoke command passes.
+- Production mounting, `local-server.mjs`, static/mobile assets, Android, Gmail,
+  classifier execution, provider actions, learning, and UI remain unchanged.
+
+### Next slice
+
+Build an unmounted, DOM-adapter-driven review renderer over the privacy-safe projection.
+Define accessible synthetic controls and keep command dispatch injected.

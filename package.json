@@ -21,6 +21,7 @@
     "evaluate:report": "node scripts/evaluate.mjs --output evaluation/reports/weak-baseline-v1.json",
     "evaluate:dates": "node scripts/evaluate.mjs --dataset v2 --classifier deterministic-dates --output evaluation/reports/deterministic-dates-v2-on-v2.json",
     "evaluate:core:v2": "node scripts/evaluate.mjs --dataset v2 --classifier deterministic-core --output evaluation/reports/deterministic-core-v4-on-v2.json",
+    "smoke:review-browser": "node scripts/smoke/classifier-review-browser.mjs",
     "mobile:prepare": "node scripts/prepare-mobile.mjs",
     "mobile:add:android": "npm run mobile:prepare && npx cap add android",
     "mobile:sync": "npm run mobile:prepare && npx cap sync android",
