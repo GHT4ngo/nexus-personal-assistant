@@ -157,6 +157,10 @@ injects a separate capability-free activation module, snapshots every source imm
 and preserves the same-origin/no-store/nosniff route contract. Default and runtime-only
 documents do not activate the UI.
 
+The real Chromium proof now starts solely from that injected UI activation module. No
+smoke-only module route or manual UI construction remains. Safe rendering, one explicit
+decision, resolved refresh, and lifecycle teardown all pass through the strict graph.
+
 Origin enforcement distinguishes explicit cross-origin CORS from same-origin browser
 reads. An absent Origin is accepted only for a non-preflight request whose URL origin is
 allowlisted and whose protected fetch metadata says exactly `same-origin`; the private

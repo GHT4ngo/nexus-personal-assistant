@@ -418,6 +418,15 @@ GET-only, query-free, no-store, no-referrer, nosniff routes. Configured token li
 rejected in either source graph. The real loopback HTTP integration supplies all eight
 actual production files and verifies byte-identical responses and headers.
 
+The opt-in Chromium smoke runner now uses this strict UI graph directly. The harness no
+longer owns UI routes and no longer imports or constructs the UI manually. It supplies the
+eight source snapshots to `createClassifierReviewHttpApp(...)`, loads `/`, and waits for
+the injected UI activation module to populate the fixed root automatically.
+
+The same hostile-text, native-control, real Accept-command, pending-to-resolved refresh,
+append-only storage, and pagehide teardown assertions pass through strict delivery. This
+completes the browser proof while the app remains unmounted from `local-server.mjs`.
+
 The complete desktop path is covered by one synthetic test using the real renderer,
 client, redemption route, origin/token guard, review view, command service, and private
 store. It reads one pending suggestion, accepts it explicitly, observes one resolved item

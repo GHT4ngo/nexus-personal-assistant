@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import {
+  CLASSIFIER_REVIEW_UI_ROOT_ID,
   createClassifierReviewHttpApp
 } from "../composition/classifier-review-http-app.js";
 import { createClassifierStore } from "../storage/classifier-store.js";
@@ -17,14 +18,8 @@ const HOSTILE_VALUE = "<img src=x onerror=globalThis.compromised=true>";
 const HTML = `<!doctype html>
 <html>
   <head><title>Nexus</title></head>
-  <body><main id="classifier-review-root"></main></body>
+  <body><main id="${CLASSIFIER_REVIEW_UI_ROOT_ID}"></main></body>
 </html>`;
-const UI_MODULE_ROOT = "/__nexus/classifier-review/";
-const UI_MODULE_FILES = Object.freeze([
-  "classifier-review-dom.js",
-  "classifier-review-renderer.js",
-  "classifier-review-ui.js"
-]);
 const playwrightModule = process.env.NEXUS_PLAYWRIGHT_MODULE;
 const chromiumExecutable = process.env.NEXUS_CHROMIUM_EXECUTABLE;
 
@@ -65,12 +60,24 @@ const readBrowserModuleSources = async () => ({
   ), "utf8")
 });
 
-const readUiModuleSources = async () => new Map(await Promise.all(
-  UI_MODULE_FILES.map(async (fileName) => [
-    `${UI_MODULE_ROOT}${fileName}`,
-    await readFile(new URL(`../browser/${fileName}`, import.meta.url), "utf8")
-  ])
-));
+const readUiModuleSources = async () => ({
+  activation: await readFile(new URL(
+    "../browser/classifier-review-ui-activate.js",
+    import.meta.url
+  ), "utf8"),
+  dom: await readFile(new URL(
+    "../browser/classifier-review-dom.js",
+    import.meta.url
+  ), "utf8"),
+  renderer: await readFile(new URL(
+    "../browser/classifier-review-renderer.js",
+    import.meta.url
+  ), "utf8"),
+  ui: await readFile(new URL(
+    "../browser/classifier-review-ui.js",
+    import.meta.url
+  ), "utf8")
+});
 
 const main = async () => {
   const { chromium } = await import(pathToFileURL(playwrightModule).href);
@@ -104,18 +111,6 @@ const main = async () => {
       if (await app.handleRequest(request, url, response)) {
         return;
       }
-      if (request.method === "GET"
-        && !url.search
-        && uiModuleSources.has(url.pathname)) {
-        response.writeHead(200, {
-          "Cache-Control": "no-store",
-          "Content-Type": "text/javascript; charset=utf-8",
-          "Referrer-Policy": "no-referrer",
-          "X-Content-Type-Options": "nosniff"
-        });
-        response.end(uiModuleSources.get(url.pathname));
-        return;
-      }
       response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
       response.end("Not found");
     } catch {
@@ -140,6 +135,7 @@ const main = async () => {
       documentOrigin: baseUrl,
       documentHtml: HTML,
       browserModuleSources: await readBrowserModuleSources(),
+      browserUiModuleSources: uiModuleSources,
       generateBootstrapCode: () => CODE,
       bootstrapNow: () => now,
       now: () => new Date(now)
@@ -152,19 +148,8 @@ const main = async () => {
     const context = await browser.newContext();
     const page = await context.newPage();
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
-    const started = await page.evaluate(async () => {
-      const { createClassifierReviewUi } = await import(
-        "/__nexus/classifier-review/classifier-review-ui.js"
-      );
-      const ui = createClassifierReviewUi({
-        document,
-        root: document.getElementById("classifier-review-root")
-      });
-      return await ui.start();
-    });
-
-    assert.deepEqual(started, { status: "ready", code: null });
-    const root = page.locator("#classifier-review-root");
+    const root = page.locator(`#${CLASSIFIER_REVIEW_UI_ROOT_ID}`);
+    await root.getByRole("heading", { name: "Classifier review" }).waitFor();
     assert.equal(await root.locator("h1").textContent(), "Classifier review");
     assert.equal(await root.locator("form").count(), 1);
     assert.equal(await root.locator("button[type=submit]").count(), 4);
@@ -188,7 +173,9 @@ const main = async () => {
         "/__nexus/classifier-review/classifier-review-entry.js"
       );
       return {
-        childCount: document.getElementById("classifier-review-root").childElementCount,
+        childCount: document.getElementById(
+          "nexus-classifier-review-root"
+        ).childElementCount,
         entryStatus: entry.classifierReviewEntryStatus(),
         readAfterClear: await entry.readClassifierReviewView()
       };

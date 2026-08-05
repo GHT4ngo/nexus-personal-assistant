@@ -1682,3 +1682,31 @@ without changing default or runtime-only delivery.
 
 Run the real Chromium UI proof through strict automatic UI activation instead of temporary
 harness UI routes and manual composition startup.
+
+## 2026-08-05 — Milestone 4 strict automatic UI browser proof
+
+### Outcome
+
+Moved the opt-in Chromium UI smoke proof onto the strict optional UI graph and automatic
+fixed-root activation.
+
+### Behavior and verification
+
+- The smoke server owns no custom UI module routes.
+- The smoke page does not import or construct the UI manually.
+- All eight actual production sources are supplied to the strict HTTP app.
+- The injected UI activation module finds the fixed root and starts automatically.
+- Hostile image/onerror text remains inert and creates no element or global effect.
+- Native forms, labelled correction input, and submit buttons render automatically.
+- Clicking Accept appends one private review and refreshes pending to resolved.
+- Pagehide empties the root and clears the private entry session.
+- Reads after teardown remain unavailable.
+- The strict automatic-activation Chromium smoke command passes.
+- Full regression remains green: 249 tests, 0 failures.
+- The private UI remains unmounted from `local-server.mjs`, static/mobile assets, Android,
+  Gmail, classifier execution, provider actions, and learning.
+
+### Next slice
+
+Design and test a separate default-off loopback listener composition around the strict HTTP
+app. Do not expose the private surface through the existing non-loopback product listener.
