@@ -427,6 +427,23 @@ The same hostile-text, native-control, real Accept-command, pending-to-resolved 
 append-only storage, and pagehide teardown assertions pass through strict delivery. This
 completes the browser proof while the app remains unmounted from `local-server.mjs`.
 
+`createClassifierReviewListener(...)` is the dedicated default-off network composition.
+It provisions nothing unless `NEXUS_CLASSIFIER_REVIEW_LISTENER` is exactly `1`, independently
+of the existing review flag. Enabled construction requires an explicit `127.0.0.1` or
+`::1` host, an integer port, and explicit HTTP-app/server factories.
+
+The listener binds first, derives the exact origin from the actual bound port, overwrites
+the review origin allowlist with that value, then constructs the strict HTTP app. It cannot
+be configured onto `localhost`, `0.0.0.0`, or another interface. Port conflicts, invalid
+HTTP app construction, and socket errors become the stable `listener.start.failed` outcome
+without private details.
+
+Unknown routes receive a no-store 404; request exceptions receive sanitized no-store JSON.
+Close drops the app reference before closing the socket, is idempotent, and makes start
+unavailable. Close during an in-progress bind wins over the late callback and cannot leave
+the socket or app active. This listener remains a composition factory only; no runnable
+entry script or product-server mounting exists yet.
+
 The complete desktop path is covered by one synthetic test using the real renderer,
 client, redemption route, origin/token guard, review view, command service, and private
 store. It reads one pending suggestion, accepts it explicitly, observes one resolved item

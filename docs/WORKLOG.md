@@ -1710,3 +1710,37 @@ fixed-root activation.
 
 Design and test a separate default-off loopback listener composition around the strict HTTP
 app. Do not expose the private surface through the existing non-loopback product listener.
+
+## 2026-08-05 — Milestone 4 dedicated loopback listener composition
+
+### Outcome
+
+Added a default-off loopback-only listener composition around the strict review HTTP app,
+separate from the existing product server.
+
+### Behavior and verification
+
+- Disabled configuration creates no Node server and validates no private options.
+- Enablement requires the exact string `1` in a listener-specific flag.
+- Enabled listeners accept only `127.0.0.1` or `::1`.
+- Ports must be explicit safe integers from 0 through 65535.
+- The listener binds before app construction and derives the exact actual origin.
+- The derived origin replaces caller origin configuration for the strict app.
+- Duplicate starts share one start result and create one app.
+- Unknown routes return secure no-store 404 responses.
+- Request exceptions return stable sanitized no-store JSON.
+- HTTP app construction errors and socket errors return `listener.start.failed`.
+- A real port-conflict test confirms the existing owner remains available.
+- Close drops the app reference, closes the socket, and is idempotent.
+- Start cannot resume after failure or closure.
+- Close during an in-progress bind wins over late readiness and leaves no listening socket.
+- Eight focused listener tests pass.
+- Full regression and syntax checks pass: 257 tests, 0 failures.
+- No runnable listener entry or product-server integration exists yet.
+- `local-server.mjs`, static/mobile assets, Android, Gmail, classifier execution, provider
+  actions, and learning remain unchanged.
+
+### Next slice
+
+Add and child-process-test a small runnable entry script that reads fixed trusted assets,
+starts this listener under explicit flags, and closes cleanly on SIGINT/SIGTERM.

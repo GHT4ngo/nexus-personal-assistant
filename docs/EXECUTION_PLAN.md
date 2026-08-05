@@ -290,6 +290,8 @@ proof covering hostile text, native controls, a persisted decision, resolved ref
 page lifecycle cleanup. Strict HTTP composition now supports a separately configured exact
 UI source extension and fixed-root activation while preserving runtime-only behavior. The
 real Chromium proof now runs through strict automatic activation without harness UI routes.
+A separate default-off composition can now host the strict app on numeric loopback only,
+derive its exact origin, and close without touching the existing product server.
 
 Interface:
 
@@ -413,12 +415,11 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by designing a dedicated default-off loopback review-listener
-composition around the proven HTTP app. Keep it separate from `local-server.mjs`, which
-binds beyond loopback and must not receive this private surface. Require literal enablement,
-an explicit private store path, an explicit loopback host/port, a trusted desktop HTML
-template, and explicit runtime/UI source reads. Test disabled no-listen behavior, non-
-loopback rejection, port conflicts, graceful clear/close, and sanitized startup failures
-before adding a runnable entry script. Do not modify static/mobile assets, Android, Gmail,
-classifier execution, provider actions, or learning. Read [WORKLOG.md](WORKLOG.md) for
-evidence.
+Continue Milestone 4 with a small runnable entry script for the dedicated listener. Read a
+minimal trusted review HTML template and all eight browser sources from fixed repository
+paths, parse an explicit numeric loopback host and port, start only under both literal
+enable flags, print only the safe bound origin/status, and close cleanly on SIGINT/SIGTERM.
+Add child-process tests for disabled exit, invalid configuration, successful startup and
+signal shutdown, without opening a browser or using private data. Do not modify
+`local-server.mjs`, static/mobile assets, Android, Gmail, classifier execution, provider
+actions, or learning. Read [WORKLOG.md](WORKLOG.md) for evidence.
