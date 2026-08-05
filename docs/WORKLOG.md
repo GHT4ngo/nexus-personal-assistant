@@ -1649,3 +1649,36 @@ the ephemeral loopback review app.
 
 Design and test a separate, strictly optional UI module-delivery graph and fixed root
 activation contract while preserving the existing runtime-only delivery mode.
+
+## 2026-08-05 — Milestone 4 strict optional UI delivery
+
+### Outcome
+
+Added a separately configured strict UI module extension and fixed-root activation contract
+without changing default or runtime-only delivery.
+
+### Behavior and verification
+
+- Runtime-only delivery retains its exact original four-source graph and activation URL.
+- UI delivery requires the runtime graph plus exactly four non-empty UI sources.
+- Missing, extra, empty, or token-bearing UI source graphs fail construction.
+- UI configuration without the runtime graph fails construction.
+- UI documents require exactly one `nexus-classifier-review-root` element.
+- Missing and duplicate fixed roots fail construction.
+- The UI activation module exports nothing and creates no global capability.
+- Missing-root defense removes the inert bootstrap handoff without redeeming it.
+- UI mode injects only the fixed UI activation URL.
+- Runtime and UI sources are copied into one immutable in-memory allowlist.
+- Every UI module route is exact-origin, GET-only, query-free, no-store, and nosniff.
+- Runtime-only documents do not inject or serve UI modules.
+- The real loopback integration supplies all eight actual production source files and
+  verifies byte-identical module delivery and security headers.
+- Two new focused tests cover the UI graph and activation module.
+- Full regression and syntax checks pass: 249 tests, 0 failures.
+- Static/mobile assets, `local-server.mjs`, Android, Gmail, classifier execution, provider
+  actions, learning, and production mounting remain unchanged.
+
+### Next slice
+
+Run the real Chromium UI proof through strict automatic UI activation instead of temporary
+harness UI routes and manual composition startup.

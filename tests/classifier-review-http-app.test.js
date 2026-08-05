@@ -3,6 +3,8 @@ import test from "node:test";
 
 import {
   CLASSIFIER_REVIEW_BROWSER_MODULE_PATHS,
+  CLASSIFIER_REVIEW_UI_MODULE_PATHS,
+  CLASSIFIER_REVIEW_UI_ROOT_ID,
   createClassifierReviewHttpApp
 } from "../scripts/composition/classifier-review-http-app.js";
 
@@ -10,6 +12,9 @@ const ORIGIN = "http://127.0.0.1:8050";
 const TOKEN = "synthetic-review-http-app-token-over-32-bytes";
 const CODE = "synthetic-review-http-app-code-over-32-bytes";
 const HTML = "<!doctype html><html><head><title>Nexus</title></head><body></body></html>";
+const UI_HTML = `<!doctype html><html><head><title>Nexus</title></head><body><main id="${
+  CLASSIFIER_REVIEW_UI_ROOT_ID
+}"></main></body></html>`;
 const environment = {
   NEXUS_CLASSIFIER_REVIEWS: "1",
   NEXUS_CLASSIFIER_REVIEW_PATH: "/tmp/nexus-review-http-app/classifier.json",
@@ -21,6 +26,12 @@ const browserModuleSources = {
   client: "export const client = true;",
   entry: "export const entry = true;",
   runtime: "export const runtime = true;"
+};
+const browserUiModuleSources = {
+  activation: "import './classifier-review-ui.js';",
+  dom: "export const dom = true;",
+  renderer: "export const renderer = true;",
+  ui: "export const ui = true;"
 };
 
 const createResponse = () => ({
@@ -97,6 +108,95 @@ test("enabled HTTP app fails closed on document and binding configuration", () =
     }),
     /private access data/
   );
+  for (const graph of [
+    null,
+    {},
+    { ...browserUiModuleSources, extra: "unexpected" },
+    { ...browserUiModuleSources, ui: "" }
+  ]) {
+    assert.throws(
+      () => createApp({
+        documentHtml: UI_HTML,
+        browserModuleSources,
+        browserUiModuleSources: graph
+      }),
+      /exact UI module graph/
+    );
+  }
+  assert.throws(
+    () => createApp({ browserUiModuleSources }),
+    /requires the runtime module graph/
+  );
+  for (const documentHtml of [
+    HTML,
+    UI_HTML.replace("</body>", `<div id="${CLASSIFIER_REVIEW_UI_ROOT_ID}"></div></body>`)
+  ]) {
+    assert.throws(
+      () => createApp({
+        documentHtml,
+        browserModuleSources,
+        browserUiModuleSources
+      }),
+      /requires one fixed root/
+    );
+  }
+  assert.throws(
+    () => createApp({
+      documentHtml: UI_HTML,
+      browserModuleSources,
+      browserUiModuleSources: {
+        ...browserUiModuleSources,
+        ui: `export const leaked = "${TOKEN}";`
+      }
+    }),
+    /private access data/
+  );
+});
+
+test("optionally injects and serves an immutable UI module extension", async () => {
+  const suppliedUiSources = { ...browserUiModuleSources };
+  const app = createApp({
+    documentHtml: UI_HTML,
+    browserModuleSources,
+    browserUiModuleSources: suppliedUiSources
+  });
+  suppliedUiSources.ui = "export const mutatedAfterCreation = true;";
+  const documentResponse = createResponse();
+  await app.handleRequest(
+    { method: "GET", headers: {} },
+    new URL(`${ORIGIN}/`),
+    documentResponse
+  );
+
+  assert.match(
+    documentResponse.body,
+    /<script type="module" src="\/__nexus\/classifier-review\/classifier-review-ui-activate\.js"><\/script>/
+  );
+  assert.equal(
+    documentResponse.body.includes("classifier-review-activate.js"),
+    false
+  );
+  for (const [name, path] of Object.entries(
+    CLASSIFIER_REVIEW_UI_MODULE_PATHS
+  )) {
+    const response = createResponse();
+    assert.equal(await app.handleRequest(
+      { method: "GET", headers: {} },
+      new URL(`${ORIGIN}${path}`),
+      response
+    ), true);
+    assert.equal(response.status, 200);
+    assert.equal(response.body, browserUiModuleSources[name]);
+    assert.equal(response.headers["cache-control"], "no-store");
+    assert.equal(response.headers["x-content-type-options"], "nosniff");
+  }
+  const runtimeEntry = createResponse();
+  await app.handleRequest(
+    { method: "GET", headers: {} },
+    new URL(`${ORIGIN}${CLASSIFIER_REVIEW_BROWSER_MODULE_PATHS.entry}`),
+    runtimeEntry
+  );
+  assert.equal(runtimeEntry.body, browserModuleSources.entry);
 });
 
 test("injects and serves an explicit in-memory browser module graph", async () => {

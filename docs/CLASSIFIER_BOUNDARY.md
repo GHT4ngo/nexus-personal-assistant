@@ -401,6 +401,23 @@ entrypoint, HTTP command route, and private store, then refreshes pending to res
 `pagehide` empties the root, removes listeners, clears the entry session, and rejects later
 reads. No UI module was added to the strict production graph.
 
+Strict UI delivery is now a separate optional extension of the existing runtime graph.
+Runtime-only callers continue to provide exactly activation, client, entry, and runtime
+sources and receive the original activation URL. UI callers must additionally provide
+exactly UI activation, DOM adapter, renderer, and UI composition sources. UI configuration
+without the runtime graph, or with missing/extra/empty sources, fails construction.
+
+UI delivery also requires exactly one document element with the fixed ID
+`nexus-classifier-review-root`. The UI activation module creates the composition only from
+that root and exports no capability. Its missing-root defense clears/removes any bootstrap
+handoff instead of redeeming it. In UI mode the document receives only the UI activation
+URL; the runtime activation remains available as a dependency source but is not executed.
+
+Both graphs are copied into one immutable in-memory allowlist and use the same exact-origin,
+GET-only, query-free, no-store, no-referrer, nosniff routes. Configured token literals are
+rejected in either source graph. The real loopback HTTP integration supplies all eight
+actual production files and verifies byte-identical responses and headers.
+
 The complete desktop path is covered by one synthetic test using the real renderer,
 client, redemption route, origin/token guard, review view, command service, and private
 store. It reads one pending suggestion, accepts it explicitly, observes one resolved item

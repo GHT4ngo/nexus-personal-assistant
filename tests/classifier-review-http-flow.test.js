@@ -10,6 +10,8 @@ import {
 } from "../scripts/browser/classifier-review-bootstrap-client.js";
 import {
   CLASSIFIER_REVIEW_BROWSER_MODULE_PATHS,
+  CLASSIFIER_REVIEW_UI_MODULE_PATHS,
+  CLASSIFIER_REVIEW_UI_ROOT_ID,
   createClassifierReviewHttpApp
 } from "../scripts/composition/classifier-review-http-app.js";
 import { createClassifierStore } from "../scripts/storage/classifier-store.js";
@@ -18,7 +20,9 @@ import { createClassifierSuggestionRecord } from "../src/domain/records.js";
 const TOKEN = "synthetic-real-http-review-token-over-32-bytes";
 const CODE = "synthetic-real-http-bootstrap-code-over-32-bytes";
 const CLOCK = 1_786_000_000_000;
-const HTML = "<!doctype html><html><head><title>Nexus</title></head><body></body></html>";
+const HTML = `<!doctype html><html><head><title>Nexus</title></head><body><main id="${
+  CLASSIFIER_REVIEW_UI_ROOT_ID
+}"></main></body></html>`;
 
 const listen = (server) => new Promise((resolve, reject) => {
   server.once("error", reject);
@@ -110,6 +114,24 @@ test("serves the private desktop lifecycle through real loopback HTTP", async (t
       import.meta.url
     ), "utf8")
   };
+  const browserUiModuleSources = {
+    activation: await readFile(new URL(
+      "../scripts/browser/classifier-review-ui-activate.js",
+      import.meta.url
+    ), "utf8"),
+    dom: await readFile(new URL(
+      "../scripts/browser/classifier-review-dom.js",
+      import.meta.url
+    ), "utf8"),
+    renderer: await readFile(new URL(
+      "../scripts/browser/classifier-review-renderer.js",
+      import.meta.url
+    ), "utf8"),
+    ui: await readFile(new URL(
+      "../scripts/browser/classifier-review-ui.js",
+      import.meta.url
+    ), "utf8")
+  };
   app = createClassifierReviewHttpApp({
     environment: {
       NEXUS_CLASSIFIER_REVIEWS: "1",
@@ -121,6 +143,7 @@ test("serves the private desktop lifecycle through real loopback HTTP", async (t
     documentOrigin: baseUrl,
     documentHtml: HTML,
     browserModuleSources,
+    browserUiModuleSources,
     generateBootstrapCode: () => CODE,
     bootstrapNow: () => CLOCK,
     now: () => new Date(CLOCK)
@@ -183,7 +206,7 @@ test("serves the private desktop lifecycle through real loopback HTTP", async (t
   assert.equal(documentBody.includes(TOKEN), false);
   assert.match(
     documentBody,
-    /<script type="module" src="\/__nexus\/classifier-review\/classifier-review-activate\.js"><\/script>/
+    /<script type="module" src="\/__nexus\/classifier-review\/classifier-review-ui-activate\.js"><\/script>/
   );
   assert.equal(documentResponse.headers.get("cache-control"), "no-store, max-age=0");
   assert.equal(documentResponse.headers.get("referrer-policy"), "no-referrer");
@@ -216,6 +239,19 @@ test("serves the private desktop lifecycle through real loopback HTTP", async (t
     assert.equal(moduleResponse.headers.get("cache-control"), "no-store");
     assert.equal(moduleResponse.headers.get("x-content-type-options"), "nosniff");
     assert.equal(await moduleResponse.text(), browserModuleSources[name]);
+  }
+  for (const [name, path] of Object.entries(
+    CLASSIFIER_REVIEW_UI_MODULE_PATHS
+  )) {
+    const moduleResponse = await fetch(`${baseUrl}${path}`);
+    assert.equal(moduleResponse.status, 200);
+    assert.equal(
+      moduleResponse.headers.get("content-type"),
+      "text/javascript; charset=utf-8"
+    );
+    assert.equal(moduleResponse.headers.get("cache-control"), "no-store");
+    assert.equal(moduleResponse.headers.get("x-content-type-options"), "nosniff");
+    assert.equal(await moduleResponse.text(), browserUiModuleSources[name]);
   }
 
   const missingToken = await fetch(`${baseUrl}/api/classifier/reviews`, {

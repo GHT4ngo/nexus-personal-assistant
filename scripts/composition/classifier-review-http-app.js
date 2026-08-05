@@ -15,6 +15,14 @@ const MODULE_PATHS = Object.freeze({
   runtime: `${MODULE_ROOT}classifier-review-runtime.js`
 });
 const MODULE_NAMES = Object.freeze(Object.keys(MODULE_PATHS).sort());
+const UI_ROOT_ID = "nexus-classifier-review-root";
+const UI_MODULE_PATHS = Object.freeze({
+  activation: `${MODULE_ROOT}classifier-review-ui-activate.js`,
+  dom: `${MODULE_ROOT}classifier-review-dom.js`,
+  renderer: `${MODULE_ROOT}classifier-review-renderer.js`,
+  ui: `${MODULE_ROOT}classifier-review-ui.js`
+});
+const UI_MODULE_NAMES = Object.freeze(Object.keys(UI_MODULE_PATHS).sort());
 
 const normalizeOrigin = (value) => {
   try {
@@ -72,12 +80,32 @@ const reject = (response, status, code) => {
   return true;
 };
 
+const validateSources = (sources, names, message) => {
+  if (!sources
+    || Array.isArray(sources)
+    || typeof sources !== "object"
+    || Object.keys(sources).sort().join(",") !== names.join(",")
+    || names.some((name) =>
+      typeof sources[name] !== "string" || sources[name].length === 0)) {
+    throw new TypeError(message);
+  }
+};
+
+const hasExactUiRoot = (html) => {
+  const expression = new RegExp(
+    `\\bid=(["'])${UI_ROOT_ID}\\1`,
+    "g"
+  );
+  return [...html.matchAll(expression)].length === 1;
+};
+
 export const createClassifierReviewHttpApp = ({
   environment = {},
   serverHost,
   documentOrigin,
   documentHtml,
   browserModuleSources,
+  browserUiModuleSources,
   readRequestBody,
   generateToken,
   generateBootstrapCode,
@@ -100,16 +128,11 @@ export const createClassifierReviewHttpApp = ({
   }
   let modules = null;
   if (browserModuleSources !== undefined) {
-    if (!browserModuleSources
-      || Array.isArray(browserModuleSources)
-      || typeof browserModuleSources !== "object"
-      || Object.keys(browserModuleSources).sort().join(",")
-        !== MODULE_NAMES.join(",")
-      || MODULE_NAMES.some((name) =>
-        typeof browserModuleSources[name] !== "string"
-        || browserModuleSources[name].length === 0)) {
-      throw new TypeError("Review HTTP app requires the exact browser module graph.");
-    }
+    validateSources(
+      browserModuleSources,
+      MODULE_NAMES,
+      "Review HTTP app requires the exact browser module graph."
+    );
     const configuredToken = environment.NEXUS_CLASSIFIER_REVIEW_TOKEN;
     if (typeof configuredToken === "string"
       && configuredToken
@@ -121,6 +144,35 @@ export const createClassifierReviewHttpApp = ({
       MODULE_PATHS[name],
       browserModuleSources[name]
     ])));
+  }
+  let uiModules = null;
+  if (browserUiModuleSources !== undefined) {
+    if (!modules) {
+      throw new TypeError("Review HTTP app UI delivery requires the runtime module graph.");
+    }
+    validateSources(
+      browserUiModuleSources,
+      UI_MODULE_NAMES,
+      "Review HTTP app requires the exact UI module graph."
+    );
+    if (!hasExactUiRoot(documentHtml)) {
+      throw new TypeError("Review HTTP app UI delivery requires one fixed root.");
+    }
+    const configuredToken = environment.NEXUS_CLASSIFIER_REVIEW_TOKEN;
+    if (typeof configuredToken === "string"
+      && configuredToken
+      && UI_MODULE_NAMES.some((name) =>
+        browserUiModuleSources[name].includes(configuredToken))) {
+      throw new TypeError("Review HTTP app UI modules contain private access data.");
+    }
+    uiModules = Object.freeze(Object.fromEntries(UI_MODULE_NAMES.map((name) => [
+      UI_MODULE_PATHS[name],
+      browserUiModuleSources[name]
+    ])));
+    modules = Object.freeze({
+      ...modules,
+      ...uiModules
+    });
   }
 
   const integration = createClassifierReviewServerIntegration({
@@ -138,7 +190,11 @@ export const createClassifierReviewHttpApp = ({
   });
   const renderer = createClassifierReviewDesktopHandoff({
     trustedBootstrap: integration.trustedBootstrap,
-    activationPath: modules ? MODULE_PATHS.activation : null
+    activationPath: uiModules
+      ? UI_MODULE_PATHS.activation
+      : modules
+        ? MODULE_PATHS.activation
+        : null
   });
 
   const handleRequest = async (request, url, response) => {
@@ -199,3 +255,5 @@ export const createClassifierReviewHttpApp = ({
 };
 
 export const CLASSIFIER_REVIEW_BROWSER_MODULE_PATHS = MODULE_PATHS;
+export const CLASSIFIER_REVIEW_UI_MODULE_PATHS = UI_MODULE_PATHS;
+export const CLASSIFIER_REVIEW_UI_ROOT_ID = UI_ROOT_ID;

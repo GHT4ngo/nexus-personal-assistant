@@ -287,7 +287,8 @@ only render-owned delegated form submissions. An unmounted UI composition now st
 private entry before rendering, bridges actions only while ready, and coordinates terminal
 teardown across all three layers. The full composition now passes an opt-in real-Chromium
 proof covering hostile text, native controls, a persisted decision, resolved refresh, and
-page lifecycle cleanup.
+page lifecycle cleanup. Strict HTTP composition now supports a separately configured exact
+UI source extension and fixed-root activation while preserving runtime-only behavior.
 
 Interface:
 
@@ -411,11 +412,10 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 by designing strict optional delivery for the proven UI modules
-without mounting it. Define a separate UI activation module with one fixed explicit root
-contract, extend module-source validation from the four-module private runtime graph to an
-exact UI graph only when UI delivery is explicitly configured, and preserve the current
-runtime-only mode. Test missing roots, missing/extra sources, immutable source snapshots,
-relative imports, no-store/nosniff delivery, and absence from default documents. Do not
-mount anything in static/mobile assets, `local-server.mjs`, Android, Gmail, classifier
-execution, provider actions, or learning. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 by switching the opt-in Chromium smoke runner from its harness-only UI
+routes and manual composition start to the strict optional UI graph and automatic UI
+activation. Verify the fixed root renders automatically, the hostile-value/native-control
+proof still passes, one real decision refreshes to resolved, and page teardown clears all
+layers. Keep runtime-only smoke coverage in HTTP tests. Do not mount anything in
+static/mobile assets, `local-server.mjs`, Android, Gmail, classifier execution, provider
+actions, or learning. Read [WORKLOG.md](WORKLOG.md) for evidence.

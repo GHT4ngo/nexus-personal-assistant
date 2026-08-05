@@ -151,6 +151,12 @@ native button submission. The accepted decision is persisted and the view refres
 pending to resolved; page lifecycle teardown removes the rendered UI and private session.
 The three UI modules remain smoke-harness-only and outside strict production delivery.
 
+Strict delivery now supports those UI modules only as an explicit extension of the
+runtime-only graph. UI mode requires one fixed root and an exact four-source UI extension,
+injects a separate capability-free activation module, snapshots every source immutably,
+and preserves the same-origin/no-store/nosniff route contract. Default and runtime-only
+documents do not activate the UI.
+
 Origin enforcement distinguishes explicit cross-origin CORS from same-origin browser
 reads. An absent Origin is accepted only for a non-preflight request whose URL origin is
 allowlisted and whose protected fetch metadata says exactly `same-origin`; the private
