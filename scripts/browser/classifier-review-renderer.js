@@ -126,6 +126,9 @@ export const createClassifierReviewRenderer = ({
     } catch {
       response = null;
     }
+    if (state === "cleared") {
+      return outcome("rejected", "renderer.unavailable");
+    }
     if (response?.status !== "ready" || !response.view) {
       state = "failed";
       commandTargets = new Map();
@@ -187,6 +190,9 @@ export const createClassifierReviewRenderer = ({
       });
     } catch {
       submitted = null;
+    }
+    if (state === "cleared") {
+      return outcome("rejected", "renderer.unavailable");
     }
     if (submitted?.status !== "ready"
       || submitted.result?.status !== "accepted") {

@@ -301,6 +301,53 @@ test("clear removes rendered state and makes the renderer unavailable", async ()
   );
 });
 
+test("clear during a view read cannot restore rendered state", async () => {
+  let resolveView;
+  const reading = new Promise((resolve) => {
+    resolveView = resolve;
+  });
+  const harness = createHarness({ views: [reading] });
+  const refreshing = harness.renderer.refresh();
+  harness.renderer.clear();
+  resolveView(READY_VIEW);
+
+  assert.deepEqual(await refreshing, {
+    status: "rejected",
+    code: "renderer.unavailable"
+  });
+  assert.equal(harness.renderer.status(), "cleared");
+  assert.equal(harness.rendered.length, 0);
+  assert.equal(harness.clearCount(), 1);
+});
+
+test("clear during command submission cannot announce or refresh", async () => {
+  let resolveCommand;
+  const submitting = new Promise((resolve) => {
+    resolveCommand = resolve;
+  });
+  const harness = createHarness({
+    submit: async () => await submitting
+  });
+  await harness.renderer.refresh();
+  const itemId = harness.rendered[0].sections[0].items[0].itemId;
+  const activating = harness.renderer.activate({ itemId, decision: "dismiss" });
+  harness.renderer.clear();
+  resolveCommand({
+    status: "ready",
+    code: null,
+    result: { status: "accepted", code: null, idempotent: false }
+  });
+
+  assert.deepEqual(await activating, {
+    status: "rejected",
+    code: "renderer.unavailable"
+  });
+  assert.equal(harness.renderer.status(), "cleared");
+  assert.equal(harness.rendered.length, 1);
+  assert.deepEqual(harness.announcements, []);
+  assert.equal(harness.clearCount(), 1);
+});
+
 test("requires controlled entry, DOM, and command ID adapters", () => {
   assert.throws(
     () => createClassifierReviewRenderer(),

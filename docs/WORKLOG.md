@@ -1585,3 +1585,36 @@ Added an unmounted native-DOM adapter for the proven review renderer.
 
 Build an unmounted composition factory that owns entrypoint startup, renderer/adapter
 wiring, explicit root selection, and coordinated teardown.
+
+## 2026-08-05 — Milestone 4 unmounted review UI composition
+
+### Outcome
+
+Added a one-shot unmounted UI composition for the private entrypoint, safe renderer, and
+native-DOM adapter, and closed late-completion teardown races in the renderer.
+
+### Behavior and verification
+
+- Construction requires an explicit document and root element.
+- The real module entrypoint is the default private entry adapter.
+- Only controlled review-view and submit methods reach the renderer.
+- DOM actions reach the renderer only after entry bootstrap and initial refresh succeed.
+- Concurrent and duplicate starts create one entry session and one initial render.
+- Entry startup failures are sanitized and render nothing.
+- Initial-view failures tear down the renderer, DOM adapter, and entrypoint.
+- Explicit clear coordinates all three layers idempotently.
+- Clear during entry startup permanently wins over late readiness.
+- Clear during view refresh cannot repaint or restore readiness.
+- Clear during command submission cannot announce success or trigger a late refresh.
+- Failed compositions cannot retry a consumed private handoff.
+- Nine focused UI composition tests pass.
+- Two added renderer race tests prove late reads and commands remain cleared.
+- Full regression and syntax checks pass: 246 tests, 0 failures.
+- UI composition, renderer, and DOM adapter remain outside the served graph and product DOM.
+- Static/mobile assets, `local-server.mjs`, Android, Gmail, classifier execution, provider
+  actions, and learning remain unchanged.
+
+### Next slice
+
+Exercise the complete UI composition in an opt-in ephemeral real-browser smoke harness,
+including hostile text, native controls, a real review command, refresh, and teardown.

@@ -283,7 +283,9 @@ automatic bootstrap, pseudonymized queue access, and lifecycle teardown without 
 browser dependency or mounting the app. An unmounted renderer now converts that safe view
 into accessible section/action models while retaining opaque command targets privately.
 An unmounted native-DOM adapter now renders those models without HTML parsing and accepts
-only render-owned delegated form submissions.
+only render-owned delegated form submissions. An unmounted UI composition now starts the
+private entry before rendering, bridges actions only while ready, and coordinates terminal
+teardown across all three layers.
 
 Interface:
 
@@ -407,11 +409,12 @@ For every milestone:
 
 ## Resume point
 
-Continue Milestone 4 with an unmounted UI composition factory that wires the controlled
-module entrypoint, renderer, and native-DOM adapter without global state. Require an
-explicit root element, bridge adapter action callbacks to the renderer, start only after
-the private entrypoint is ready, and clear all three layers together. Cover missing-root,
-startup failure, duplicate start, decision/refresh, and teardown races with synthetic
-adapters. Do not add the UI composition to the served graph or mount it in static/mobile
-assets, `local-server.mjs`, Android, Gmail, classifier execution, provider actions, or
-learning. Read [WORKLOG.md](WORKLOG.md) for evidence.
+Continue Milestone 4 with an opt-in real-browser smoke proof of the complete unmounted UI
+composition. Serve the additional renderer, DOM-adapter, and UI-composition sources only
+from the ephemeral smoke harness—not from the strict production graph. Provide an
+explicit synthetic root, verify native accessible controls and inert hostile values in
+Chromium, submit one synthetic decision through the actual DOM, observe the refreshed
+resolved queue, and prove page teardown clears the UI. Do not expand the production served
+graph or mount anything in static/mobile assets, `local-server.mjs`, Android, Gmail,
+classifier execution, provider actions, or learning. Read [WORKLOG.md](WORKLOG.md) for
+evidence.

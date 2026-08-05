@@ -377,6 +377,18 @@ command mappings, and the listener idempotently; a later render can reattach it.
 synchronous and asynchronous action-handler failures produce one sanitized live message.
 The adapter remains outside the served graph and product DOM.
 
+`createClassifierReviewUi(...)` composes the module entrypoint, renderer, and DOM adapter
+without adding global state. Construction requires an explicit document and root element.
+The DOM action callback reaches the renderer only while the composition is ready, and the
+renderer receives only entrypoint read/submit methods—not bootstrap or clear authority.
+
+Start is one-shot: the private entrypoint must report ready before the initial render.
+Entry or view failure tears down the renderer, adapter, and entrypoint with sanitized UI
+codes. Explicit clear coordinates all three layers idempotently. Clear during entry start,
+view refresh, or command submission wins permanently; late completions cannot repaint,
+announce, refresh, or restore readiness. The composition is not automatically constructed,
+served, or mounted.
+
 The complete desktop path is covered by one synthetic test using the real renderer,
 client, redemption route, origin/token guard, review view, command service, and private
 store. It reads one pending suggestion, accepts it explicitly, observes one resolved item

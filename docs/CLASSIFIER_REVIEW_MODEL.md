@@ -141,6 +141,11 @@ inputs, and submit buttons, plus a live status region. Delegated events are auth
 through render-specific `WeakMap` identities rather than DOM data attributes. Re-render
 replaces all prior nodes and clear removes its sole listener.
 
+The unmounted UI composition owns the lifecycle across entrypoint, renderer, and adapter.
+Actions are unavailable until both private bootstrap and initial safe-view rendering
+succeed. Entry/view failure and explicit teardown clear all layers. Late asynchronous
+reads or commands cannot recreate DOM or announcements after teardown.
+
 Origin enforcement distinguishes explicit cross-origin CORS from same-origin browser
 reads. An absent Origin is accepted only for a non-preflight request whose URL origin is
 allowlisted and whose protected fetch metadata says exactly `same-origin`; the private
