@@ -364,6 +364,19 @@ injected one-time ID and the private expected status. Successful commands refres
 stale, unavailable, exception, and invalid-action paths return stable renderer codes and
 sanitized announcements. The renderer creates no DOM directly and remains unmounted.
 
+`createClassifierReviewDomAdapter(...)` is the matching unmounted native-DOM boundary. It
+requires an explicit document, root element, and action callback. It creates every node
+with `createElement`, assigns untrusted display values with `textContent`, and never uses
+HTML parsing. Sections have labelled headings; corrections use explicit labels and text
+inputs; actions use native submit buttons; status/error messages use a polite live region.
+
+One delegated submit listener is attached to the root. Private `WeakMap` mappings accept
+only forms and buttons created by the current render, so forged and replaced controls are
+ignored. Render replaces prior content rather than accumulating it. Clear removes content,
+command mappings, and the listener idempotently; a later render can reattach it. Both
+synchronous and asynchronous action-handler failures produce one sanitized live message.
+The adapter remains outside the served graph and product DOM.
+
 The complete desktop path is covered by one synthetic test using the real renderer,
 client, redemption route, origin/token guard, review view, command service, and private
 store. It reads one pending suggestion, accepts it explicitly, observes one resolved item

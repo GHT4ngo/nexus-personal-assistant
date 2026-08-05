@@ -136,6 +136,11 @@ IDs. Suggestions, abstentions, and prior decisions are separate labelled section
 Actions are explicit accessible labels; abstentions cannot be accepted and resolved items
 cannot be acted on. Adapter announcements contain only stable user-facing messages.
 
+The concrete DOM adapter parses no model value as markup. It uses labelled native forms,
+inputs, and submit buttons, plus a live status region. Delegated events are authorized
+through render-specific `WeakMap` identities rather than DOM data attributes. Re-render
+replaces all prior nodes and clear removes its sole listener.
+
 Origin enforcement distinguishes explicit cross-origin CORS from same-origin browser
 reads. An absent Origin is accepted only for a non-preflight request whose URL origin is
 allowlisted and whose protected fetch metadata says exactly `same-origin`; the private

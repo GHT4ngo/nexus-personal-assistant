@@ -1554,3 +1554,34 @@ or mounting product DOM.
 
 Build and test an unmounted concrete browser DOM adapter using safe element creation,
 native accessible controls, delegated events, and listener cleanup.
+
+## 2026-08-05 — Milestone 4 safe native-DOM adapter
+
+### Outcome
+
+Added an unmounted native-DOM adapter for the proven review renderer.
+
+### Behavior and verification
+
+- All nodes are created with `createElement`; display values use `textContent`.
+- No `innerHTML`, markup parsing, or display-value-derived element creation is used.
+- Hostile synthetic image/script strings remain inert visible text.
+- Sections use explicit accessible headings and descriptions.
+- Correction fields have matching native labels and bounded autocomplete-off text inputs.
+- Review actions are native submit buttons and therefore keyboard accessible.
+- A polite live region reports status and switches to alert semantics for errors.
+- One delegated submit listener handles the complete rendered review surface.
+- Current-render forms and buttons are authorized through private `WeakMap` identity.
+- Forged and stale event targets are ignored.
+- Re-render replaces prior content without accumulating listeners.
+- Clear removes content, private mappings, and the listener idempotently.
+- Synchronous and asynchronous action callback failures are sanitized.
+- Nine focused adapter tests pass.
+- The adapter remains outside the served graph and is not mounted in product DOM.
+- Static/mobile assets, `local-server.mjs`, Android, Gmail, classifier execution, provider
+  actions, and learning remain unchanged.
+
+### Next slice
+
+Build an unmounted composition factory that owns entrypoint startup, renderer/adapter
+wiring, explicit root selection, and coordinated teardown.
